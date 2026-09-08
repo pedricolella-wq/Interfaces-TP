@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TPE1 — frib · Plataforma de juegos</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg: #17153a;
+    --card: #232055;
+    --card-border: #34306e;
+    --ink: #f2f0ff;
+    --ink-soft: #a9a6d6;
+    --accent: #3ee6a8;
+    --accent-ink: #0c2117;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(700px 420px at 15% -10%, #2b2768 0%, transparent 60%),
+      radial-gradient(600px 500px at 110% 10%, #262363 0%, transparent 55%),
+      var(--bg);
+    color: var(--ink);
+    font-family: "Inter", system-ui, sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 32px;
+  }
+  .card{
+    width:100%;
+    max-width: 460px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 44px 36px 36px;
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.55);
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom: 28px;
+  }
+  .brand .dot{
+    width:34px; height:34px;
+    border-radius:50%;
+    background: var(--accent);
+    display:flex; align-items:center; justify-content:center;
+    font-family:"Baloo 2", sans-serif;
+    font-weight:800;
+    color: var(--accent-ink);
+    font-size:18px;
+  }
+  .brand span.name{
+    font-family:"Baloo 2", sans-serif;
+    font-weight:800;
+    font-size: 22px;
+    letter-spacing: 0.2px;
+  }
+  h1{
+    font-family:"Baloo 2", sans-serif;
+    font-weight:600;
+    font-size: 21px;
+    line-height:1.35;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+  .subtitle{
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin: 0 0 30px;
+  }
+  .links{
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+  }
+  a.btn{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    text-decoration:none;
+    padding: 15px 18px;
+    border-radius: 14px;
+    font-weight:600;
+    font-size: 15px;
+    transition: transform 0.15s ease, filter 0.15s ease;
+  }
+  a.btn:hover{ transform: translateY(-2px); }
+  a.btn:active{ transform: translateY(0); }
+  a.btn.primary{
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  a.btn.primary:hover{ filter: brightness(1.08); }
+  a.btn.ghost{
+    background: transparent;
+    border: 1.5px solid var(--card-border);
+    color: var(--ink);
+  }
+  a.btn.ghost:hover{ background: #2a2760; border-color:#463f9c; }
+  a.btn .ico{
+    width:22px; text-align:center; flex-shrink:0;
+  }
+  a.btn small{
+    display:block;
+    font-weight:400;
+    font-size:12px;
+    opacity:0.75;
+    margin-top:2px;
+  }
+  footer{
+    margin-top: 30px;
+    padding-top:18px;
+    border-top:1px solid var(--card-border);
+    color: var(--ink-soft);
+    font-size:12px;
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <span class="dot">f</span>
+      <span class="name">frib</span>
+    </div>
+    <h1>TPE1 &mdash; Plataforma de juegos</h1>
+    <p class="subtitle">Acced&eacute; a la presentaci&oacute;n o al archivo de dise&ntilde;o en Figma.</p>
+    <div class="links">
+      <a class="btn primary" href="https://www.figma.com/proto/ITFs1fE7NpwoufNf7aouQ4/TPE1-%E2%80%94-frib-%C2%B7-Plataforma-de-juegos?node-id=16-2942&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1" target="_blank" rel="noopener">
+        <span class="ico">&#9654;</span>
+        <span>Ver presentaci&oacute;n<small>Modo presentaci&oacute;n de Figma</small></span>
+      </a>
+      <a class="btn ghost" href="https://www.figma.com/design/ITFs1fE7NpwoufNf7aouQ4/TPE1-%E2%80%94-frib-%C2%B7-Plataforma-de-juegos" target="_blank" rel="noopener">
+        <span class="ico">&#127912;</span>
+        <span>Ver archivo de Figma<small>Dise&ntilde;o completo, todas las versiones</small></span>
+      </a>
+    </div>
+    <footer>TUDAI &middot; Arquitectura Web</footer>
+  </div>
+</body>
+</html>
