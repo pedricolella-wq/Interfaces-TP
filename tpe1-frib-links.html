@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TPE1 — frib · Plataforma de juegos</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1E1B4B;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #F5F3FF;
+    padding: 24px;
+  }
+  .card {
+    width: 100%;
+    max-width: 480px;
+    background: #262358;
+    border-radius: 20px;
+    padding: 40px 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    text-align: center;
+  }
+  .logo {
+    font-size: 28px;
+    font-weight: 800;
+    color: #A7F3D0;
+    margin-bottom: 4px;
+  }
+  h1 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #CBD5E1;
+    margin: 0 0 32px;
+  }
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  a.link-btn {
+    display: block;
+    text-decoration: none;
+    background: #34D399;
+    color: #10231A;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  a.link-btn:hover {
+    background: #6EE7B7;
+    transform: translateY(-2px);
+  }
+  a.link-btn.secondary {
+    background: transparent;
+    border: 2px solid #4C4A85;
+    color: #F5F3FF;
+  }
+  a.link-btn.secondary:hover {
+    background: #322F6E;
+    border-color: #6E6BB8;
+  }
+  footer {
+    margin-top: 32px;
+    font-size: 12px;
+    color: #8583B8;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">frib</div>
+    <h1>TPE1 — Plataforma de juegos</h1>
+    <div class="links">
+      <a class="link-btn" href="https://www.figma.com/proto/ITFs1fE7NpwoufNf7aouQ4/TPE1-%E2%80%94-frib-%C2%B7-Plataforma-de-juegos?node-id=16-2942&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1" target="_blank" rel="noopener">
+        ▶ Ver presentación
+      </a>
+      <a class="link-btn secondary" href="https://www.figma.com/design/ITFs1fE7NpwoufNf7aouQ4/TPE1-%E2%80%94-frib-%C2%B7-Plataforma-de-juegos" target="_blank" rel="noopener">
+        🎨 Ver archivo de Figma
+      </a>
+    </div>
+    <footer>TUDAI · Arquitectura Web</footer>
+  </div>
+</body>
+</html>
