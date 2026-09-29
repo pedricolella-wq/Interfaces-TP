@@ -70,16 +70,8 @@
   60%      { transform: translateX(-4px); }
   80%      { transform: translateX(4px); }
 }
-@keyframes flip-entrada {
-  0%   { opacity: 0; transform: rotateY(38deg) scale(.92); filter: blur(10px); }
-  60%  { opacity: 1; filter: blur(0); }
-  100% { opacity: 1; transform: rotateY(0deg) scale(1);   filter: blur(0); }
-}
-@keyframes flip-salida {
-  0%   { opacity: 1; transform: rotateY(0deg) scale(1); filter: blur(0); }
-  100% { opacity: 0; transform: rotateY(-34deg) scale(1.05); filter: blur(12px); }
-}
 @keyframes barra-progreso { from { width: 0%; } to { width: 100%; } }
+@keyframes barra-crece    { from { width: 0%; } to { width: var(--v); } }
 
 /* =========================================================
    B. LOADER (5 s, con % y animación de carga — NO es un GIF)
@@ -209,11 +201,11 @@
 .hero__progreso.corriendo { animation: barra-progreso 6s linear forwards; }
 
 /* =========================================================
-   F. GALERÍA DE LA PÁGINA DE JUEGO — flip 3D + desenfoque
+   F. RESEÑAS — barras de puntaje que crecen al aparecer
    ========================================================= */
-.galeria__item.activo   { animation: flip-entrada .68s var(--ease) both; }
-.galeria__item.saliendo { animation: flip-salida .48s var(--ease) both; visibility: visible; opacity: 1; }
-.galeria__item.activo .galeria__pie { animation: entrar-abajo .6s var(--ease) .22s both; }
+.barras i::after { animation: barra-crece .9s var(--ease) both; }
+.comentario { animation: entrar-abajo .42s var(--ease) both; }
+.accion[aria-pressed="true"] svg { animation: sello .45s var(--ease-out-back); }
 
 /* =========================================================
    G. TABLERO (Peg Solitaire)
@@ -221,6 +213,9 @@
 #tablero .ficha.salta    { animation: salto-ficha .32s var(--ease-out-back); }
 #tablero .ficha.comida   { animation: desvanecer-ficha .3s var(--ease) forwards; }
 #tablero .destino        { animation: latido 1.4s var(--ease) infinite; }
+.fin                     { animation: aparecer .3s var(--ease) both; }
+.fin__titulo             { animation: sello .6s var(--ease-out-back) both; }
+.fin__texto, .fin .btn   { animation: entrar-abajo .5s var(--ease) .16s both; }
 
 /* =========================================================
    H. LOGIN / REGISTRO
