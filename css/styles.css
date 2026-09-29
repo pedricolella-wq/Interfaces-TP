@@ -268,7 +268,17 @@ body {
 .hero__velo {
   position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(6,15,71,.15) 0%, rgba(6,15,71,.55) 55%, rgba(6,15,71,.94) 100%);
+  transition: background var(--t-media) var(--ease);
 }
+/* Todos los juegos del carrusel grande son de pago: mismo hover para los tres,
+   el banner se oscurece y el candado de "Desbloquear" toma protagonismo */
+.hero__marco:hover .hero__velo,
+.hero__marco:focus-within .hero__velo {
+  background: linear-gradient(180deg, rgba(6,15,71,.45) 0%, rgba(6,15,71,.74) 45%, rgba(6,15,71,.97) 100%);
+}
+.btn__candado { width: 17px; height: 17px; flex: 0 0 auto; }
+.hero__marco:hover .btn__candado,
+.hero__marco:focus-within .btn__candado { animation: sello .5s var(--ease-out-back); }
 .hero__texto { position: absolute; inset-inline: 0; bottom: 0; padding: 20px; }
 .hero__etiqueta {
   display: inline-block; font-size: .6875rem; font-weight: 800; letter-spacing: .16em;
