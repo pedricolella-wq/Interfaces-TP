@@ -23,11 +23,21 @@ function initHero(slides) {
         <h2 class="hero__titulo">${s.titulo}</h2>
         <p class="hero__bajada">${s.bajada}</p>
         <div class="hero__acciones">
-          <a class="btn btn--primario" href="juego.html?j=${s.slug}">${s.cta}</a>
-          <a class="btn btn--terciario" href="juego.html?j=${s.slug}#como-se-juega">${s.cta2}</a>
+          <button class="btn btn--primario" type="button" data-desbloquear="${s.titulo}" data-precio="${s.precio}">
+            <svg class="btn__candado" viewBox="0 0 24 24" aria-hidden="true"><use href="#candado"></use></svg>
+            Desbloquear · $ ${s.precio}
+          </button>
+          <a class="btn btn--terciario" href="juego.html?j=${s.slug}">${s.cta2}</a>
         </div>
       </div>
     </article>`).join('');
+
+  /* Todos los juegos del carrusel grande son de pago: mismo bloque y mismo desbloqueo */
+  marco.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-desbloquear]');
+    if (!b) return;
+    toast(`Desbloqueás ${b.dataset.desbloquear} por $ ${b.dataset.precio} · compra única`);
+  });
 
   bullets.innerHTML = slides.map((s, i) =>
     `<button type="button" aria-current="${i === 0}" aria-label="Ir al destacado ${i + 1}: ${s.titulo}"></button>`).join('');

@@ -66,15 +66,15 @@ const FILAS = [
 
 /* Slides del hero (respaldo si la API no responde) */
 const HERO_LOCAL = [
-  { etiqueta:'PREMIUM', titulo:'Truco Argentino', slug:'truco',
+  { etiqueta:'PREMIUM', titulo:'Truco Argentino', slug:'truco', precio:'4.99',
     bajada:'Mesa de 2 o 4, envido cantado y torneo semanal con premios. Se desbloquea con frib Premium.',
-    img:'img/hero/truco.jpg', cta:'Desbloquear · $ 4.99', cta2:'Ver el reglamento' },
-  { etiqueta:'JUGÁ GRATIS', titulo:'Peg Solitaire', slug:'peg-solitaire',
-    bajada:'Un tablero, 32 fichas y una sola solución perfecta. El rompecabezas más viejo que sigue ganando.',
-    img:'img/hero/peg.jpg', cta:'JUGAR', cta2:'Cómo se juega' },
-  { etiqueta:'TORNEO', titulo:'Generala', slug:'generala',
-    bajada:'Copa frib de Generala: 64 jugadores, llaves diarias y la tabla que se actualiza en vivo.',
-    img:'img/hero/generala.jpg', cta:'Anotarme', cta2:'Ver la tabla' },
+    img:'img/hero/truco.jpg', cta2:'Ver el reglamento' },
+  { etiqueta:'PREMIUM', titulo:'Ajedrez', slug:'ajedrez', precio:'5.99',
+    bajada:'Partidas clásicas o relámpago, análisis de jugadas y ranking Elo. Se desbloquea con frib Premium.',
+    img:'img/hero/ajedrez.jpg', cta2:'Ver el reglamento' },
+  { etiqueta:'PREMIUM', titulo:'Generala', slug:'generala', precio:'3.99',
+    bajada:'Copa frib de Generala: 64 jugadores, llaves diarias y la tabla que se actualiza en vivo. Se desbloquea con frib Premium.',
+    img:'img/hero/generala.jpg', cta2:'Ver el reglamento' },
 ];
 
 /* Reseñas de la página de juego (para demostrar el paginado) */
