@@ -51,9 +51,8 @@
       <div class="buscador__resultados" id="buscador-resultados" hidden></div>
     </form>
 
-    <a class="perfil" href="login.html">
-      <span class="perfil__avatar" aria-hidden="true">S</span>
-      <span>Santi</span>
+    <a class="perfil" href="login.html" aria-label="Mi cuenta">
+      <span class="perfil__avatar"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#avatar-defecto"></use></svg></span>
     </a>
   </div>
 </header>
@@ -63,7 +62,7 @@
   <a class="logo" href="index.html"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-frib"></use></svg><span>frib</span></a>
 
   <div class="menu-lateral__cuenta">
-    <span class="perfil__avatar" aria-hidden="true">S</span>
+    <span class="perfil__avatar"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#avatar-defecto"></use></svg></span>
     <span><b>Santi</b><small class="chico apagado">Ver mi perfil</small></span>
   </div>
 
@@ -176,6 +175,11 @@
 
 <!-- Logo reutilizable -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="avatar-defecto" viewBox="0 0 64 64">
+    <rect width="64" height="64" fill="#9FB0BC"/>
+    <path fill="#2C3E50" d="M32 11.5c6.6 0 11 4.9 11 12 0 6.9-4.4 12.6-11 12.6S21 30.4 21 23.5c0-7.1 4.4-12 11-12Z"/>
+    <path fill="#2C3E50" d="M32 39.5c12.2 0 21 8 21 18.2V64H11v-6.3c0-10.2 8.8-18.2 21-18.2Z"/>
+  </symbol>
   <symbol id="logo-frib" viewBox="0 0 64 64">
     <path fill="#A3E635" d="M32 4c14 0 24 9 24 21 0 7-3 12-7 16 1 4 4 7 4 9 0 3-4 4-8 3l-7-3c-2 .4-4 .6-6 .6C18 51 8 41 8 25 8 13 18 4 32 4Z"/>
     <circle cx="24" cy="24" r="6.4" fill="#1E1B4B"/>
