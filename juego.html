@@ -10,8 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Paytone+One&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=2">
-<link rel="stylesheet" href="css/animations.css?v=2">
+<link rel="stylesheet" href="css/styles.css?v=3">
+<link rel="stylesheet" href="css/animations.css?v=3">
 </head>
 <body>
 <a class="saltar-al-contenido" href="#contenido">Saltar al contenido</a>
@@ -55,141 +55,142 @@
   <a href="juego.html?j=peg-solitaire" aria-current="page">Seguir jugando: Peg Solitaire</a>
 </nav>
 
-<main id="contenido" class="contenedor">
-  <!-- Migas: "Inicio" y el logo siempre vuelven a la Home -->
-  <nav class="migas" aria-label="Estás acá">
-    <a href="index.html">Inicio</a><span>›</span>
-    <a href="index.html#fila-sugerencias" id="miga-cat">Puzzle</a><span>›</span>
-    <span aria-current="page" id="miga-juego">Peg Solitaire</span>
-  </nav>
+<main id="contenido">
+  <div class="contenedor">
+    <!-- Migas: "Inicio" y el logo siempre vuelven a la Home -->
+    <nav class="migas" aria-label="Estás acá">
+      <a href="index.html">Inicio</a><span>›</span>
+      <a href="index.html#fila-sugerencias" id="miga-cat">Puzzle</a><span>›</span>
+      <span aria-current="page" id="miga-juego">Peg Solitaire</span>
+    </nav>
 
-  <div class="juego-cabecera">
-    <h1 id="juego-titulo">Peg Solitaire</h1>
-    <span class="nota"><span id="juego-estrellas"></span> <b id="juego-nota">4.2 (317 reseñas)</b></span>
+    <div class="juego-cabecera">
+      <h1 id="juego-titulo">Peg Solitaire</h1>
+      <span class="nota"><span id="juego-estrellas"></span> <b id="juego-nota">4.2 (317 reseñas)</b></span>
+    </div>
   </div>
 
-  <div class="juego-grid">
-    <!-- ======= EL JUEGO ======= -->
-    <section aria-label="Tablero de Peg Solitaire">
-      <div class="tablero-marco">
-        <div class="tablero-cabecera">
-          <span>Movimientos: <b id="mov">0</b></span>
-          <span>Fichas: <b id="fichas">32</b></span>
-          <span>Tiempo: <b id="reloj">00:00</b></span>
-          <span class="apagado chico">Tocá una ficha y después el casillero libre</span>
+  <!-- ======= ESCENARIO DEL JUEGO: ocupa todo el ancho ======= -->
+  <section class="escenario" aria-label="Tablero de Peg Solitaire">
+    <div class="escenario__barra">
+      <div class="contenedor hud">
+        <span class="hud__dato">Movimientos <b id="mov">0</b></span>
+        <span class="hud__dato">Fichas <b id="fichas">32</b></span>
+        <span class="hud__dato">Tiempo <b id="reloj">00:00</b></span>
+        <span class="hud__tip">Tocá una ficha y después el casillero libre</span>
+        <div class="hud__botones">
+          <button class="btn btn--terciario btn--sm" id="btn-deshacer" type="button">Deshacer</button>
+          <button class="btn btn--terciario btn--sm" id="btn-reiniciar" type="button">Reiniciar</button>
+          <button class="btn btn--secundario btn--sm" id="btn-guardar" type="button">Guardar partida</button>
         </div>
+      </div>
+    </div>
 
-        <div class="tablero-wrap">
-          <svg id="tablero" role="application" aria-label="Tablero: tocá una ficha y después un casillero libre"></svg>
+    <div class="escenario__tablero">
+      <svg id="tablero" role="application" aria-label="Tablero: tocá una ficha y después un casillero libre"></svg>
+
+      <div id="fin" class="fin" hidden role="status">
+        <b class="fin__titulo" id="fin-titulo"></b>
+        <p class="fin__texto" id="fin-texto"></p>
+        <button class="btn btn--primario" id="btn-otra" type="button">Jugar otra</button>
+      </div>
+    </div>
+
+    <div class="escenario__pie">
+      <div class="contenedor compartir">
+        <span>Compartí tu récord</span>
+        <a href="#" aria-label="Compartir en X">x</a>
+        <a href="#" aria-label="Compartir en Facebook">f</a>
+        <a href="#" aria-label="Compartir por WhatsApp">wa</a>
+        <button type="button" id="copiar-link" class="btn--sm">🔗</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="contenedor">
+    <!-- ======= SOBRE EL JUEGO ======= -->
+    <section class="seccion sobre reveal">
+      <div class="juego-grid">
+        <div>
+          <h2>Sobre el juego</h2>
+          <p id="juego-desc"></p>
+          <p style="margin-top:10px">El Peg Solitaire (o <i>Senku</i>) nació en la corte francesa del siglo XVII y llegó a nuestras
+            latitudes en tableros de madera. El objetivo es simple de entender y difícil de dominar: eliminar fichas saltando
+            hasta dejar una sola en el centro. Tablero inglés de 33 casilleros.</p>
+          <p style="margin-top:10px"><a class="enlace-lima" href="#">Leé más sobre la historia del Senku →</a></p>
         </div>
+        <aside class="panel">
+          <h2>Datos rápidos</h2>
+          <ul class="datos-rapidos">
+            <li>Récord mundial: 31 movimientos</li>
+            <li>Tu mejor marca: 38 movimientos</li>
+            <li>Dificultad: media</li>
+            <li>Jugadores: 1</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
 
-        <div id="fin" class="tablero-cabecera" hidden style="background:rgba(163,230,53,.18)">
-          <div>
-            <b id="fin-titulo" style="font-size:1.05rem"></b>
-            <p class="chico" id="fin-texto"></p>
+    <!-- ======= RESEÑAS: patrón de comentarios tipo Play Store / YouTube ======= -->
+    <section class="seccion comentarios reveal" aria-labelledby="h-resenias">
+      <div class="comentarios__top">
+        <h2 id="h-resenias">Reseñas de la comunidad</h2>
+        <label class="orden">
+          <span class="solo-lectores">Ordenar reseñas</span>
+          <select id="orden-resenias">
+            <option value="relevantes">Más relevantes</option>
+            <option value="recientes">Más recientes</option>
+            <option value="mejores">Mejor puntuadas</option>
+            <option value="peores">Peor puntuadas</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="comentarios__grid">
+        <aside class="resumen">
+          <div class="resumen__cabeza">
+            <b class="resumen__nota" id="res-nota">4,2</b>
+            <div>
+              <span id="res-estrellas"></span>
+              <p class="chico apagado" id="res-total">317 reseñas</p>
+            </div>
           </div>
-          <button class="btn btn--primario btn--sm" id="btn-otra" type="button">Jugar otra</button>
-        </div>
+          <ul class="barras" id="res-barras"></ul>
+        </aside>
 
-        <!-- "Compartí tu récord" va DENTRO del juego -->
-        <div class="tablero-pie">
-          <div class="compartir">
-            <span>Compartí tu récord</span>
-            <a href="#" aria-label="Compartir en X">x</a>
-            <a href="#" aria-label="Compartir en Facebook">f</a>
-            <a href="#" aria-label="Compartir por WhatsApp">wa</a>
-            <button type="button" id="copiar-link" class="btn--sm">🔗</button>
-          </div>
-          <div style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap">
-            <button class="btn btn--terciario btn--sm" id="btn-deshacer" type="button">Deshacer</button>
-            <button class="btn btn--terciario btn--sm" id="btn-reiniciar" type="button">Reiniciar</button>
-            <!-- Único "Guardar" de la página, dentro de la barra del juego -->
-            <button class="btn btn--secundario btn--sm" id="btn-guardar" type="button">Guardar partida</button>
+        <div class="hilo">
+          <form class="comentar" id="form-resenia">
+            <span class="comentario__avatar" style="--c:#0E7490" aria-hidden="true">P</span>
+            <div class="comentar__campo">
+              <label class="solo-lectores" for="txt-resenia">Tu comentario</label>
+              <textarea id="txt-resenia" rows="1" placeholder="Escribí una reseña pública…"></textarea>
+              <div class="comentar__pie">
+                <div class="puntaje" id="puntaje" role="group" aria-label="Tu puntaje">
+                  <button type="button" data-n="1" aria-label="1 estrella">★</button>
+                  <button type="button" data-n="2" aria-label="2 estrellas">★</button>
+                  <button type="button" data-n="3" aria-label="3 estrellas">★</button>
+                  <button type="button" data-n="4" aria-label="4 estrellas">★</button>
+                  <button type="button" data-n="5" aria-label="5 estrellas">★</button>
+                </div>
+                <div class="comentar__acciones">
+                  <button class="accion" type="reset">Cancelar</button>
+                  <button class="btn btn--secundario btn--sm" type="submit">Publicar</button>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <div class="lista-resenias" id="lista-resenias"></div>
+
+          <!-- Patrón de paginado: "Ver más" con contador (load more) -->
+          <div class="paginado">
+            <button class="btn btn--primario btn--sm" id="btn-mas" type="button">Ver más reseñas</button>
+            <span class="contador" id="contador-resenias"></span>
           </div>
         </div>
       </div>
     </section>
-
-    <!-- ======= CÓMO SE JUEGA ======= -->
-    <aside class="panel reveal" id="como-se-juega">
-      <h2>¿Cómo se juega?</h2>
-      <ol class="pasos">
-        <li>Saltá una ficha por encima de otra hacia un casillero libre.</li>
-        <li>La ficha saltada se retira del tablero.</li>
-        <li>Ganás si te queda una sola ficha; es perfecta si queda en el centro.</li>
-      </ol>
-      <p class="chico apagado" style="margin-top:10px">Solo se salta en horizontal y vertical, nunca en diagonal.</p>
-    </aside>
   </div>
-
-  <!-- ======= GALERÍA ANIMADA ======= -->
-  <section class="seccion reveal" aria-label="Galería del juego">
-    <h2>Galería</h2>
-    <div class="galeria">
-      <div class="galeria__viewport" id="galeria-vp"></div>
-      <button class="btn-icono galeria__flecha galeria__flecha--izq" id="gal-prev" type="button" aria-label="Imagen anterior">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18 9 12l6-6"/></svg>
-      </button>
-      <button class="btn-icono galeria__flecha galeria__flecha--der" id="gal-next" type="button" aria-label="Imagen siguiente">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-      </button>
-      <div class="galeria__tiras" id="galeria-tiras"></div>
-    </div>
-  </section>
-
-  <!-- ======= SOBRE EL JUEGO ======= -->
-  <section class="seccion sobre reveal">
-    <div class="juego-grid">
-      <div>
-        <h2>Sobre el juego</h2>
-        <p id="juego-desc"></p>
-        <p style="margin-top:10px">El Peg Solitaire (o <i>Senku</i>) nació en la corte francesa del siglo XVII y llegó a nuestras
-          latitudes en tableros de madera. El objetivo es simple de entender y difícil de dominar: eliminar fichas saltando
-          hasta dejar una sola en el centro. Tablero inglés de 33 casilleros.</p>
-        <p style="margin-top:10px"><a class="enlace-lima" href="#">Leé más sobre la historia del Senku →</a></p>
-      </div>
-      <aside class="panel">
-        <h2>Datos rápidos</h2>
-        <ul class="datos-rapidos">
-          <li>Récord mundial: 31 movimientos</li>
-          <li>Tu mejor marca: 38 movimientos</li>
-          <li>Dificultad: media</li>
-          <li>Jugadores: 1</li>
-        </ul>
-      </aside>
-    </div>
-  </section>
-
-  <!-- ======= RESEÑAS con paginado ======= -->
-  <section class="seccion reveal" aria-labelledby="h-resenias">
-    <h2 id="h-resenias">Reseñas</h2>
-    <div class="resenias-grid">
-      <form class="form-resenia" id="form-resenia">
-        <h3 class="h3">Dejá tu comentario</h3>
-        <div class="puntaje" id="puntaje" role="group" aria-label="Tu puntaje">
-          <button type="button" data-n="1" aria-label="1 estrella">★</button>
-          <button type="button" data-n="2" aria-label="2 estrellas">★</button>
-          <button type="button" data-n="3" aria-label="3 estrellas">★</button>
-          <button type="button" data-n="4" aria-label="4 estrellas">★</button>
-          <button type="button" data-n="5" aria-label="5 estrellas">★</button>
-        </div>
-        <label class="solo-lectores" for="txt-resenia">Tu comentario</label>
-        <textarea id="txt-resenia" placeholder="¿Qué te pareció el juego?"></textarea>
-        <div style="display:flex; justify-content:flex-end; margin-top:10px">
-          <button class="btn btn--secundario" type="submit">Publicar</button>
-        </div>
-      </form>
-
-      <div>
-        <div class="lista-resenias" id="lista-resenias"></div>
-        <!-- Patrón de paginado: "Ver más" con contador (load more) -->
-        <div class="paginado">
-          <button class="btn btn--primario btn--sm" id="btn-mas" type="button">Ver más reseñas</button>
-          <span class="contador" id="contador-resenias"></span>
-        </div>
-      </div>
-    </div>
-  </section>
 </main>
 
 <footer class="footer">
@@ -226,6 +227,9 @@
 </footer>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="pulgar" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M2 10h4v11H2zM8 21V10l5-8c1.3 0 2.2 1 2 2.3L14.2 9H20a2 2 0 0 1 2 2.3l-1.4 8A2 2 0 0 1 18.6 21z"/>
+  </symbol>
   <symbol id="avatar-defecto" viewBox="0 0 64 64">
     <rect width="64" height="64" fill="#9FB0BC"/>
     <path fill="#2C3E50" d="M32 11.5c6.6 0 11 4.9 11 12 0 6.9-4.4 12.6-11 12.6S21 30.4 21 23.5c0-7.1 4.4-12 11-12Z"/>
@@ -237,8 +241,8 @@
   </symbol>
 </svg>
 
-<script src="js/data.js?v=2"></script>
-<script src="js/ui.js?v=2"></script>
-<script src="js/juego.js?v=2"></script>
+<script src="js/data.js?v=3"></script>
+<script src="js/ui.js?v=3"></script>
+<script src="js/juego.js?v=3"></script>
 </body>
 </html>
