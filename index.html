@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>frib · Jugá gratis, guardá tu progreso</title>
+<meta name="description" content="frib es un portal de juegos de navegador: jugá gratis, guardá tu progreso y competí con tus amigos.">
+<meta name="theme-color" content="#0B1871">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Paytone+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+<!-- ================= LOADING SIMULADO (5 s, con % y animación CSS) ================= -->
+<div class="loader" id="loader" role="progressbar" aria-label="Cargando frib" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+  <div class="loader__marca">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-frib"></use></svg>
+    <span>frib</span>
+  </div>
+  <div class="loader__anillo">
+    <div class="loader__cuadro"><i></i></div>
+  </div>
+  <p class="loader__pct" id="loader-pct">0%</p>
+  <div class="loader__barra"><i id="loader-barra"></i></div>
+  <p class="loader__texto" id="loader-texto">Encendiendo las máquinas…</p>
+</div>
+
+<a class="saltar-al-contenido" href="#contenido">Saltar al contenido</a>
+
+<!-- ================= HEADER ================= -->
+<header class="header">
+  <div class="contenedor header__in">
+    <button class="hamburguesa" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-lateral">
+      <span></span><span></span><span></span>
+    </button>
+
+    <a class="logo" href="index.html" aria-label="frib, ir al inicio">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-frib"></use></svg>
+      <span>frib</span>
+    </a>
+
+
+    <form class="buscador" role="search" autocomplete="off">
+      <label class="solo-lectores" for="buscador">Buscar un juego</label>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="buscador" type="search" placeholder="Buscá un juego…">
+      <div class="buscador__resultados" id="buscador-resultados" hidden></div>
+    </form>
+
+    <a class="perfil" href="login.html">
+      <span class="perfil__avatar" aria-hidden="true">S</span>
+      <span>Santi</span>
+    </a>
+  </div>
+</header>
+
+<div class="menu-fondo"></div>
+<nav class="menu-lateral" id="menu-lateral" aria-label="Menú principal" aria-hidden="true">
+  <a class="logo" href="index.html"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-frib"></use></svg><span>frib</span></a>
+
+  <div class="menu-lateral__cuenta">
+    <span class="perfil__avatar" aria-hidden="true">S</span>
+    <span><b>Santi</b><small class="chico apagado">Ver mi perfil</small></span>
+  </div>
+
+  <h2>Categorías</h2>
+  <a href="index.html" aria-current="page">Todos los juegos</a>
+  <a href="index.html#fila-sugerencias">Puzzle</a>
+  <a href="index.html#fila-arcade">Arcade</a>
+  <a href="index.html#fila-mas-jugados">Cartas</a>
+  <a href="index.html#fila-mas-jugados">Estrategia</a>
+  <a href="index.html#fila-novedades">Novedades</a>
+
+  <h2>Tu cuenta</h2>
+  <a href="login.html">Iniciar sesión</a>
+  <a href="login.html#registro">Crear cuenta</a>
+  <a href="juego.html?j=peg-solitaire">Seguir jugando: Peg Solitaire</a>
+</nav>
+
+<!-- ================= CONTENIDO ================= -->
+<main id="contenido">
+  <!-- Hero: carrusel destacado con flechas, bullets y transición animada -->
+  <section class="hero contenedor" aria-label="Juegos destacados" aria-roledescription="carrusel">
+    <div class="hero__marco">
+      <div id="hero-slides"></div>
+      <button class="btn-icono hero__flecha hero__flecha--izq" id="hero-prev" type="button" aria-label="Destacado anterior">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18 9 12l6-6"/></svg>
+      </button>
+      <button class="btn-icono hero__flecha hero__flecha--der" id="hero-next" type="button" aria-label="Destacado siguiente">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+      <div class="hero__progreso" id="hero-progreso"></div>
+    </div>
+    <div class="hero__bullets" id="hero-bullets"></div>
+  </section>
+
+  <!-- Filas de juegos (se arman por JS al terminar la carga) -->
+  <div class="contenedor" id="filas"></div>
+</main>
+
+<!-- ================= FAT FOOTER ================= -->
+<footer class="footer">
+  <div class="contenedor">
+    <div class="footer__grid">
+      <div class="footer__marca">
+        <a class="logo" href="index.html"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-frib"></use></svg><span>frib</span></a>
+        <p>Jugá gratis, guardá tu progreso y competí con tus amigos.</p>
+        <p class="chico">🌐 Español (Argentina)</p>
+        <div class="footer__redes">
+          <a href="#" aria-label="frib en Facebook">f</a>
+          <a href="#" aria-label="frib en X">x</a>
+          <a href="#" aria-label="frib en LinkedIn">in</a>
+          <a href="#" aria-label="frib en Instagram">ig</a>
+        </div>
+      </div>
+
+      <div class="footer__cols">
+        <div class="footer__col">
+          <h3>Juegos</h3>
+          <ul>
+            <li><a href="#fila-sugerencias">Puzzle</a></li>
+            <li><a href="#fila-arcade">Arcade</a></li>
+            <li><a href="#fila-mas-jugados">Cartas</a></li>
+            <li><a href="#fila-mas-jugados">Estrategia</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h3>Comunidad</h3>
+          <ul>
+            <li><a href="#">Ranking</a></li>
+            <li><a href="#">Torneos</a></li>
+            <li><a href="#">Foro</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h3>Ayuda</h3>
+          <ul>
+            <li><a href="#">Centro de ayuda</a></li>
+            <li><a href="#">Contacto</a></li>
+            <li><a href="#">Términos</a></li>
+            <li><a href="#">Privacidad</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h3>Empresa</h3>
+          <ul>
+            <li><a href="#">Sobre frib</a></li>
+            <li><a href="#">Prensa</a></li>
+            <li><a href="#">Trabajá con nosotros</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h3>Novedades</h3>
+          <form class="news" id="form-news">
+            <label class="solo-lectores" for="news-mail">Tu correo</label>
+            <input id="news-mail" type="email" placeholder="Tu mail" required>
+            <button class="btn btn--secundario btn--sm" type="submit">Suscribirme</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <hr class="footer__separador">
+    <div class="footer__barra">
+      <div><a href="#">Descargá la app — App Store · Google Play</a></div>
+      <div><a href="#">Cookies</a><a href="#">Accesibilidad</a><a href="#">Estado del servicio</a></div>
+    </div>
+    <p class="footer__copy">© <span class="anio">2026</span> frib — TPE Interfaces de Usuario e Interacción, TUDAI</p>
+  </div>
+</footer>
+
+<!-- Logo reutilizable -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="logo-frib" viewBox="0 0 64 64">
+    <path fill="#A3E635" d="M32 4c14 0 24 9 24 21 0 7-3 12-7 16 1 4 4 7 4 9 0 3-4 4-8 3l-7-3c-2 .4-4 .6-6 .6C18 51 8 41 8 25 8 13 18 4 32 4Z"/>
+    <circle cx="24" cy="24" r="6.4" fill="#1E1B4B"/>
+    <circle cx="42" cy="24" r="6.4" fill="#1E1B4B"/>
+  </symbol>
+</svg>
+
+<script src="js/data.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/api.js"></script>
+<script src="js/home.js"></script>
+<script src="js/loader.js"></script>
+</body>
+</html>

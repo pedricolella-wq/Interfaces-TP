@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Peg Solitaire · frib</title>
+<meta name="description" content="Jugá a Peg Solitaire gratis en frib: saltá fichas, dejá una sola en el centro y compartí tu récord.">
+<meta name="theme-color" content="#0B1871">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Paytone+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+<a class="saltar-al-contenido" href="#contenido">Saltar al contenido</a>
+
+<header class="header">
+  <div class="contenedor header__in">
+    <button class="hamburguesa" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-lateral"><span></span><span></span><span></span></button>
+    <a class="logo" href="index.html" aria-label="frib, ir al inicio"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-frib"></use></svg><span>frib</span></a>
+    <form class="buscador" role="search" autocomplete="off">
+      <label class="solo-lectores" for="buscador">Buscar un juego</label>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="buscador" type="search" placeholder="Buscá un juego…">
+      <div class="buscador__resultados" id="buscador-resultados" hidden></div>
+    </form>
+    <a class="perfil" href="login.html"><span class="perfil__avatar" aria-hidden="true">S</span><span>Santi</span></a>
+  </div>
+</header>
+
+<div class="menu-fondo"></div>
+<nav class="menu-lateral" id="menu-lateral" aria-label="Menú principal" aria-hidden="true">
+  <a class="logo" href="index.html"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-frib"></use></svg><span>frib</span></a>
+
+  <div class="menu-lateral__cuenta">
+    <span class="perfil__avatar" aria-hidden="true">S</span>
+    <span><b>Santi</b><small class="chico apagado">Ver mi perfil</small></span>
+  </div>
+
+  <h2>Categorías</h2>
+  <a href="index.html">Todos los juegos</a>
+  <a href="index.html#fila-sugerencias">Puzzle</a>
+  <a href="index.html#fila-arcade">Arcade</a>
+  <a href="index.html#fila-mas-jugados">Cartas</a>
+  <a href="index.html#fila-mas-jugados">Estrategia</a>
+  <a href="index.html#fila-novedades">Novedades</a>
+
+  <h2>Tu cuenta</h2>
+  <a href="login.html">Iniciar sesión</a>
+  <a href="login.html#registro">Crear cuenta</a>
+  <a href="juego.html?j=peg-solitaire" aria-current="page">Seguir jugando: Peg Solitaire</a>
+</nav>
+
+<main id="contenido" class="contenedor">
+  <!-- Migas: "Inicio" y el logo siempre vuelven a la Home -->
+  <nav class="migas" aria-label="Estás acá">
+    <a href="index.html">Inicio</a><span>›</span>
+    <a href="index.html#fila-sugerencias" id="miga-cat">Puzzle</a><span>›</span>
+    <span aria-current="page" id="miga-juego">Peg Solitaire</span>
+  </nav>
+
+  <div class="juego-cabecera">
+    <h1 id="juego-titulo">Peg Solitaire</h1>
+    <span class="nota"><span id="juego-estrellas"></span> <b id="juego-nota">4.2 (317 reseñas)</b></span>
+  </div>
+
+  <div class="juego-grid">
+    <!-- ======= EL JUEGO ======= -->
+    <section aria-label="Tablero de Peg Solitaire">
+      <div class="tablero-marco">
+        <div class="tablero-cabecera">
+          <span>Movimientos: <b id="mov">0</b></span>
+          <span>Fichas: <b id="fichas">32</b></span>
+          <span>Tiempo: <b id="reloj">00:00</b></span>
+          <span class="apagado chico">Tocá una ficha y después el casillero libre</span>
+        </div>
+
+        <div class="tablero-wrap">
+          <svg id="tablero" role="application" aria-label="Tablero: tocá una ficha y después un casillero libre"></svg>
+        </div>
+
+        <div id="fin" class="tablero-cabecera" hidden style="background:rgba(163,230,53,.18)">
+          <div>
+            <b id="fin-titulo" style="font-size:1.05rem"></b>
+            <p class="chico" id="fin-texto"></p>
+          </div>
+          <button class="btn btn--primario btn--sm" id="btn-otra" type="button">Jugar otra</button>
+        </div>
+
+        <!-- "Compartí tu récord" va DENTRO del juego -->
+        <div class="tablero-pie">
+          <div class="compartir">
+            <span>Compartí tu récord</span>
+            <a href="#" aria-label="Compartir en X">x</a>
+            <a href="#" aria-label="Compartir en Facebook">f</a>
+            <a href="#" aria-label="Compartir por WhatsApp">wa</a>
+            <button type="button" id="copiar-link" class="btn--sm">🔗</button>
+          </div>
+          <div style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap">
+            <button class="btn btn--terciario btn--sm" id="btn-deshacer" type="button">Deshacer</button>
+            <button class="btn btn--terciario btn--sm" id="btn-reiniciar" type="button">Reiniciar</button>
+            <!-- Único "Guardar" de la página, dentro de la barra del juego -->
+            <button class="btn btn--secundario btn--sm" id="btn-guardar" type="button">Guardar partida</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= CÓMO SE JUEGA ======= -->
+    <aside class="panel reveal" id="como-se-juega">
+      <h2>¿Cómo se juega?</h2>
+      <ol class="pasos">
+        <li>Saltá una ficha por encima de otra hacia un casillero libre.</li>
+        <li>La ficha saltada se retira del tablero.</li>
+        <li>Ganás si te queda una sola ficha; es perfecta si queda en el centro.</li>
+      </ol>
+      <p class="chico apagado" style="margin-top:10px">Solo se salta en horizontal y vertical, nunca en diagonal.</p>
+    </aside>
+  </div>
+
+  <!-- ======= GALERÍA ANIMADA ======= -->
+  <section class="seccion reveal" aria-label="Galería del juego">
+    <h2>Galería</h2>
+    <div class="galeria">
+      <div class="galeria__viewport" id="galeria-vp"></div>
+      <button class="btn-icono galeria__flecha galeria__flecha--izq" id="gal-prev" type="button" aria-label="Imagen anterior">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18 9 12l6-6"/></svg>
+      </button>
+      <button class="btn-icono galeria__flecha galeria__flecha--der" id="gal-next" type="button" aria-label="Imagen siguiente">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+      <div class="galeria__tiras" id="galeria-tiras"></div>
+    </div>
+  </section>
+
+  <!-- ======= SOBRE EL JUEGO ======= -->
+  <section class="seccion sobre reveal">
+    <div class="juego-grid">
+      <div>
+        <h2>Sobre el juego</h2>
+        <p id="juego-desc"></p>
+        <p style="margin-top:10px">El Peg Solitaire (o <i>Senku</i>) nació en la corte francesa del siglo XVII y llegó a nuestras
+          latitudes en tableros de madera. El objetivo es simple de entender y difícil de dominar: eliminar fichas saltando
+          hasta dejar una sola en el centro. Tablero inglés de 33 casilleros.</p>
+        <p style="margin-top:10px"><a class="enlace-lima" href="#">Leé más sobre la historia del Senku →</a></p>
+      </div>
+      <aside class="panel">
+        <h2>Datos rápidos</h2>
+        <ul class="datos-rapidos">
+          <li>Récord mundial: 31 movimientos</li>
+          <li>Tu mejor marca: 38 movimientos</li>
+          <li>Dificultad: media</li>
+          <li>Jugadores: 1</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ======= RESEÑAS con paginado ======= -->
+  <section class="seccion reveal" aria-labelledby="h-resenias">
+    <h2 id="h-resenias">Reseñas</h2>
+    <div class="resenias-grid">
+      <form class="form-resenia" id="form-resenia">
+        <h3 class="h3">Dejá tu comentario</h3>
+        <div class="puntaje" id="puntaje" role="group" aria-label="Tu puntaje">
+          <button type="button" data-n="1" aria-label="1 estrella">★</button>
+          <button type="button" data-n="2" aria-label="2 estrellas">★</button>
+          <button type="button" data-n="3" aria-label="3 estrellas">★</button>
+          <button type="button" data-n="4" aria-label="4 estrellas">★</button>
+          <button type="button" data-n="5" aria-label="5 estrellas">★</button>
+        </div>
+        <label class="solo-lectores" for="txt-resenia">Tu comentario</label>
+        <textarea id="txt-resenia" placeholder="¿Qué te pareció el juego?"></textarea>
+        <div style="display:flex; justify-content:flex-end; margin-top:10px">
+          <button class="btn btn--secundario" type="submit">Publicar</button>
+        </div>
+      </form>
+
+      <div>
+        <div class="lista-resenias" id="lista-resenias"></div>
+        <!-- Patrón de paginado: "Ver más" con contador (load more) -->
+        <div class="paginado">
+          <button class="btn btn--primario btn--sm" id="btn-mas" type="button">Ver más reseñas</button>
+          <span class="contador" id="contador-resenias"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="contenedor">
+    <div class="footer__grid">
+      <div class="footer__marca">
+        <a class="logo" href="index.html"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-frib"></use></svg><span>frib</span></a>
+        <p>Jugá gratis, guardá tu progreso y competí con tus amigos.</p>
+        <p class="chico">🌐 Español (Argentina)</p>
+        <div class="footer__redes">
+          <a href="#" aria-label="frib en Facebook">f</a><a href="#" aria-label="frib en X">x</a>
+          <a href="#" aria-label="frib en LinkedIn">in</a><a href="#" aria-label="frib en Instagram">ig</a>
+        </div>
+      </div>
+      <div class="footer__cols">
+        <div class="footer__col"><h3>Juegos</h3><ul><li><a href="index.html#fila-sugerencias">Puzzle</a></li><li><a href="index.html#fila-arcade">Arcade</a></li><li><a href="index.html#fila-mas-jugados">Cartas</a></li><li><a href="index.html#fila-mas-jugados">Estrategia</a></li></ul></div>
+        <div class="footer__col"><h3>Comunidad</h3><ul><li><a href="#">Ranking</a></li><li><a href="#">Torneos</a></li><li><a href="#">Foro</a></li></ul></div>
+        <div class="footer__col"><h3>Ayuda</h3><ul><li><a href="#">Centro de ayuda</a></li><li><a href="#">Contacto</a></li><li><a href="#">Términos</a></li><li><a href="#">Privacidad</a></li></ul></div>
+        <div class="footer__col"><h3>Empresa</h3><ul><li><a href="#">Sobre frib</a></li><li><a href="#">Prensa</a></li><li><a href="#">Trabajá con nosotros</a></li><li><a href="#">Blog</a></li></ul></div>
+        <div class="footer__col"><h3>Novedades</h3>
+          <form class="news" id="form-news"><label class="solo-lectores" for="news-mail">Tu correo</label>
+            <input id="news-mail" type="email" placeholder="Tu mail" required>
+            <button class="btn btn--secundario btn--sm" type="submit">Suscribirme</button></form>
+        </div>
+      </div>
+    </div>
+    <hr class="footer__separador">
+    <div class="footer__barra">
+      <div><a href="#">Descargá la app — App Store · Google Play</a></div>
+      <div><a href="#">Cookies</a><a href="#">Accesibilidad</a><a href="#">Estado del servicio</a></div>
+    </div>
+    <p class="footer__copy">© <span class="anio">2026</span> frib — TPE Interfaces de Usuario e Interacción, TUDAI</p>
+  </div>
+</footer>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="logo-frib" viewBox="0 0 64 64">
+    <path fill="#A3E635" d="M32 4c14 0 24 9 24 21 0 7-3 12-7 16 1 4 4 7 4 9 0 3-4 4-8 3l-7-3c-2 .4-4 .6-6 .6C18 51 8 41 8 25 8 13 18 4 32 4Z"/>
+    <circle cx="24" cy="24" r="6.4" fill="#1E1B4B"/><circle cx="42" cy="24" r="6.4" fill="#1E1B4B"/>
+  </symbol>
+</svg>
+
+<script src="js/data.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/juego.js"></script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrá o creá tu cuenta · frib</title>
+<meta name="description" content="Iniciá sesión o creá tu cuenta en frib para guardar tu progreso y competir con tus amigos.">
+<meta name="theme-color" content="#0B1871">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Paytone+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+<a class="saltar-al-contenido" href="#contenido">Saltar al contenido</a>
+
+<header class="header">
+  <div class="contenedor header__in">
+    <button class="hamburguesa" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-lateral"><span></span><span></span><span></span></button>
+    <a class="logo" href="index.html" aria-label="frib, ir al inicio"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-frib"></use></svg><span>frib</span></a>
+    <form class="buscador" role="search" autocomplete="off">
+      <label class="solo-lectores" for="buscador">Buscar un juego</label>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="buscador" type="search" placeholder="Buscá un juego…">
+      <div class="buscador__resultados" id="buscador-resultados" hidden></div>
+    </form>
+    <a class="perfil" href="login.html"><span class="perfil__avatar" aria-hidden="true">?</span><span>Entrar</span></a>
+  </div>
+</header>
+
+<div class="menu-fondo"></div>
+<nav class="menu-lateral" id="menu-lateral" aria-label="Menú principal" aria-hidden="true">
+  <a class="logo" href="index.html"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-frib"></use></svg><span>frib</span></a>
+
+  <div class="menu-lateral__cuenta">
+    <span class="perfil__avatar" aria-hidden="true">S</span>
+    <span><b>Santi</b><small class="chico apagado">Ver mi perfil</small></span>
+  </div>
+
+  <h2>Categorías</h2>
+  <a href="index.html">Todos los juegos</a>
+  <a href="index.html#fila-sugerencias">Puzzle</a>
+  <a href="index.html#fila-arcade">Arcade</a>
+  <a href="index.html#fila-mas-jugados">Cartas</a>
+  <a href="index.html#fila-mas-jugados">Estrategia</a>
+  <a href="index.html#fila-novedades">Novedades</a>
+
+  <h2>Tu cuenta</h2>
+  <a href="login.html" aria-current="page">Iniciar sesión</a>
+  <a href="login.html#registro">Crear cuenta</a>
+  <a href="juego.html?j=peg-solitaire">Seguir jugando: Peg Solitaire</a>
+</nav>
+
+<main id="contenido" class="auth contenedor">
+  <div class="auth__grid">
+
+    <div class="auth__pitch reveal">
+      <h1>Miles de juegos.<em>Cero descargas.</em></h1>
+      <p>Creá tu cuenta y guardá tu progreso en cualquier dispositivo.</p>
+      <ul class="auth__ventajas">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Gratis para siempre</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Sin instalar nada</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Ranking entre amigos</li>
+      </ul>
+    </div>
+
+    <!-- Patrón: un único card con tabs (segmented control). Alternar no cambia de pantalla. -->
+    <section class="tarjeta-auth reveal" aria-labelledby="auth-titulo">
+      <h2 id="auth-titulo">Entrá a tu cuenta</h2>
+
+      <div class="tabs" role="tablist" aria-label="Iniciar sesión o registrarse">
+        <span class="tabs__ind" aria-hidden="true"></span>
+        <button type="button" role="tab" data-tab="login"    aria-selected="true"  aria-controls="form-login">Iniciar sesión</button>
+        <button type="button" role="tab" data-tab="registro" aria-selected="false" aria-controls="form-registro">Registrarme</button>
+      </div>
+
+      <div class="social">
+        <a href="#" aria-label="Continuar con Google">
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.5 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.8 6.1C12.3 13.2 17.7 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.2-.4-4.7H24v9h12.4c-.5 2.9-2.2 5.4-4.7 7l7.6 5.9c4.4-4.1 6.8-10.1 6.8-17.2z"/>
+            <path fill="#FBBC05" d="M10.4 28.7a14.5 14.5 0 0 1 0-9.4l-7.8-6.1a24 24 0 0 0 0 21.6l7.8-6.1z"/>
+            <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.7-3.7-13.6-9.9l-7.8 6.1C6.5 42.6 14.6 48 24 48z"/>
+          </svg> Google
+        </a>
+        <a href="#" aria-label="Continuar con Facebook">
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <circle cx="24" cy="24" r="24" fill="#1877F2"/>
+            <path fill="#fff" d="M33.4 30.9 34.5 24h-6.6v-4.5c0-1.9.9-3.7 3.9-3.7h3V10s-2.7-.5-5.3-.5c-5.4 0-9 3.3-9 9.2V24h-6v6.9h6V48a24 24 0 0 0 7.4 0V30.9z"/>
+          </svg> Facebook
+        </a>
+      </div>
+      <p class="separador-o">o con tu mail</p>
+
+      <!-- ===== LOGIN ===== -->
+      <form id="form-login" role="tabpanel" aria-labelledby="auth-titulo" novalidate>
+        <div class="campos">
+          <div class="campo">
+            <label for="l-mail">Mail <span class="req" aria-hidden="true">*</span><span class="solo-lectores">(obligatorio)</span></label>
+            <input id="l-mail" name="mail" type="email" data-regla="mail" required autocomplete="email" placeholder="santi@mail.com">
+            <p class="error" role="alert"></p>
+          </div>
+          <div class="campo">
+            <label for="l-pass">Contraseña <span class="req" aria-hidden="true">*</span><span class="solo-lectores">(obligatorio)</span></label>
+            <input id="l-pass" name="pass" type="password" data-regla="pass" required autocomplete="current-password" placeholder="••••••••">
+            <p class="error" role="alert"></p>
+          </div>
+        </div>
+        <div class="ayuda-fila">
+          <span>Mínimo 8 caracteres, una mayúscula y un número</span>
+          <span>* Campos obligatorios</span>
+        </div>
+        <div class="robot">
+          <input id="l-robot" type="checkbox"><label for="l-robot">No soy un robot</label><span>reCAPTCHA</span>
+        </div>
+        <button class="btn btn--secundario btn--bloque" type="submit">Iniciar sesión</button>
+        <p class="pie-auth">¿No tenés cuenta? <button type="button" data-ir="registro">Registrate</button></p>
+      </form>
+
+      <!-- ===== REGISTRO ===== -->
+      <form id="form-registro" role="tabpanel" aria-labelledby="auth-titulo" hidden novalidate>
+        <div class="campos campos--2">
+          <div class="campo">
+            <label for="r-nombre">Nombre <span class="req" aria-hidden="true">*</span></label>
+            <input id="r-nombre" type="text" data-regla="nombre" required autocomplete="given-name" placeholder="Santiago">
+            <p class="error" role="alert"></p>
+          </div>
+          <div class="campo">
+            <label for="r-apellido">Apellido <span class="req" aria-hidden="true">*</span></label>
+            <input id="r-apellido" type="text" data-regla="apellido" required autocomplete="family-name" placeholder="Pérez">
+            <p class="error" role="alert"></p>
+          </div>
+          <div class="campo">
+            <label for="r-nick">Nickname <span class="apagado">(opcional)</span></label>
+            <input id="r-nick" type="text" autocomplete="nickname" placeholder="PixelSanti">
+            <p class="error"></p>
+          </div>
+          <div class="campo">
+            <label for="r-edad">Edad <span class="req" aria-hidden="true">*</span></label>
+            <input id="r-edad" type="number" min="13" max="120" data-regla="edad" required placeholder="21">
+            <p class="error" role="alert"></p>
+          </div>
+        </div>
+        <div class="campos" style="margin-top:12px">
+          <div class="campo">
+            <label for="r-mail">Mail <span class="req" aria-hidden="true">*</span></label>
+            <input id="r-mail" type="email" data-regla="mail" required autocomplete="email" placeholder="santi@mail.com">
+            <p class="error" role="alert"></p>
+          </div>
+          <div class="campo">
+            <label for="r-pass">Contraseña <span class="req" aria-hidden="true">*</span></label>
+            <input id="r-pass" type="password" data-regla="pass" required autocomplete="new-password" placeholder="••••••••">
+            <div class="loader__barra" id="fuerza" style="height:6px;margin-top:6px"></div>
+            <p class="error" role="alert"></p>
+          </div>
+        </div>
+        <div class="ayuda-fila">
+          <span>Mínimo 8 caracteres, una mayúscula y un número</span>
+          <span>* Campos obligatorios</span>
+        </div>
+        <div class="robot">
+          <input id="r-robot" type="checkbox"><label for="r-robot">No soy un robot</label><span>reCAPTCHA</span>
+        </div>
+        <button class="btn btn--secundario btn--bloque" type="submit">Crear cuenta</button>
+        <p class="pie-auth">¿Ya tenés cuenta? <button type="button" data-ir="login">Iniciá sesión</button></p>
+      </form>
+
+      <!-- ===== Animación de registro correcto ===== -->
+      <div class="exito" id="exito" aria-hidden="true" role="status">
+        <svg class="exito__tilde" viewBox="0 0 100 100" width="104" height="104" aria-hidden="true">
+          <circle cx="50" cy="50" r="33" fill="none" stroke="#15803D" stroke-width="6" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+          <path d="M33 51l12 12 23-25" fill="none" stroke="#A3E635" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h3 id="exito-nombre">¡Cuenta creada!</h3>
+        <p>Ya podés guardar tu progreso, sumar récords y competir con tus amigos.</p>
+        <a class="btn btn--primario" id="exito-cta" href="index.html">Empezar a jugar</a>
+      </div>
+      <div class="confeti" id="confeti" aria-hidden="true"></div>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="contenedor">
+    <div class="footer__grid">
+      <div class="footer__marca">
+        <a class="logo" href="index.html"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-frib"></use></svg><span>frib</span></a>
+        <p>Jugá gratis, guardá tu progreso y competí con tus amigos.</p>
+        <p class="chico">🌐 Español (Argentina)</p>
+        <div class="footer__redes">
+          <a href="#" aria-label="frib en Facebook">f</a><a href="#" aria-label="frib en X">x</a>
+          <a href="#" aria-label="frib en LinkedIn">in</a><a href="#" aria-label="frib en Instagram">ig</a>
+        </div>
+      </div>
+      <div class="footer__cols">
+        <div class="footer__col"><h3>Juegos</h3><ul><li><a href="index.html#fila-sugerencias">Puzzle</a></li><li><a href="index.html#fila-arcade">Arcade</a></li><li><a href="index.html#fila-mas-jugados">Cartas</a></li><li><a href="index.html#fila-mas-jugados">Estrategia</a></li></ul></div>
+        <div class="footer__col"><h3>Comunidad</h3><ul><li><a href="#">Ranking</a></li><li><a href="#">Torneos</a></li><li><a href="#">Foro</a></li></ul></div>
+        <div class="footer__col"><h3>Ayuda</h3><ul><li><a href="#">Centro de ayuda</a></li><li><a href="#">Contacto</a></li><li><a href="#">Términos</a></li><li><a href="#">Privacidad</a></li></ul></div>
+        <div class="footer__col"><h3>Empresa</h3><ul><li><a href="#">Sobre frib</a></li><li><a href="#">Prensa</a></li><li><a href="#">Trabajá con nosotros</a></li><li><a href="#">Blog</a></li></ul></div>
+        <div class="footer__col"><h3>Novedades</h3>
+          <form class="news" id="form-news"><label class="solo-lectores" for="news-mail">Tu correo</label>
+            <input id="news-mail" type="email" placeholder="Tu mail" required>
+            <button class="btn btn--secundario btn--sm" type="submit">Suscribirme</button></form>
+        </div>
+      </div>
+    </div>
+    <hr class="footer__separador">
+    <div class="footer__barra">
+      <div><a href="#">Descargá la app — App Store · Google Play</a></div>
+      <div><a href="#">Cookies</a><a href="#">Accesibilidad</a><a href="#">Estado del servicio</a></div>
+    </div>
+    <p class="footer__copy">© <span class="anio">2026</span> frib — TPE Interfaces de Usuario e Interacción, TUDAI</p>
+  </div>
+</footer>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="logo-frib" viewBox="0 0 64 64">
+    <path fill="#A3E635" d="M32 4c14 0 24 9 24 21 0 7-3 12-7 16 1 4 4 7 4 9 0 3-4 4-8 3l-7-3c-2 .4-4 .6-6 .6C18 51 8 41 8 25 8 13 18 4 32 4Z"/>
+    <circle cx="24" cy="24" r="6.4" fill="#1E1B4B"/><circle cx="42" cy="24" r="6.4" fill="#1E1B4B"/>
+  </symbol>
+</svg>
+
+<script src="js/data.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/login.js"></script>
+</body>
+</html>
