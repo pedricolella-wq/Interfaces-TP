@@ -45,16 +45,7 @@
     gap:10px;
     margin-bottom: 28px;
   }
-  .brand .dot{
-    width:34px; height:34px;
-    border-radius:50%;
-    background: var(--accent);
-    display:flex; align-items:center; justify-content:center;
-    font-family:"Baloo 2", sans-serif;
-    font-weight:800;
-    color: var(--accent-ink);
-    font-size:18px;
-  }
+  .brand svg{ width:38px; height:38px; }
   .brand span.name{
     font-family:"Baloo 2", sans-serif;
     font-weight:800;
@@ -121,27 +112,33 @@
     font-size:12px;
     text-align:center;
   }
+  footer a{ color: var(--ink-soft); }
 </style>
 </head>
 <body>
-  <div class="card">
-    <div class="brand">
-      <span class="dot">f</span>
-      <span class="name">frib</span>
-    </div>
-    <h1>TPE1 &mdash; Plataforma de juegos</h1>
-    <p class="subtitle">Acced&eacute; a la presentaci&oacute;n o al archivo de dise&ntilde;o en Figma.</p>
-    <div class="links">
-      <a class="btn primary" href="https://www.figma.com/proto/yatHTqN4skWgHH9pbYptFC/Sin-t%C3%ADtulo?node-id=2-1391&amp;starting-point-node-id=2%3A1391&amp;scaling=scale-down-width&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank" rel="noopener">
-        <span class="ico">&#9654;</span>
-        <span>Ver presentaci&oacute;n<small>Registro &rarr; Home &rarr; Peg Solitaire</small></span>
-      </a>
-      <a class="btn ghost" href="https://www.figma.com/design/yatHTqN4skWgHH9pbYptFC/Sin-t%C3%ADtulo?node-id=0-1" target="_blank" rel="noopener">
-        <span class="ico">&#127912;</span>
-        <span>Ver archivo de Figma<small>Prototipos en alta fidelidad &middot; modo editor</small></span>
-      </a>
-    </div>
-    <footer>TUDAI &middot; Arquitectura Web</footer>
+<div class="card">
+  <div class="brand">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <path fill="#A3E635" d="M60.2 42.3C58.2 47.6 50.9 47.7 44.8 51.1C38.8 54.4 36.4 59 31.1 58.5C25.7 58 24.4 52.4 19.1 48.5C13.7 44.7 7.1 44.8 5.1 39.7C3.1 34.6 7.2 30.3 9.5 23.8C11.7 17.2 11 10.8 15.8 7.9C20.6 5.1 26.1 9.3 32.8 10C39.4 10.8 43.5 8.3 48 11.5C52.5 14.7 52.1 19.2 54.6 25.5C57.1 31.9 62.2 37 60.2 42.3Z"/>
+      <circle cx="21.3" cy="26.4" r="6.6" fill="none" stroke="#0C8CE9" stroke-width="2.2"/>
+      <circle cx="21.3" cy="26.4" r="6.3" fill="#1E1B4B"/>
+      <circle cx="40.3" cy="23.5" r="7.1" fill="#1E1B4B"/>
+    </svg>
+    <span class="name">frib</span>
   </div>
+  <h1>TPE1 &mdash; Plataforma de juegos</h1>
+  <p class="subtitle">Acced&eacute; a la presentaci&oacute;n o al archivo de dise&ntilde;o en Figma.</p>
+  <div class="links">
+    <a class="btn primary" href="https://www.figma.com/proto/yatHTqN4skWgHH9pbYptFC/Sin-t%C3%ADtulo?node-id=2-1391&amp;starting-point-node-id=2%3A1391&amp;scaling=scale-down-width&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank" rel="noopener">
+      <span class="ico">&#9654;</span>
+      <span>Ver presentaci&oacute;n<small>Registro &rarr; Home &rarr; Peg Solitaire</small></span>
+    </a>
+    <a class="btn ghost" href="https://www.figma.com/design/yatHTqN4skWgHH9pbYptFC/Sin-t%C3%ADtulo?node-id=0-1" target="_blank" rel="noopener">
+      <span class="ico">&#127912;</span>
+      <span>Ver archivo de Figma<small>Prototipos en alta fidelidad &middot; modo editor</small></span>
+    </a>
+  </div>
+  <footer>TUDAI &middot; Interfaces de Usuario e Interacci&oacute;n &middot; <a href="../entregas.html">ver las dos entregas</a></footer>
+</div>
 </body>
 </html>
