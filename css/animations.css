@@ -200,7 +200,7 @@
 .loader__anillo::after {
   inset: 22px;
   border: 4px dashed rgba(250, 246, 227, .35);
-  animation: girar-inv 3.2s linear infinite;
+  animation: girar 3.2s linear infinite;
 }
 /* Cuadrado que orbita: en realidad gira un contenedor invisible
    de 130×130 y el cuadradito está clavado en su borde superior;
