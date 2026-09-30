@@ -64,19 +64,43 @@ function initHero(slides) {
 
   const items = Array.from(marco.children);
   const puntos = Array.from(bullets.children);
+  const destello = document.getElementById('hero-destello');
   let actual = 0, timer = null;
   const DURACION = 6000;
 
-  function ir(i) {
-    i = (i + items.length) % items.length;
+  /* Cambio de slide. Pasan cuatro cosas a la vez, todas resueltas por CSS:
+       · el slide que SALE recibe .saliendo y se va con un zoom-out hacia
+         el lado contrario al que viaja el carrusel,
+       · el que ENTRA recibe .activo: fade + Ken Burns + texto en cascada,
+       · una franja de luz (#hero-destello) cruza el banner,
+       · la barra de autoplay vuelve a cero.
+     El JS solo calcula la dirección y pone clases. */
+  function ir(i, dir) {
+    const n = items.length;
+    i = (i + n) % n;
     if (i === actual) return;
-    items[actual].classList.remove('activo');
-    items[actual].setAttribute('aria-hidden', 'true');
+    if (dir === undefined) dir = ((i - actual + n) % n === 1) ? 1 : -1;
+
+    const sale = items[actual];
+    sale.classList.remove('activo');
+    sale.setAttribute('aria-hidden', 'true');
+    sale.classList.remove('saliendo--izq', 'saliendo--der');
+    void sale.offsetWidth;                         // reinicia la animación
+    sale.classList.add(dir > 0 ? 'saliendo--izq' : 'saliendo--der');
+    setTimeout(() => sale.classList.remove('saliendo--izq', 'saliendo--der'), 560);
+
     puntos[actual].setAttribute('aria-current', 'false');
     actual = i;
     items[actual].classList.add('activo');
     items[actual].setAttribute('aria-hidden', 'false');
+    items[actual].dataset.dir = dir > 0 ? 'der' : 'izq';
     puntos[actual].setAttribute('aria-current', 'true');
+
+    if (destello) {                                // franja de luz
+      destello.classList.remove('brilla');
+      void destello.offsetWidth;
+      destello.classList.add('brilla');
+    }
     reiniciarProgreso();
   }
   /* Reinicia la barra de progreso del autoplay.
@@ -92,12 +116,12 @@ function initHero(slides) {
     void progreso.offsetWidth;
     progreso.classList.add('corriendo');
   }
-  function arrancar() { detener(); timer = setInterval(() => ir(actual + 1), DURACION); reiniciarProgreso(); }
+  function arrancar() { detener(); timer = setInterval(() => ir(actual + 1, 1), DURACION); reiniciarProgreso(); }
   function detener()  { clearInterval(timer); }
 
-  btnPrev.addEventListener('click', () => { ir(actual - 1); arrancar(); });
-  btnNext.addEventListener('click', () => { ir(actual + 1); arrancar(); });
-  puntos.forEach((p, i) => p.addEventListener('click', () => { ir(i); arrancar(); }));
+  btnPrev.addEventListener('click', () => { ir(actual - 1, -1); arrancar(); });
+  btnNext.addEventListener('click', () => { ir(actual + 1,  1); arrancar(); });
+  puntos.forEach((p, i) => p.addEventListener('click', () => { ir(i, i > actual ? 1 : -1); arrancar(); }));
   marco.addEventListener('mouseenter', detener);
   marco.addEventListener('mouseleave', arrancar);
   marco.addEventListener('focusin', detener);
@@ -113,7 +137,7 @@ function initHero(slides) {
   marco.addEventListener('touchend', e => {
     if (x0 === null) return;
     const dx = e.changedTouches[0].clientX - x0;
-    if (Math.abs(dx) > 45) ir(actual + (dx < 0 ? 1 : -1));
+    if (Math.abs(dx) > 45) ir(actual + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
     x0 = null; arrancar();
   });
 
