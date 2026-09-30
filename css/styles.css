@@ -262,6 +262,12 @@ body {
 
 /* ---------- 6. Loader ---------- */
 .loader {
+  /* --tono es el HUE (0-360) del que salen TODOS los colores del loader.
+     loader.js lo mueve de 233 (azul de la marca) a 82 (lima) a medida que
+     avanza la carga: una sola variable y el resto de las piezas la siguen. */
+  --tono: 233;
+  --c1: hsl(var(--tono) 62% 46%);             /* color base */
+  --c2: hsl(calc(var(--tono) - 34) 82% 58%);  /* el brillo, 34 grados adelante */
   position: fixed; inset: 0; z-index: 999;
   display: grid; place-content: center; justify-items: center; gap: 22px;
   background: radial-gradient(120% 100% at 50% 0%, var(--violeta) 0%, var(--azul-500) 45%, var(--azul-700) 100%);
@@ -274,7 +280,7 @@ body {
 .loader__anillo { position: relative; width: 120px; height: 120px; }
 .loader__pct { font-size: 2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 .loader__barra { width: min(320px, 78vw); height: 8px; border-radius: 99px; background: rgba(250, 246, 227, .18); overflow: hidden; }
-.loader__barra i { display: block; height: 100%; width: 0%; border-radius: 99px; background: linear-gradient(90deg, var(--verde-300), var(--lima)); }
+.loader__barra i { display: block; height: 100%; width: 0%; border-radius: 99px; background: linear-gradient(90deg, var(--c1), var(--c2)); }
 .loader__texto { font-size: .875rem; min-height: 1.5em; color: rgba(250, 246, 227, .8); }
 
 /* ---------- 7. Hero ---------- */

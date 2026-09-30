@@ -208,7 +208,7 @@
    radial, así queda solo el borde de 10px y no un círculo
    lleno. Después se lo hace girar en loop. */
 .loader__anillo::before {
-  background: conic-gradient(from 0deg, transparent 0turn, var(--verde-300) .35turn, var(--lima) .62turn, transparent .78turn);
+  background: conic-gradient(from 0deg, transparent 0turn, var(--c1) .35turn, var(--c2) .62turn, transparent .78turn);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px));
           mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px));
   animation: girar 1.1s linear infinite;
@@ -232,8 +232,8 @@
 }
 .loader__cuadro i {
   position: absolute; top: -7px; left: 50%; translate: -50% 0;
-  width: 14px; height: 14px; border-radius: 4px; background: var(--lima);
-  box-shadow: 0 0 14px var(--lima);
+  width: 14px; height: 14px; border-radius: 4px; background: var(--c2);
+  box-shadow: 0 0 14px var(--c2);
 }
 /* La barra no se anima con keyframes: el JS le cambia el width
    y esta transition corta suaviza cada salto de porcentaje. */
