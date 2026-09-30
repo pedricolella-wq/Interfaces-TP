@@ -38,9 +38,11 @@
 /* Giro completo. Con animation-timing-function: linear queda
    un giro parejo, sin acelerar ni frenar (spinner del loader). */
 @keyframes girar        { from { transform: rotate(0deg); }   to { transform: rotate(360deg); } }
-/* El mismo giro pero al revés: dos anillos girando en sentido
-   contrario dan sensación de profundidad. */
-@keyframes girar-inv    { from { transform: rotate(0deg); }   to { transform: rotate(360deg); } }
+/* El mismo giro pero al revés (0 → -360°). Hoy no se usa: los dos
+   anillos del loader giran para el mismo lado. Queda declarado por
+   si se quiere volver al giro opuesto, que es cambiar una palabra
+   en .loader__anillo::after. */
+@keyframes girar-inv    { from { transform: rotate(0deg); }   to { transform: rotate(-360deg); } }
 
 /* LATIDO: una onda de sombra que sale del borde del elemento.
    El truco es animar el RADIO de un box-shadow sólido desde
@@ -195,8 +197,11 @@
           mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px));
   animation: girar 1.1s linear infinite;
 }
-/* Anillo interior girando al revés y más lento: el contraste
-   de velocidades y sentidos es lo que da sensación de máquina. */
+/* Anillo interior: gira para el MISMO lado que el exterior pero
+   casi tres veces más lento (3,2 s contra 1,1 s). Al compartir el
+   sentido, lo que separa las dos piezas es la diferencia de
+   velocidad. Para que girara al revés bastaba con cambiar este
+   keyframes por girar-inv, que va de 0 a -360°. */
 .loader__anillo::after {
   inset: 22px;
   border: 4px dashed rgba(250, 246, 227, .35);
