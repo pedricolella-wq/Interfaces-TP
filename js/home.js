@@ -4,7 +4,27 @@
 'use strict';
 
 /* ---------------------------------------------------------
-   1. HERO: carrusel con transición animada (fade + Ken Burns + texto escalonado)
+   1. HERO: carrusel con transición animada
+   ---------------------------------------------------------
+   Cómo funciona el cambio de slide:
+
+   Los tres slides se dibujan de una y quedan APILADOS
+   (position: absolute, uno encima del otro). Solo el que
+   tiene la clase .activo se ve. Cambiar de slide es entonces
+   sacarle .activo a uno y ponérsela a otro: el JS no anima
+   nada, todo el movimiento lo hace el CSS.
+
+   Al ponerse .activo se disparan tres cosas al mismo tiempo
+   (ver animations.css, bloque E):
+     · fade: transition de opacity sobre .hero__slide,
+     · Ken Burns: la imagen pasa de scale(1.14) a scale(1)
+       durante 7 s, como un travelling de cámara,
+     · texto en cascada: etiqueta, título, bajada y botones
+       usan el mismo @keyframes con animation-delay distinto
+       (0.10 / 0.18 / 0.28 / 0.38 s).
+
+   Además el carrusel se pausa al pasar el mouse o al entrar
+   con el teclado (focusin), y se puede deslizar con el dedo.
    --------------------------------------------------------- */
 function initHero(slides) {
   const marco    = document.getElementById('hero-slides');
@@ -59,6 +79,13 @@ function initHero(slides) {
     puntos[actual].setAttribute('aria-current', 'true');
     reiniciarProgreso();
   }
+  /* Reinicia la barra de progreso del autoplay.
+     El "void progreso.offsetWidth" es el truco para REINICIAR
+     una animación CSS: sacar la clase no alcanza, porque el
+     navegador agrupa los cambios y no llega a notar que la
+     animación se fue. Leer offsetWidth lo obliga a recalcular
+     el estilo en ese instante (reflow forzado), así cuando se
+     vuelve a poner la clase la animación arranca de cero. */
   function reiniciarProgreso() {
     if (!progreso) return;
     progreso.classList.remove('corriendo');
@@ -76,7 +103,11 @@ function initHero(slides) {
   marco.addEventListener('focusin', detener);
   marco.addEventListener('focusout', arrancar);
 
-  /* Deslizar con el dedo en mobile */
+  /* Deslizar con el dedo en mobile: se guarda dónde empezó el
+     toque y, si al soltar se movió más de 45px, se cambia de
+     slide. El umbral evita que un toque común cuente como
+     deslizamiento. passive: true le avisa al navegador que no
+     voy a cancelar el scroll, y así no lo frena. */
   let x0 = null;
   marco.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; detener(); }, { passive: true });
   marco.addEventListener('touchend', e => {
@@ -91,6 +122,15 @@ function initHero(slides) {
 
 /* ---------------------------------------------------------
    2. FILAS de juegos (carrusel horizontal con flechas y bullets)
+   ---------------------------------------------------------
+   Las filas no se escriben a mano en el HTML: se generan acá
+   a partir del catálogo, así agregar un juego es tocar un
+   solo archivo (data.js).
+
+   El desplazamiento horizontal lo hace el propio navegador:
+   la pista tiene overflow-x y scroll-snap (ver styles.css),
+   y las flechas solo llaman a scrollBy. Por eso funciona
+   igual con el dedo en mobile sin escribir nada más.
    --------------------------------------------------------- */
 function pintarFila(cfg) {
   const cont = document.getElementById('filas');

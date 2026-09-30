@@ -1,3 +1,12 @@
+/* NOTA: acá está todo el contenido del sitio separado de la
+   presentación. Los juegos son reales y los títulos tienen
+   largos muy distintos a propósito ("2048" contra "Solitario
+   Klondike"), para probar que las cards aguantan cualquier
+   longitud sin romperse. Las portadas también son distintas
+   entre sí por el mismo motivo.
+   Tener los datos acá permite que la Home, el buscador y la
+   página de juego lean todos del mismo catálogo.
+*/
 /* =========================================================
    frib · data.js
    Catálogo local (respaldo). Todos son juegos reales y clásicos,

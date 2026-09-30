@@ -11,6 +11,21 @@ const juegoActual = JUEGOS.find(j => j.slug === slugActual) || JUEGOS.find(j => 
 
 /* ---------------------------------------------------------
    1. PEG SOLITAIRE — tablero inglés de 33 casilleros
+   ---------------------------------------------------------
+   El tablero se guarda como una matriz de 7×7 donde cada
+   casilla vale:  1 = ficha · 0 = casillero libre · -1 = fuera
+   del tablero (las cuatro esquinas de 2×2 que el tablero
+   inglés no tiene). Eso es lo que decide valido(r, c).
+
+   El tablero se DIBUJA como SVG generado por JS: por cada
+   casilla se escribe un <circle>. Al ser SVG, las fichas se
+   animan con CSS igual que cualquier elemento HTML (ver
+   animations.css, bloque G): la ficha que salta usa
+   @keyframes salto-ficha y los casilleros a los que se puede
+   saltar laten solos con @keyframes latido.
+
+   El degradado de las fichas es un <radialGradient> definido
+   una sola vez en <defs> y reutilizado por las 32 fichas.
    --------------------------------------------------------- */
 const TAM = 7;
 const valido = (r, c) => (r >= 2 && r <= 4) || (c >= 2 && c <= 4);

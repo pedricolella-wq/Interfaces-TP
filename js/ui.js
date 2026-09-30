@@ -84,7 +84,25 @@ function initMenu() {
   $$('a', menu).forEach(a => a.addEventListener('click', () => abrir(false)));
 }
 
-/* ---------- Aparición al hacer scroll ---------- */
+/* ---------- Aparición al hacer scroll ----------
+   Patrón "reveal on scroll" con IntersectionObserver.
+
+   Por qué un observer y no el evento scroll: el evento scroll
+   se dispara decenas de veces por segundo y obliga a medir
+   posiciones a mano (lo que fuerza reflows y traba el scroll).
+   El IntersectionObserver lo resuelve el navegador y me avisa
+   solo cuando el elemento entra en pantalla.
+
+   El CSS deja la sección en opacity 0 y corrida 26px; acá
+   solo se le agrega la clase .visible y la transition de
+   animations.css (bloque I) hace la animación.
+
+   unobserve() después de mostrar: la animación ocurre una
+   sola vez, no cada vez que se sube y se baja.
+
+   Si el navegador no soporta la API, se muestran todas de
+   una (mejora progresiva: sin animación, pero nada se pierde).
+   --------------------------------------------------------- */
 function initReveal() {
   const items = $$('.reveal');
   if (!items.length) return;

@@ -4,7 +4,14 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
-  /* ---------- Tabs con indicador que se desliza ---------- */
+  /* ---------- Tabs con indicador que se desliza ----------
+     El indicador es un solo elemento; no se mueve cambiando
+     su "left" (que obliga al navegador a recalcular layout)
+     sino con un transform, que es lo barato de animar.
+     El JS solo escribe la variable CSS --x y el CSS hace
+     translateX(var(--x)) con una transition: el deslizamiento
+     sale gratis y la lógica queda en una sola línea.
+     --------------------------------------------------------- */
   const tabs    = document.querySelectorAll('.tabs button');
   const ind     = document.querySelector('.tabs__ind');
   const paneles = { login: document.getElementById('form-login'), registro: document.getElementById('form-registro') };
@@ -40,6 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const ok = r === true;
     input.setAttribute('aria-invalid', String(!ok));
     err.textContent = ok ? '' : r;
+    /* Si está mal, el campo tiembla. Mismo truco de reinicio
+       que en el hero: sacar la clase, forzar el reflow leyendo
+       offsetWidth y volver a ponerla, para que la animación se
+       vuelva a ejecutar aunque ya se hubiera ejecutado antes. */
     if (!ok) { input.classList.remove('sacudir'); void input.offsetWidth; input.classList.add('sacudir'); }
     return ok;
   }
@@ -91,7 +102,15 @@ document.addEventListener('DOMContentLoaded', () => {
     festejar(nombre);
   });
 
-  /* ---------- Animación de registro correcto ---------- */
+  /* ---------- Animación de registro correcto ----------
+     Es la animación que pide la consigna al registrarse bien.
+     Se compone de tres partes, todas CSS:
+       · el tilde SVG que se dibuja solo (stroke-dashoffset),
+       · el título, el texto y el botón entrando en cascada,
+       · 70 papelitos de confeti cayendo.
+     El JS únicamente agrega la clase .visible y crea los
+     papelitos; los keyframes están en animations.css (bloque H).
+     --------------------------------------------------------- */
   function festejar(nombre) {
     const caja = document.getElementById('exito');
     document.getElementById('exito-nombre').textContent = nombre ? `¡Bienvenido, ${nombre}!` : '¡Cuenta creada!';
@@ -101,6 +120,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => document.getElementById('exito-cta').focus(), 900);
   }
 
+  /* Confeti: se crean 70 <i> y a cada uno se le da al azar
+     posición horizontal, color, duración y retraso. Esa
+     variación es lo que hace que parezca confeti de verdad y
+     no 70 cuadraditos cayendo sincronizados. La animación en
+     sí (caer y girar 720°) es un @keyframes.
+     A los 4,2 s se vacía la capa para no dejar 70 nodos
+     animándose de fondo. */
   function lanzarConfeti() {
     const capa = document.getElementById('confeti');
     capa.innerHTML = '';

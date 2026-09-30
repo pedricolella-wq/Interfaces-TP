@@ -1,7 +1,27 @@
 /* =========================================================
-   frib · loader.js
-   Carga simulada de 5 segundos con porcentaje real y animación CSS.
-   No se usa ningún GIF: el spinner es conic-gradient + @keyframes.
+   frib · loader.js — carga simulada de 5 segundos
+   ---------------------------------------------------------
+   Qué resuelve este archivo:
+     · que la pantalla de carga dure EXACTAMENTE 5 s,
+     · que el porcentaje que se ve sea real (medido con el
+       reloj del navegador, no inventado con un setInterval),
+     · que al terminar avise al resto de la página.
+
+   Por qué requestAnimationFrame y no setInterval:
+   rAF se sincroniza con el refresco de la pantalla (~60 veces
+   por segundo) y me da el tiempo exacto transcurrido, así que
+   el porcentaje nunca se desfasa aunque el navegador se trabe
+   un instante. Con setInterval, si un tick llega tarde, la
+   cuenta se atrasa y los 5 s dejan de ser 5 s.
+
+   Toda la animación del spinner es CSS (ver animations.css,
+   bloque B): acá solo se calcula el número y el ancho de la
+   barra. No se usa ningún GIF ni spritesheet.
+
+   El patrón de cierre es un EVENTO PERSONALIZADO: en vez de
+   que el loader sepa qué hay que construir después, dispara
+   'frib:cargado' y home.js lo escucha. Así los dos archivos
+   quedan desacoplados.
    ========================================================= */
 'use strict';
 (function () {
@@ -21,13 +41,15 @@
     [86,  'Casi listo, preparando el tablero…'],
   ];
 
+  /* Mientras carga no se puede scrollear la página de atrás. */
   document.body.style.overflow = 'hidden';
-  let ultimo = -1;
-  const inicio = performance.now();
+  let ultimo = -1;                          // último % pintado, para no tocar el DOM de más
+  const inicio = performance.now();         // marca de tiempo de alta precisión
 
+  /* Se ejecuta en cada cuadro. "ahora" lo pasa el navegador. */
   function paso(ahora) {
-    const t = Math.min(1, (ahora - inicio) / DURACION);
-    const p = Math.floor(t * 100);
+    const t = Math.min(1, (ahora - inicio) / DURACION);   // avance de 0 a 1
+    const p = Math.floor(t * 100);                        // ese avance en %
     if (p !== ultimo) {
       ultimo = p;
       pct.textContent = p + '%';
@@ -36,8 +58,11 @@
       const m = MENSAJES.filter(x => p >= x[0]).pop();
       if (m && texto.textContent !== m[1]) texto.textContent = m[1];
     }
+    /* Si todavía no llegó a 5 s, pide el próximo cuadro. */
     if (t < 1) { requestAnimationFrame(paso); }
     else {
+      /* Terminó: se desvanece (clase .saliendo) y recién
+         después se oculta y avisa al resto de la página. */
       texto.textContent = '¡Listo!';
       loader.classList.add('saliendo');
       setTimeout(() => {

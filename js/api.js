@@ -1,3 +1,14 @@
+/* NOTA sobre este archivo: es el "Plus" de la consigna, el
+   consumo de la API de la cátedra. Dos decisiones a explicar:
+     · AbortController + setTimeout: si la API no contesta en
+       8 s se cancela el pedido, porque una promesa colgada
+       dejaría la fila cargando para siempre.
+     · normalizar(): la API devuelve los campos con otros
+       nombres (name, background_image, rating…). Se traducen
+       al formato del catálogo local para que las cards no
+       sepan de dónde vinieron los datos.
+   Si falla, home.js muestra el catálogo local de respaldo.
+*/
 /* =========================================================
    frib · api.js
    PLUS de la consigna: consumo de la API de la cátedra
