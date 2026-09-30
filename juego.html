@@ -1,4 +1,21 @@
 <!DOCTYPE html>
+<!--
+  frib · Página de juego (Peg Solitaire)
+  ---------------------------------------------------------
+  Tres bloques:
+    1. escenario  el tablero a todo el ancho de la pantalla,
+                  con la barra de datos arriba (movimientos,
+                  fichas, tiempo) y la de compartir abajo
+    2. sobre      descripción del juego + datos rápidos
+    3. reseñas    hilo de comentarios con resumen de puntaje,
+                  orden, me gusta / responder y paginado
+                  "Ver más" (patrón load more)
+
+  El tablero es un SVG generado por juego.js: cada casillero
+  es un <circle>, así se anima con CSS igual que cualquier
+  elemento (la ficha que salta, la que se come, y los
+  casilleros destino que laten).
+-->
 <html lang="es-AR">
 <head>
 <meta charset="UTF-8">
@@ -10,8 +27,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Paytone+One&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=7">
-<link rel="stylesheet" href="css/animations.css?v=7">
+<link rel="stylesheet" href="css/styles.css?v=8">
+<link rel="stylesheet" href="css/animations.css?v=8">
 </head>
 <body>
 <a class="saltar-al-contenido" href="#contenido">Saltar al contenido</a>
@@ -245,8 +262,8 @@
   </symbol>
 </svg>
 
-<script src="js/data.js?v=7"></script>
-<script src="js/ui.js?v=7"></script>
-<script src="js/juego.js?v=7"></script>
+<script src="js/data.js?v=8"></script>
+<script src="js/ui.js?v=8"></script>
+<script src="js/juego.js?v=8"></script>
 </body>
 </html>
