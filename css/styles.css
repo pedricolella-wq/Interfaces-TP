@@ -1,6 +1,22 @@
 /* =========================================================
    frib · TPE2 Interfaces de Usuario e Interacción
-   styles.css — tokens, layout y componentes (mobile first)
+   styles.css — tokens, layout y componentes
+   ---------------------------------------------------------
+   Está escrito MOBILE FIRST: lo que está fuera de cualquier
+   @media es la versión de celular, y los @media (min-width)
+   van AGREGANDO cosas a medida que hay más ancho. Nunca se
+   escribe una regla de escritorio para después deshacerla en
+   mobile.
+
+   Orden del archivo:
+     1. Reset          2. Tokens (design system)
+     3. Utilidades     4. Header        5. Menú lateral
+     6. Botones        7. Hero          8. Filas / carruseles
+     9. Cards         10. Login        11. Página de juego
+    12. Reseñas       13. Responsive (los @media, al final)
+
+   Todo el movimiento está en animations.css; acá solo hay
+   estructura, color y tipografía.
    ========================================================= */
 
 /* ---------- 1. Reset ---------- */
@@ -16,7 +32,16 @@ ul, ol { list-style: none; }
 a { color: inherit; text-decoration: none; }
 h1, h2, h3, h4 { line-height: 1.15; text-wrap: balance; }
 
-/* ---------- 2. Tokens (Design System v4) ---------- */
+/* ---------- 2. Tokens (Design System v4) ----------
+   Las variables CSS son el puente entre el design system de
+   Figma y el código: cada color, radio, sombra y tiempo está
+   definido UNA vez acá y el resto del archivo lo usa por
+   nombre. Si cambia el verde de la marca, se toca una línea.
+   La paleta respeta el límite de la consigna: un primario
+   (azul), un secundario (verde), un acento (lima) y dos
+   neutros (crema y tinta), cada uno con su versión clara y
+   oscura.
+   --------------------------------------------------------- */
 :root {
   /* 1 primario con luces y sombras */
   --azul-300: #3D52C9;
@@ -310,6 +335,13 @@ body {
 }
 .fila__vertodos:hover::after { right: 0; }
 .fila__marco { position: relative; }
+/* La pista del carrusel es un grid de UNA fila que crece
+   hacia la derecha (grid-auto-flow: column). El ancho de cada
+   card lo fija grid-auto-columns, y ese valor es lo único que
+   cambian los @media del final: así en mobile entra 1 card,
+   después 2, 3, 4 y 5, sin tocar el HTML.
+   scroll-snap hace que el desplazamiento frene siempre con
+   una card alineada, como en Netflix o la App Store. */
 .fila__pista {
   display: grid; grid-auto-flow: column; grid-auto-columns: minmax(230px, 1fr);
   gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
@@ -644,6 +676,17 @@ body {
 
 /* =========================================================
    RESPONSIVE — mobile first
+   ---------------------------------------------------------
+   Los cortes no se eligieron por dispositivo sino por dónde
+   el diseño empieza a quedar incómodo:
+     560px  → entran 2 cards por fila
+     760px  → más aire (gutter y header más altos), el hero se
+              vuelve panorámico, aparecen las dos columnas
+     900px  → 3 cards
+     1024px → 4 cards, aparecen las flechas del carrusel y se
+              ocultan los bullets (en mobile se desliza con el
+              dedo, en escritorio se usan las flechas)
+     1500px → 5 cards
    ========================================================= */
 @media (min-width: 560px) {
   .fila__pista { grid-auto-columns: calc((100% - 14px) / 2); }
@@ -683,7 +726,12 @@ body {
   .fila__pista { grid-auto-columns: calc((100% - 56px) / 5); }
 }
 
-/* Accesibilidad: menos movimiento */
+/* Accesibilidad: menos movimiento.
+   Si la persona pidió en su sistema operativo reducir las
+   animaciones (por mareos o sensibilidad al movimiento), se
+   anulan todas de una: no se borran las reglas, se les baja
+   la duración a casi cero. Así el sitio sigue funcionando
+   exactamente igual pero sin movimiento. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;
