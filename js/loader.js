@@ -29,6 +29,8 @@
   if (!loader) return;
 
   const DURACION = 5000;                    // 5 s exactos, como pide la consigna
+  const TONO_INI = 233;                     // hue del azul de la marca
+  const TONO_FIN = 82;                      // hue del lima
   const pct   = document.getElementById('loader-pct');
   const barra = document.getElementById('loader-barra');
   const texto = document.getElementById('loader-texto');
@@ -52,6 +54,9 @@
     const p = Math.floor(t * 100);                        // ese avance en %
     if (p !== ultimo) {
       ultimo = p;
+      /* El color del loader es un solo numero: el hue. Se interpola de
+         233 a 82 segun el avance y el CSS arma con el los dos colores. */
+      loader.style.setProperty('--tono', (TONO_INI + (TONO_FIN - TONO_INI) * t).toFixed(1));
       pct.textContent = p + '%';
       barra.style.width = p + '%';
       loader.setAttribute('aria-valuenow', String(p));
