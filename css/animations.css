@@ -418,8 +418,16 @@
   animation: entrar-card .5s var(--ease) both;
   animation-delay: calc(var(--i, 0) * 70ms);
 }
-.fila--animada .fila__pista.ola > * {
-  animation: ola-card .5s var(--ease) both;
+/* La ola se aplica a la CARD, no al contenedor que ya tiene la
+   animación de entrada. Si las dos compartieran elemento, al sacar la
+   clase .ola el animation-name volvería a "entrar-card" y el navegador
+   la reproduciría de nuevo: las cards desaparecían un segundo cada vez
+   que se tocaba una flecha.
+   Tampoco lleva fill-mode: sin él, antes de que arranque su retraso la
+   card se ve normal, y al terminar vuelve sola a su estado de reposo,
+   así el hover sigue funcionando. */
+.fila--animada .fila__pista.ola .card {
+  animation: ola-card .5s var(--ease);
   animation-delay: calc(var(--i, 0) * 45ms);
 }
 
