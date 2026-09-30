@@ -322,14 +322,6 @@ body {
   transition: width var(--t-media) var(--ease), background var(--t-media);
 }
 .hero__bullets button[aria-current="true"] { width: 30px; background: var(--lima); }
-/* Franja de luz del cambio de slide. Vive encima de los slides y no
-   recibe clicks; su animación está en animations.css. */
-.hero__destello {
-  position: absolute; top: -10%; bottom: -10%; left: 0; width: 30%;
-  z-index: 4; pointer-events: none; opacity: 0;
-  background: linear-gradient(90deg, transparent, rgba(250,246,227,.30), rgba(163,230,53,.22), transparent);
-  filter: blur(6px);
-}
 .hero__progreso { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--lima); width: 0; z-index: 6; }
 
 /* ---------- 8. Filas / carruseles ---------- */

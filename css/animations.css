@@ -104,6 +104,8 @@
 /* Aparición simple. Se usa también AL REVÉS (animation-direction:
    reverse) para que el loader se desvanezca al terminar. */
 @keyframes aparecer { from { opacity: 0; } to { opacity: 1; } }
+/* Halo que respira. Anima opacity, que el navegador compone en la GPU. */
+@keyframes pulso-halo { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
 
 /* CONFETI: cae desde arriba de la pantalla (-10vh) hasta
    abajo (105vh) girando dos vueltas completas. Cada papelito
@@ -165,25 +167,18 @@
   80%      { transform: translateX(4px); }
 }
 
-/* SALIR-HERO: el slide que se va no solo se desvanece, también se
-   achica un poco y se corre hacia el lado contrario al que viaja el
-   carrusel. Hay una versión para cada dirección, y el JS elige cuál
-   según se avance o se retroceda. */
-@keyframes salir-hero-izq {
-  0%   { opacity: 1; transform: translateX(0) scale(1); }
-  100% { opacity: 0; transform: translateX(-7%) scale(.94); }
+/* ENTRAR-CARD: las cards de la fila animada aparecen escalonadas.
+   Cada una recibe del JS su índice en la variable --i, y el CSS lo
+   traduce a un animation-delay distinto. */
+@keyframes entrar-card {
+  0%   { opacity: 0; transform: translateY(24px) scale(.94); }
+  100% { opacity: 1; transform: none; }
 }
-@keyframes salir-hero-der {
-  0%   { opacity: 1; transform: translateX(0) scale(1); }
-  100% { opacity: 0; transform: translateX(7%) scale(.94); }
-}
-/* DESTELLO: una franja de luz inclinada que cruza el banner de lado a
-   lado. No se mueve el fondo: se mueve la franja con translateX, que
-   es lo barato de animar. */
-@keyframes destello-hero {
-  0%   { transform: translateX(-60%) skewX(-18deg); opacity: 0; }
-  18%  { opacity: 1; }
-  100% { transform: translateX(260%) skewX(-18deg); opacity: 0; }
+/* OLA: la onda que recorre la fila al tocar una flecha. Solo mueve
+   transform, así que no fuerza recalculo de layout. */
+@keyframes ola-card {
+  0%, 100% { transform: none; }
+  45%      { transform: translateY(-10px) scale(1.035); }
 }
 
 /* Barras que crecen. La del hero marca cuánto falta para que
@@ -369,7 +364,15 @@
 /* Cucardas con micro-animación propia, para que las cuatro se
    distingan también por cómo se mueven y no solo por el color. */
 .cucarda--nuevo   { animation: entrar-izq .5s var(--ease) both; }
-.cucarda--premium { animation: latido 2.6s var(--ease) infinite; }
+.cucarda--premium { position: relative; }
+/* El halo de la cucarda Premium late animando la OPACIDAD de un
+   pseudo-elemento, no el box-shadow: animar sombras obliga a repintar
+   en cada cuadro, y esta cucarda está en pantalla todo el tiempo. */
+.cucarda--premium::after {
+  content: ""; position: absolute; inset: -3px; border-radius: inherit;
+  box-shadow: 0 0 16px rgba(163,230,53,.75); opacity: 0; pointer-events: none;
+  animation: pulso-halo 2.6s var(--ease) infinite;
+}
 .cucarda--top svg { animation: flotar 1.8s ease-in-out infinite; }
 
 
@@ -386,12 +389,6 @@
    movimiento lo resuelve el CSS.
    ========================================================= */
 .hero__slide { transition: opacity var(--t-lenta) var(--ease), visibility var(--t-lenta); }
-/* El slide que sale queda visible mientras dura su animación; si no,
-   la transición de visibility lo escondería antes de que se vea. */
-.hero__slide.saliendo--izq,
-.hero__slide.saliendo--der { visibility: visible; opacity: 1; z-index: 2; }
-.hero__slide.saliendo--izq { animation: salir-hero-izq .55s var(--ease) both; }
-.hero__slide.saliendo--der { animation: salir-hero-der .55s var(--ease) both; }
 /* Estado de reposo: la imagen ya arranca agrandada, así el
    Ken Burns tiene de dónde "volver". */
 .hero__slide img { transform: scale(1.14); }
@@ -403,12 +400,28 @@
 .hero__slide.activo .hero__titulo  { animation: entrar-abajo .6s var(--ease) .18s both; }
 .hero__slide.activo .hero__bajada  { animation: entrar-abajo .6s var(--ease) .28s both; }
 .hero__slide.activo .hero__acciones{ animation: entrar-abajo .6s var(--ease) .38s both; }
-/* Franja de luz que cruza el banner en cada cambio de slide. */
-.hero__destello.brilla { animation: destello-hero .9s var(--ease) both; }
 /* Barra que muestra cuánto falta para el próximo slide. El JS
    saca y vuelve a poner la clase para reiniciarla. */
 .hero__progreso.corriendo { animation: barra-progreso 6s linear forwards; }
 
+
+/* ---------------------------------------------------------
+   Fila animada (la última de la Home, "Novedades")
+   ---------------------------------------------------------
+   Es el carrusel que lleva la transición trabajada. Dos momentos:
+     · al aparecer en pantalla, las cards entran escalonadas,
+     · al tocar una flecha, una ola las recorre de izquierda a derecha.
+   El escalonado sale de multiplicar el índice --i de cada card por
+   un retraso fijo: una sola regla sirve para las doce.
+   --------------------------------------------------------- */
+.fila--animada.visible .fila__pista > * {
+  animation: entrar-card .5s var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+.fila--animada .fila__pista.ola > * {
+  animation: ola-card .5s var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
 
 /* =========================================================
    F. RESEÑAS — barras de puntaje que crecen al aparecer
