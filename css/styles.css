@@ -263,8 +263,9 @@ body {
 /* ---------- 6. Loader ---------- */
 .loader {
   /* --tono es el HUE (0-360) del que salen TODOS los colores del loader.
-     loader.js lo mueve de 233 (azul de la marca) a 82 (lima) a medida que
-     avanza la carga: una sola variable y el resto de las piezas la siguen. */
+     Lo mueve el @keyframes "virar" de animations.css, de 233 (azul de la
+     marca) a 82 (lima), durante los 5 s de carga: una sola variable y el
+     anillo, el cuadrado y la barra la siguen. */
   --tono: 233;
   --c1: hsl(var(--tono) 62% 46%);             /* color base */
   --c2: hsl(calc(var(--tono) - 34) 82% 58%);  /* el brillo, 34 grados adelante */

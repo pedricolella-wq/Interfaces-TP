@@ -198,6 +198,25 @@
      · un cuadradito que orbita alrededor.
    El porcentaje y el ancho de la barra los escribe loader.js.
    ========================================================= */
+/* VIRAR: el color del loader. Todo el degradé sale de una sola
+   variable, --tono, que es el HUE (0-360). Este keyframes la lleva
+   de 233 (el azul de la marca) a 82 (el lima) durante la carga.
+
+   Por qué el @property de arriba: una custom property normal NO se
+   puede interpolar, el navegador la trata como texto y salta de un
+   valor al otro a mitad de camino. Registrarla como '<number>' es
+   lo que le permite recorrer el rango cuadro a cuadro.
+
+   La duración tiene que coincidir con DURACION en loader.js (5 s).
+   "forwards" deja el valor final clavado al terminar. */
+@property --tono {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 233;
+}
+@keyframes virar { to { --tono: 82; } }
+.loader { animation: virar 5s linear forwards; }
+
 .loader__marca { animation: flotar 2.4s ease-in-out infinite; }
 
 .loader__anillo::before,
@@ -239,8 +258,15 @@
    y esta transition corta suaviza cada salto de porcentaje. */
 .loader__barra i { transition: width 120ms linear; }
 .loader__texto { animation: aparecer .4s var(--ease); }
-/* Salida: la misma animación "aparecer" pero en reverse. */
-.loader.saliendo { animation: aparecer .45s var(--ease) reverse forwards; }
+/* Salida: la misma animación "aparecer" pero en reverse.
+   El "--tono: 82" no es decorativo: este shorthand pisa el
+   animation-name y con él se va la animación "virar", así que sin
+   esta línea la variable volvería a su valor inicial (233) y el
+   loader se despediría en azul. Acá se clava el valor final. */
+.loader.saliendo {
+  animation: aparecer .45s var(--ease) reverse forwards;
+  --tono: 82;
+}
 
 
 /* =========================================================
