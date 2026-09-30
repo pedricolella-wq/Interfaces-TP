@@ -322,6 +322,14 @@ body {
   transition: width var(--t-media) var(--ease), background var(--t-media);
 }
 .hero__bullets button[aria-current="true"] { width: 30px; background: var(--lima); }
+/* Franja de luz del cambio de slide. Vive encima de los slides y no
+   recibe clicks; su animación está en animations.css. */
+.hero__destello {
+  position: absolute; top: -10%; bottom: -10%; left: 0; width: 30%;
+  z-index: 4; pointer-events: none; opacity: 0;
+  background: linear-gradient(90deg, transparent, rgba(250,246,227,.30), rgba(163,230,53,.22), transparent);
+  filter: blur(6px);
+}
 .hero__progreso { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--lima); width: 0; z-index: 6; }
 
 /* ---------- 8. Filas / carruseles ---------- */
@@ -410,11 +418,16 @@ body {
 .skeleton { background: rgba(250,246,227,.09); border-radius: var(--radio); aspect-ratio: 16/10; }
 .skeleton--card { aspect-ratio: auto; height: 250px; }
 
-/* ---------- 10. Fat footer ---------- */
-.footer { background: var(--tinta); margin-top: 28px; padding-block: 34px 22px; }
-.footer__grid { display: grid; gap: 26px; }
-.footer__marca { display: grid; gap: 12px; }
-.footer__marca p { font-size: .875rem; color: rgba(250,246,227,.75); max-width: 30ch; }
+/* ---------- 10. Fat footer ----------
+   En mobile va compacto: menos padding, menos gap y tipografías más
+   chicas. Los valores grandes se recuperan recién a partir de 760px,
+   que es donde hay ancho de sobra (ver el bloque RESPONSIVE). */
+.footer { background: var(--tinta); margin-top: 24px; padding-block: 22px 16px; }
+.footer__grid { display: grid; gap: 18px; }
+.footer__marca { display: grid; gap: 8px; }
+.footer__marca .logo svg { width: 30px; height: 30px; }
+.footer__marca .logo span { font-size: 1.35rem; }
+.footer__marca p { font-size: .8125rem; color: rgba(250,246,227,.75); max-width: 34ch; }
 .footer__redes { display: flex; gap: 8px; }
 .footer__redes a {
   width: 34px; height: 34px; border-radius: 10px; background: var(--violeta);
@@ -422,28 +435,40 @@ body {
   transition: transform var(--t-media) var(--ease-out-back), background var(--t-media);
 }
 .footer__redes a:hover { transform: translateY(-4px) rotate(-6deg); background: var(--lima); color: var(--azul-700); }
-.footer__cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px 16px; }
-.footer__col h3 { font-size: .8125rem; letter-spacing: .1em; text-transform: uppercase; color: var(--lima); margin-bottom: 10px; }
-.footer__col li + li { margin-top: 7px; }
-.footer__col a { font-size: .875rem; color: rgba(250,246,227,.8); position: relative; }
+.footer__cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px 14px; }
+.footer__col h3 { font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: var(--lima); margin-bottom: 6px; }
+.footer__col li + li { margin-top: 4px; }
+.footer__col a { font-size: .8125rem; color: rgba(250,246,227,.8); position: relative; }
 .footer__col a:hover { color: var(--lima); }
 .news { display: flex; gap: 8px; flex-wrap: wrap; }
 .news input {
-  flex: 1 1 140px; min-height: 44px; border-radius: 999px; padding: 0 16px;
+  flex: 1 1 120px; min-width: 0; min-height: 42px; border-radius: 999px; padding: 0 14px;
   background: var(--violeta); border: 1.5px solid transparent; color: var(--crema);
+  font-size: .875rem;
 }
+/* En mobile el mail y el botón van en la misma fila: apilados comían
+   casi 100px de alto para un formulario secundario. */
+.news .btn { flex: 0 0 auto; padding-inline: 16px; }
 .news input:focus { border-color: var(--lima); }
-.footer__separador { border: 0; border-top: 1px solid rgba(250,246,227,.16); margin: 24px 0 14px; }
-.footer__barra { display: grid; gap: 8px; font-size: .8125rem; color: rgba(250,246,227,.7); }
-.footer__barra div { display: flex; gap: 14px; flex-wrap: wrap; }
-.footer__copy { text-align: center; font-size: .8125rem; color: rgba(250,246,227,.6); margin-top: 16px; }
+.footer__separador { border: 0; border-top: 1px solid rgba(250,246,227,.16); margin: 16px 0 10px; }
+.footer__barra { display: grid; gap: 6px; font-size: .75rem; color: rgba(250,246,227,.7); }
+.footer__barra div { display: flex; gap: 12px; flex-wrap: wrap; }
+.footer__copy { text-align: center; font-size: .6875rem; color: rgba(250,246,227,.6); margin-top: 10px; }
+/* La newsletter ocupa las dos columnas para no apretar el input. */
+.footer__col:last-child { grid-column: 1 / -1; }
 
 /* ---------- 11. Login / Registro ---------- */
 .auth { min-height: calc(100vh - var(--header-h)); display: grid; align-items: center; padding-block: 28px; }
-.auth__grid { display: grid; gap: 26px; }
+.auth__grid {
+  display: grid; gap: 26px;
+  /* Sin este tope, en pantallas anchas el texto queda pegado al borde
+     izquierdo y la tarjeta al derecho, con un hueco enorme en el medio.
+     Se limita el ancho del par y se centra dentro del contenedor. */
+  width: 100%; max-width: 1080px; margin-inline: auto;
+}
 .auth__pitch h1 { font-size: clamp(1.9rem, 6vw, 3.2rem); font-weight: 800; }
 .auth__pitch h1 em { font-style: normal; color: var(--lima); display: block; }
-.auth__pitch p { color: rgba(250,246,227,.8); margin-top: 8px; }
+.auth__pitch p { color: rgba(250,246,227,.8); margin-top: 8px; max-width: 42ch; }
 .auth__ventajas { display: grid; gap: 10px; margin-top: 18px; }
 .auth__ventajas li { display: flex; gap: 10px; align-items: center; font-weight: 600; }
 .auth__ventajas svg { width: 22px; height: 22px; flex: 0 0 auto; color: var(--verde-300); }
@@ -704,8 +729,22 @@ body {
   .hero__flecha { top: 50%; }
   .hero__flecha--izq { left: 20px; }
   .hero__flecha--der { right: 20px; }
-  .footer__cols { grid-template-columns: repeat(3, 1fr); }
-  .auth__grid { grid-template-columns: 1fr minmax(380px, 420px); align-items: center; gap: 40px; }
+  .footer { margin-top: 28px; padding-block: 34px 22px; }
+  .footer__grid { gap: 26px; }
+  .footer__marca { gap: 12px; }
+  .footer__marca p { font-size: .875rem; }
+  .footer__marca .logo svg { width: 36px; height: 36px; }
+  .footer__marca .logo span { font-size: 1.6rem; }
+  .news input { min-height: 44px; font-size: 1rem; }
+  .footer__cols { grid-template-columns: repeat(3, 1fr); gap: 22px 16px; }
+  .footer__col h3 { font-size: .8125rem; margin-bottom: 10px; }
+  .footer__col li + li { margin-top: 7px; }
+  .footer__col a { font-size: .875rem; }
+  .footer__col:last-child { grid-column: auto; }
+  .footer__separador { margin: 24px 0 14px; }
+  .footer__barra { gap: 8px; font-size: .8125rem; }
+  .footer__copy { font-size: .8125rem; margin-top: 16px; }
+  .auth__grid { grid-template-columns: minmax(0, 1fr) minmax(350px, 400px); align-items: center; gap: 44px; }
   .juego-grid { grid-template-columns: minmax(0, 1fr) 300px; align-items: start; }
   .comentarios__grid { grid-template-columns: 290px minmax(0, 1fr); align-items: start; gap: 22px; }
   .resumen { position: sticky; top: calc(var(--header-h) + 14px); }

@@ -165,6 +165,27 @@
   80%      { transform: translateX(4px); }
 }
 
+/* SALIR-HERO: el slide que se va no solo se desvanece, también se
+   achica un poco y se corre hacia el lado contrario al que viaja el
+   carrusel. Hay una versión para cada dirección, y el JS elige cuál
+   según se avance o se retroceda. */
+@keyframes salir-hero-izq {
+  0%   { opacity: 1; transform: translateX(0) scale(1); }
+  100% { opacity: 0; transform: translateX(-7%) scale(.94); }
+}
+@keyframes salir-hero-der {
+  0%   { opacity: 1; transform: translateX(0) scale(1); }
+  100% { opacity: 0; transform: translateX(7%) scale(.94); }
+}
+/* DESTELLO: una franja de luz inclinada que cruza el banner de lado a
+   lado. No se mueve el fondo: se mueve la franja con translateX, que
+   es lo barato de animar. */
+@keyframes destello-hero {
+  0%   { transform: translateX(-60%) skewX(-18deg); opacity: 0; }
+  18%  { opacity: 1; }
+  100% { transform: translateX(260%) skewX(-18deg); opacity: 0; }
+}
+
 /* Barras que crecen. La del hero marca cuánto falta para que
    pase al siguiente slide; la de reseñas usa var(--v), que es
    el porcentaje que le pasa el JS a cada barra. */
@@ -365,6 +386,12 @@
    movimiento lo resuelve el CSS.
    ========================================================= */
 .hero__slide { transition: opacity var(--t-lenta) var(--ease), visibility var(--t-lenta); }
+/* El slide que sale queda visible mientras dura su animación; si no,
+   la transición de visibility lo escondería antes de que se vea. */
+.hero__slide.saliendo--izq,
+.hero__slide.saliendo--der { visibility: visible; opacity: 1; z-index: 2; }
+.hero__slide.saliendo--izq { animation: salir-hero-izq .55s var(--ease) both; }
+.hero__slide.saliendo--der { animation: salir-hero-der .55s var(--ease) both; }
 /* Estado de reposo: la imagen ya arranca agrandada, así el
    Ken Burns tiene de dónde "volver". */
 .hero__slide img { transform: scale(1.14); }
@@ -376,6 +403,8 @@
 .hero__slide.activo .hero__titulo  { animation: entrar-abajo .6s var(--ease) .18s both; }
 .hero__slide.activo .hero__bajada  { animation: entrar-abajo .6s var(--ease) .28s both; }
 .hero__slide.activo .hero__acciones{ animation: entrar-abajo .6s var(--ease) .38s both; }
+/* Franja de luz que cruza el banner en cada cambio de slide. */
+.hero__destello.brilla { animation: destello-hero .9s var(--ease) both; }
 /* Barra que muestra cuánto falta para el próximo slide. El JS
    saca y vuelve a poner la clase para reiniciarla. */
 .hero__progreso.corriendo { animation: barra-progreso 6s linear forwards; }
