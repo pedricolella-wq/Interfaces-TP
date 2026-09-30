@@ -535,7 +535,10 @@ body {
 .hud__botones { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
 
 .escenario__tablero { position: relative; display: grid; place-items: center; padding: 20px var(--gutter) 24px; }
-#tablero { width: min(100%, 74vh, 620px); aspect-ratio: 1; }
+#tablero, .tablero-foto { width: min(100%, 74vh, 620px); aspect-ratio: 1; }
+/* La foto del tablero se apoya sobre el degradado del escenario: es un PNG
+   sin fondo, así que no se nota el recuadro de la imagen. */
+.tablero-foto { height: auto; object-fit: contain; }
 #tablero .hueco { fill: rgba(250,246,227,.06); stroke: rgba(34,211,238,.45); stroke-width: 2; cursor: pointer; }
 #tablero .ficha { fill: url(#gFicha); cursor: pointer; transition: transform 240ms var(--ease-out-back); transform-box: fill-box; transform-origin: center; }
 #tablero .ficha:hover { filter: brightness(1.15); }
