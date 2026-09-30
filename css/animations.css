@@ -40,7 +40,7 @@
 @keyframes girar        { from { transform: rotate(0deg); }   to { transform: rotate(360deg); } }
 /* El mismo giro pero al revés: dos anillos girando en sentido
    contrario dan sensación de profundidad. */
-@keyframes girar-inv    { from { transform: rotate(0deg); }   to { transform: rotate(-360deg); } }
+@keyframes girar-inv    { from { transform: rotate(0deg); }   to { transform: rotate(360deg); } }
 
 /* LATIDO: una onda de sombra que sale del borde del elemento.
    El truco es animar el RADIO de un box-shadow sólido desde
