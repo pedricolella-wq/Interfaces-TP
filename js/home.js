@@ -64,43 +64,24 @@ function initHero(slides) {
 
   const items = Array.from(marco.children);
   const puntos = Array.from(bullets.children);
-  const destello = document.getElementById('hero-destello');
   let actual = 0, timer = null;
   const DURACION = 6000;
 
-  /* Cambio de slide. Pasan cuatro cosas a la vez, todas resueltas por CSS:
-       · el slide que SALE recibe .saliendo y se va con un zoom-out hacia
-         el lado contrario al que viaja el carrusel,
-       · el que ENTRA recibe .activo: fade + Ken Burns + texto en cascada,
-       · una franja de luz (#hero-destello) cruza el banner,
-       · la barra de autoplay vuelve a cero.
-     El JS solo calcula la dirección y pone clases. */
-  function ir(i, dir) {
-    const n = items.length;
-    i = (i + n) % n;
+  /* Cambio de slide: el JS solo saca y pone la clase .activo.
+     El CSS resuelve el cruce de opacidad, el Ken Burns de la imagen y
+     la entrada escalonada del texto (animations.css, bloque E).
+     Se mantiene liviano a propósito: el hero ocupa toda la pantalla y
+     cualquier efecto pesado acá se siente enseguida. */
+  function ir(i) {
+    i = (i + items.length) % items.length;
     if (i === actual) return;
-    if (dir === undefined) dir = ((i - actual + n) % n === 1) ? 1 : -1;
-
-    const sale = items[actual];
-    sale.classList.remove('activo');
-    sale.setAttribute('aria-hidden', 'true');
-    sale.classList.remove('saliendo--izq', 'saliendo--der');
-    void sale.offsetWidth;                         // reinicia la animación
-    sale.classList.add(dir > 0 ? 'saliendo--izq' : 'saliendo--der');
-    setTimeout(() => sale.classList.remove('saliendo--izq', 'saliendo--der'), 560);
-
+    items[actual].classList.remove('activo');
+    items[actual].setAttribute('aria-hidden', 'true');
     puntos[actual].setAttribute('aria-current', 'false');
     actual = i;
     items[actual].classList.add('activo');
     items[actual].setAttribute('aria-hidden', 'false');
-    items[actual].dataset.dir = dir > 0 ? 'der' : 'izq';
     puntos[actual].setAttribute('aria-current', 'true');
-
-    if (destello) {                                // franja de luz
-      destello.classList.remove('brilla');
-      void destello.offsetWidth;
-      destello.classList.add('brilla');
-    }
     reiniciarProgreso();
   }
   /* Reinicia la barra de progreso del autoplay.
@@ -116,12 +97,12 @@ function initHero(slides) {
     void progreso.offsetWidth;
     progreso.classList.add('corriendo');
   }
-  function arrancar() { detener(); timer = setInterval(() => ir(actual + 1, 1), DURACION); reiniciarProgreso(); }
+  function arrancar() { detener(); timer = setInterval(() => ir(actual + 1), DURACION); reiniciarProgreso(); }
   function detener()  { clearInterval(timer); }
 
-  btnPrev.addEventListener('click', () => { ir(actual - 1, -1); arrancar(); });
-  btnNext.addEventListener('click', () => { ir(actual + 1,  1); arrancar(); });
-  puntos.forEach((p, i) => p.addEventListener('click', () => { ir(i, i > actual ? 1 : -1); arrancar(); }));
+  btnPrev.addEventListener('click', () => { ir(actual - 1); arrancar(); });
+  btnNext.addEventListener('click', () => { ir(actual + 1); arrancar(); });
+  puntos.forEach((p, i) => p.addEventListener('click', () => { ir(i); arrancar(); }));
   marco.addEventListener('mouseenter', detener);
   marco.addEventListener('mouseleave', arrancar);
   marco.addEventListener('focusin', detener);
@@ -137,7 +118,7 @@ function initHero(slides) {
   marco.addEventListener('touchend', e => {
     if (x0 === null) return;
     const dx = e.changedTouches[0].clientX - x0;
-    if (Math.abs(dx) > 45) ir(actual + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+    if (Math.abs(dx) > 45) ir(actual + (dx < 0 ? 1 : -1));
     x0 = null; arrancar();
   });
 
@@ -160,7 +141,7 @@ function pintarFila(cfg) {
   const cont = document.getElementById('filas');
   const juegos = cfg.juegos;
   const sec = document.createElement('section');
-  sec.className = 'fila reveal';
+  sec.className = 'fila reveal' + (cfg.animada ? ' fila--animada' : '');
   sec.id = 'fila-' + cfg.id;
   sec.innerHTML = `
     <div class="fila__encabezado">
@@ -173,7 +154,7 @@ function pintarFila(cfg) {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18 9 12l6-6"/></svg>
       </button>
       <div class="fila__pista" tabindex="0" role="list" aria-label="${cfg.titulo}">
-        ${juegos.map(j => `<div role="listitem">${cardHTML(j)}</div>`).join('')}
+        ${juegos.map((j, i) => `<div role="listitem" style="--i:${i}">${cardHTML(j)}</div>`).join('')}
       </div>
       <button class="btn-icono fila__flecha fila__flecha--der" type="button" aria-label="Siguiente en ${cfg.titulo}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
@@ -193,8 +174,18 @@ function activarCarrusel(sec) {
   const bullets = sec.querySelector('.fila__bullets');
   const paso = () => pista.clientWidth * 0.8;
 
-  izq.addEventListener('click', () => pista.scrollBy({ left: -paso(), behavior: 'smooth' }));
-  der.addEventListener('click', () => pista.scrollBy({ left:  paso(), behavior: 'smooth' }));
+  /* Ola: en la fila animada las cards hacen una onda escalonada cada
+     vez que se usa una flecha. Solo se anima transform, así que el
+     navegador lo resuelve en la GPU y no recalcula el layout. */
+  const ola = () => {
+    if (!sec.classList.contains('fila--animada')) return;
+    pista.classList.remove('ola');
+    void pista.offsetWidth;                       // reinicia la animación
+    pista.classList.add('ola');
+    setTimeout(() => pista.classList.remove('ola'), 900);
+  };
+  izq.addEventListener('click', () => { pista.scrollBy({ left: -paso(), behavior: 'smooth' }); ola(); });
+  der.addEventListener('click', () => { pista.scrollBy({ left:  paso(), behavior: 'smooth' }); ola(); });
 
   const items = Array.from(pista.children);
   bullets.innerHTML = items.map((_, i) => `<button type="button" aria-current="${i === 0}" tabindex="-1"></button>`).join('');
@@ -241,13 +232,13 @@ async function construirHome() {
     const sel = deAPI.slice(0, 12);
     sel[0].cucarda = 'nuevo'; if (sel[3]) sel[3].cucarda = 'top';
     pintarFila({
-      id: 'novedades', titulo: 'Novedades',
+      id: 'novedades', titulo: 'Novedades', animada: true,
       nota: `Datos en vivo desde la <b>API de la cátedra</b> · ${deAPI.length} juegos recibidos`,
       juegos: sel,
     });
   } else {
     pintarFila({
-      id: 'novedades', titulo: 'Novedades',
+      id: 'novedades', titulo: 'Novedades', animada: true,
       nota: 'La <b>API de la cátedra</b> no respondió: mostramos el catálogo local de respaldo.',
       juegos: ['damas','hanoi','snake','tres-en-raya','backgammon'].map(s => porSlug[s]),
     });
