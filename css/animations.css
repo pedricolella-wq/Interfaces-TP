@@ -31,8 +31,12 @@
    A. KEYFRAMES — el catálogo de animaciones por porcentaje
    ---------------------------------------------------------
    Cada @keyframes describe el "guion" de la animación.
-   Después, más abajo, cada bloque se lo asigna a un
-   elemento con la propiedad animation.
+   Después, más abajo, cada bloque se lo asigna a un elemento
+   con las propiedades animation-*. Se usan siempre por separado
+   (animation-name, animation-duration, animation-timing-function,
+   animation-delay, animation-iteration-count, animation-direction
+   y animation-fill-mode) en vez del atajo "animation", para que
+   quede a la vista qué define cada animación.
    ========================================================= */
 
 /* Giro completo. Con animation-timing-function: linear queda
@@ -48,8 +52,7 @@
    El truco es animar el RADIO de un box-shadow sólido desde
    0 hasta 12px mientras su alpha baja de .55 a 0: parece que
    se expande un halo y se desvanece. Se usa en el botón
-   primario, en la cucarda Premium y en los destinos del
-   tablero. */
+   primario y en la cucarda Premium. */
 @keyframes latido {
   0%   { box-shadow: 0 0 0 0 rgba(163,230,53,.55), 0 0 18px rgba(163,230,53,.35); }
   60%  { box-shadow: 0 0 0 12px rgba(163,230,53,0), 0 0 26px rgba(163,230,53,.55); }
@@ -143,19 +146,6 @@
   100% { background-position: 260px 0; }
 }
 
-/* Feedback del tablero: la ficha que acaba de saltar pega un
-   pequeño salto de escala (45% es el pico), y la ficha comida
-   se achica hasta desaparecer. */
-@keyframes salto-ficha {
-  0%   { transform: scale(1); }
-  45%  { transform: scale(1.35); }
-  100% { transform: scale(1); }
-}
-@keyframes desvanecer-ficha {
-  0%   { transform: scale(1);  opacity: 1; }
-  100% { transform: scale(.1); opacity: 0; }
-}
-
 /* TEMBLOR: el clásico "shake" de campo inválido. Se va para un
    lado y para el otro con amplitud decreciente (7, 7, 4, 4)
    para que frene solo en vez de cortarse de golpe. */
@@ -198,26 +188,37 @@
      · un cuadradito que orbita alrededor.
    El porcentaje y el ancho de la barra los escribe loader.js.
    ========================================================= */
-/* VIRAR: el color del loader. Todo el degradé sale de una sola
-   variable, --tono, que es el HUE (0-360). Este keyframes la lleva
-   de 233 (el azul de la marca) a 82 (el lima) durante la carga.
+/* VIRAR: el color del loader. Recorre los tres colores de la marca
+   (azul -> verde -> lima) animando la propiedad "color".
 
-   Por qué el @property de arriba: una custom property normal NO se
-   puede interpolar, el navegador la trata como texto y salta de un
-   valor al otro a mitad de camino. Registrarla como '<number>' es
-   lo que le permite recorrer el rango cuadro a cuadro.
+   Por qué funciona en TODAS las piezas: "color" se hereda, y el
+   anillo, el cuadradito y la barra pintan su fondo con la palabra
+   clave currentColor, que significa "el color que tengo heredado".
+   Así una sola animación mueve las tres piezas a la vez.
 
-   La duración tiene que coincidir con DURACION en loader.js (5 s).
-   "forwards" deja el valor final clavado al terminar. */
-@property --tono {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 233;
+   La duración coincide con DURACION en loader.js (5 s) y el
+   "forwards" deja el color final clavado al terminar. */
+
+
+@keyframes virar {
+  0%   { color: var(--azul-300); }
+  50%  { color: var(--verde-300); }
+  100% { color: var(--lima); }
 }
-@keyframes virar { to { --tono: 82; } }
-.loader { animation: virar 5s linear forwards; }
 
-.loader__marca { animation: flotar 2.4s ease-in-out infinite; }
+.loader {
+  animation-name: virar;
+  animation-duration: 5s;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.loader__marca {
+  animation-name: flotar;
+  animation-duration: 2.4s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
 
 .loader__anillo::before,
 .loader__anillo::after { content: ""; position: absolute; inset: 0; border-radius: 50%; }
@@ -227,10 +228,13 @@
    radial, así queda solo el borde de 10px y no un círculo
    lleno. Después se lo hace girar en loop. */
 .loader__anillo::before {
-  background: conic-gradient(from 0deg, transparent 0turn, var(--c1) .35turn, var(--c2) .62turn, transparent .78turn);
+  background: conic-gradient(from 0deg, transparent 0turn, currentColor .35turn, currentColor .62turn, transparent .78turn);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px));
           mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px));
-  animation: girar 1.1s linear infinite;
+  animation-name: girar;
+  animation-duration: 1.1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
 /* Anillo interior: gira para el MISMO lado que el exterior pero
    casi tres veces más lento (3,2 s contra 1,1 s). Al compartir el
@@ -240,32 +244,47 @@
 .loader__anillo::after {
   inset: 22px;
   border: 4px dashed rgba(250, 246, 227, .35);
-  animation: girar 3.2s linear infinite;
+  animation-name: girar;
+  animation-duration: 3.2s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
 /* Cuadrado que orbita: en realidad gira un contenedor invisible
    de 130×130 y el cuadradito está clavado en su borde superior;
    al rotar el contenedor, el cuadradito describe la órbita. */
 .loader__cuadro {
   position: absolute; left: 50%; top: 50%; width: 130px; height: 130px;
-  translate: -50% -50%; animation: girar 2.2s var(--ease) infinite;
+  translate: -50% -50%;
+  animation-name: girar;
+  animation-duration: 2.2s;
+  animation-timing-function: var(--ease);
+  animation-iteration-count: infinite;
 }
 .loader__cuadro i {
   position: absolute; top: -7px; left: 50%; translate: -50% 0;
-  width: 14px; height: 14px; border-radius: 4px; background: var(--c2);
-  box-shadow: 0 0 14px var(--c2);
+  width: 14px; height: 14px; border-radius: 4px; background: currentColor;
+  box-shadow: 0 0 14px currentColor;
 }
 /* La barra no se anima con keyframes: el JS le cambia el width
    y esta transition corta suaviza cada salto de porcentaje. */
 .loader__barra i { transition: width 120ms linear; }
-.loader__texto { animation: aparecer .4s var(--ease); }
+.loader__texto {
+  animation-name: aparecer;
+  animation-duration: .4s;
+  animation-timing-function: var(--ease);
+}
 /* Salida: la misma animación "aparecer" pero en reverse.
-   El "--tono: 82" no es decorativo: este shorthand pisa el
+   El "color: var(--lima)" no es decorativo: esta regla redefine el
    animation-name y con él se va la animación "virar", así que sin
-   esta línea la variable volvería a su valor inicial (233) y el
-   loader se despediría en azul. Acá se clava el valor final. */
+   esta línea el color volvería a su valor de reposo y el loader se
+   despediría en azul. Acá se clava el color final. */
 .loader.saliendo {
-  animation: aparecer .45s var(--ease) reverse forwards;
-  --tono: 82;
+  animation-name: aparecer;
+  animation-duration: .45s;
+  animation-timing-function: var(--ease);
+  animation-direction: reverse;
+  animation-fill-mode: forwards;
+  color: var(--lima);
 }
 
 
@@ -296,13 +315,16 @@
   transform: translateY(-3px) scale(1.04);
   border-color: var(--azul-500);
   background: var(--lima-osc);
-  animation: latido 1.1s var(--ease) infinite;
+  animation-name: latido;
+  animation-duration: 1.1s;
+  animation-timing-function: var(--ease);
+  animation-iteration-count: infinite;
 }
 .btn--primario:active {
   transform: translateY(1px) scale(.99);
   background: var(--lima-prof);
   box-shadow: inset 0 6px 14px rgba(6, 15, 71, .55);
-  animation: none;
+  animation-name: none;
 }
 
 /* --- (2) SECUNDARIO "Guardar partida": barrido de relleno izq → der ---
@@ -353,7 +375,11 @@
 .btn-icono:hover:not([disabled]), .btn-icono:focus-visible:not([disabled]) {
   transform: rotate(360deg) scale(1.1); background: var(--verde-300);
 }
-.btn-icono:hover:not([disabled])::after { animation: onda .7s var(--ease); }
+.btn-icono:hover:not([disabled])::after {
+  animation-name: onda;
+  animation-duration: .7s;
+  animation-timing-function: var(--ease);
+}
 
 
 /* =========================================================
@@ -385,11 +411,20 @@
 .card__fav:hover { transform: scale(1.2); background: rgba(163,230,53,.9); color: var(--azul-700); }
 /* El JS agrega .late un instante al marcar favorito: la clase
    dispara el latido una sola vez como confirmación. */
-.card__fav.late { animation: latido .8s var(--ease); }
+.card__fav.late {
+  animation-name: latido;
+  animation-duration: .8s;
+  animation-timing-function: var(--ease);
+}
 
 /* Cucardas con micro-animación propia, para que las cuatro se
    distingan también por cómo se mueven y no solo por el color. */
-.cucarda--nuevo   { animation: entrar-izq .5s var(--ease) both; }
+.cucarda--nuevo {
+  animation-name: entrar-izq;
+  animation-duration: .5s;
+  animation-timing-function: var(--ease);
+  animation-fill-mode: both;
+}
 .cucarda--premium { position: relative; }
 /* El halo de la cucarda Premium late animando la OPACIDAD de un
    pseudo-elemento, no el box-shadow: animar sombras obliga a repintar
@@ -397,9 +432,17 @@
 .cucarda--premium::after {
   content: ""; position: absolute; inset: -3px; border-radius: inherit;
   box-shadow: 0 0 16px rgba(163,230,53,.75); opacity: 0; pointer-events: none;
-  animation: pulso-halo 2.6s var(--ease) infinite;
+  animation-name: pulso-halo;
+  animation-duration: 2.6s;
+  animation-timing-function: var(--ease);
+  animation-iteration-count: infinite;
 }
-.cucarda--top svg { animation: flotar 1.8s ease-in-out infinite; }
+.cucarda--top svg {
+  animation-name: flotar;
+  animation-duration: 1.8s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
 
 
 /* =========================================================
@@ -418,17 +461,52 @@
 /* Estado de reposo: la imagen ya arranca agrandada, así el
    Ken Burns tiene de dónde "volver". */
 .hero__slide img { transform: scale(1.14); }
-.hero__slide.activo img { animation: ken-burns 7s var(--ease) forwards; }
+.hero__slide.activo img {
+  animation-name: ken-burns;
+  animation-duration: 7s;
+  animation-timing-function: var(--ease);
+  animation-fill-mode: forwards;
+}
 /* Cascada: mismo keyframes, distinto animation-delay.
    El "both" mantiene el estado inicial antes de arrancar y el
    final al terminar, así el texto no parpadea. */
-.hero__slide.activo .hero__etiqueta { animation: entrar-abajo .5s var(--ease) .10s both; }
-.hero__slide.activo .hero__titulo  { animation: entrar-abajo .6s var(--ease) .18s both; }
-.hero__slide.activo .hero__bajada  { animation: entrar-abajo .6s var(--ease) .28s both; }
-.hero__slide.activo .hero__acciones{ animation: entrar-abajo .6s var(--ease) .38s both; }
+
+.hero__slide.activo .hero__etiqueta {
+  animation-name: entrar-abajo;
+  animation-duration: .5s;
+  animation-timing-function: var(--ease);
+  animation-delay: .10s;
+  animation-fill-mode: both;
+}
+.hero__slide.activo .hero__titulo {
+  animation-name: entrar-abajo;
+  animation-duration: .6s;
+  animation-timing-function: var(--ease);
+  animation-delay: .18s;
+  animation-fill-mode: both;
+}
+.hero__slide.activo .hero__bajada {
+  animation-name: entrar-abajo;
+  animation-duration: .6s;
+  animation-timing-function: var(--ease);
+  animation-delay: .28s;
+  animation-fill-mode: both;
+}
+.hero__slide.activo .hero__acciones {
+  animation-name: entrar-abajo;
+  animation-duration: .6s;
+  animation-timing-function: var(--ease);
+  animation-delay: .38s;
+  animation-fill-mode: both;
+}
 /* Barra que muestra cuánto falta para el próximo slide. El JS
    saca y vuelve a poner la clase para reiniciarla. */
-.hero__progreso.corriendo { animation: barra-progreso 6s linear forwards; }
+.hero__progreso.corriendo {
+  animation-name: barra-progreso;
+  animation-duration: 6s;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
 
 
 /* ---------------------------------------------------------
@@ -441,7 +519,10 @@
    un retraso fijo: una sola regla sirve para las doce.
    --------------------------------------------------------- */
 .fila--animada.visible .fila__pista > * {
-  animation: entrar-card .5s var(--ease) both;
+  animation-name: entrar-card;
+  animation-duration: .5s;
+  animation-timing-function: var(--ease);
+  animation-fill-mode: both;
   animation-delay: calc(var(--i, 0) * 70ms);
 }
 /* La ola se aplica a la CARD, no al contenedor que ya tiene la
@@ -453,7 +534,9 @@
    card se ve normal, y al terminar vuelve sola a su estado de reposo,
    así el hover sigue funcionando. */
 .fila--animada .fila__pista.ola .card {
-  animation: ola-card .5s var(--ease);
+  animation-name: ola-card;
+  animation-duration: .5s;
+  animation-timing-function: var(--ease);
   animation-delay: calc(var(--i, 0) * 45ms);
 }
 
@@ -465,33 +548,72 @@
    variable se lee dentro del @keyframes, una sola animación
    sirve para las cinco barras.
    ========================================================= */
-.barras i::after { animation: barra-crece .9s var(--ease) both; }
+.barras i::after {
+  animation-name: barra-crece;
+  animation-duration: .9s;
+  animation-timing-function: var(--ease);
+  animation-fill-mode: both;
+}
 /* Cada comentario entra desde abajo; el JS le pone un
    animation-delay creciente para que aparezcan en cascada. */
-.comentario { animation: entrar-abajo .42s var(--ease) both; }
+.comentario {
+  animation-name: entrar-abajo;
+  animation-duration: .42s;
+  animation-timing-function: var(--ease);
+  animation-fill-mode: both;
+}
 /* Confirmación del "me gusta": el pulgar hace el sello. */
-.accion[aria-pressed="true"] svg { animation: sello .45s var(--ease-out-back); }
+.accion[aria-pressed="true"] svg {
+  animation-name: sello;
+  animation-duration: .45s;
+  animation-timing-function: var(--ease-out-back);
+}
 
 
 /* =========================================================
-   G. TABLERO (Peg Solitaire)
+   G. BLOCKA (Entregable Nº3)
    ---------------------------------------------------------
-   El tablero es un SVG. Las fichas son <circle>, así que se
-   animan con las mismas propiedades CSS que cualquier
-   elemento (en styles.css se les pone transform-box: fill-box
-   para que el transform gire/escale respecto a la propia
-   ficha y no respecto al origen del SVG).
+   El tablero de BLOCKA es un <canvas>: casi todo su movimiento
+   se dibuja desde JavaScript y no desde acá. Lo que queda en
+   este bloque es lo que le pasa al canvas como elemento y a los
+   carteles que lo tapan.
    ========================================================= */
-#tablero .ficha.salta    { animation: salto-ficha .32s var(--ease-out-back); }
-#tablero .ficha.comida   { animation: desvanecer-ficha .3s var(--ease) forwards; }
-/* Los casilleros a los que se puede saltar laten solos: es una
-   ayuda visual permanente mientras haya una ficha elegida. */
-#tablero .destino        { animation: latido 1.4s var(--ease) infinite; }
-/* Cartel de fin de partida: fondo que aparece + título con
-   rebote + texto y botón entrando escalonados. */
-.fin                     { animation: aparecer .3s var(--ease) both; }
-.fin__titulo             { animation: sello .6s var(--ease-out-back) both; }
-.fin__texto, .fin .btn   { animation: entrar-abajo .5s var(--ease) .16s both; }
+/* OJO: el giro de las piezas y los filtros NO están acá. Las
+   piezas se dibujan DENTRO de un <canvas>, así que no son
+   elementos del DOM y el CSS no las puede tocar: el giro lo hace
+   blocka.js con la matriz de transformación del contexto, cuadro a
+   cuadro con requestAnimationFrame, y los filtros recorren la
+   matriz de píxeles. Para el CSS queda solo lo que le pasa al
+   canvas entero, que sí es un elemento. */
+
+/* FESTEJO: cuando la blocka queda armada, el tablero pega un
+   latido corto. Solo se anima transform, que el navegador
+   compone en la GPU. */
+@keyframes blocka-listo {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.035); }
+  100% { transform: scale(1); }
+}
+.blocka--resuelta {
+  animation-name: blocka-listo;
+  animation-duration: .55s;
+  animation-timing-function: var(--ease-out-back);
+}
+
+/* Los carteles (arranque y fin de nivel) entran con la misma
+   animación "aparecer" que usa el resto del sitio. */
+.fin {
+  animation-name: aparecer;
+  animation-duration: .3s;
+  animation-timing-function: var(--ease);
+  animation-fill-mode: both;
+}
+.fin__titulo {
+  animation-name: sello;
+  animation-duration: .6s;
+  animation-timing-function: var(--ease-out-back);
+  animation-fill-mode: both;
+}
 
 
 /* =========================================================
@@ -501,25 +623,68 @@
    éxito del registro (tilde que se dibuja + textos en cascada
    + confeti).
    ========================================================= */
-.campo input.sacudir { animation: temblor .45s var(--ease); }
+.campo input.sacudir {
+  animation-name: temblor;
+  animation-duration: .45s;
+  animation-timing-function: var(--ease);
+}
 .exito { transition: opacity var(--t-media) var(--ease), visibility var(--t-media); }
-.exito.visible .exito__tilde { animation: sello .7s var(--ease-out-back) both; }
-.exito.visible h3 { animation: entrar-abajo .5s var(--ease) .18s both; }
-.exito.visible p  { animation: entrar-abajo .5s var(--ease) .30s both; }
-.exito.visible .btn { animation: entrar-abajo .5s var(--ease) .42s both; }
+.exito.visible .exito__tilde {
+  animation-name: sello;
+  animation-duration: .7s;
+  animation-timing-function: var(--ease-out-back);
+  animation-fill-mode: both;
+}
+.exito.visible h3 {
+  animation-name: entrar-abajo;
+  animation-duration: .5s;
+  animation-timing-function: var(--ease);
+  animation-delay: .18s;
+  animation-fill-mode: both;
+}
+.exito.visible p {
+  animation-name: entrar-abajo;
+  animation-duration: .5s;
+  animation-timing-function: var(--ease);
+  animation-delay: .30s;
+  animation-fill-mode: both;
+}
+.exito.visible .btn {
+  animation-name: entrar-abajo;
+  animation-duration: .5s;
+  animation-timing-function: var(--ease);
+  animation-delay: .42s;
+  animation-fill-mode: both;
+}
 /* Tilde dibujada a mano: el círculo mide ~210 de perímetro y
    el tilde ~60. Poniendo dasharray = dashoffset = ese largo,
    el trazo queda escondido; la animación lleva el offset a 0
    y la línea "se dibuja". Primero el círculo, y 0.55 s después
    el tilde. */
 .exito__tilde circle { stroke-dasharray: 210; stroke-dashoffset: 210; }
-.exito.visible .exito__tilde circle { animation: dibujar-tilde .7s var(--ease) .1s forwards; }
+.exito.visible .exito__tilde circle {
+  animation-name: dibujar-tilde;
+  animation-duration: .7s;
+  animation-timing-function: var(--ease);
+  animation-delay: .1s;
+  animation-fill-mode: forwards;
+}
 .exito__tilde path { stroke-dasharray: 60; stroke-dashoffset: 60; }
-.exito.visible .exito__tilde path { animation: dibujar-tilde .45s var(--ease) .55s forwards; }
+.exito.visible .exito__tilde path {
+  animation-name: dibujar-tilde;
+  animation-duration: .45s;
+  animation-timing-function: var(--ease);
+  animation-delay: .55s;
+  animation-fill-mode: forwards;
+}
 /* Los 70 papelitos los crea el JS; acá solo se declara la
    animación. La duración y el retraso se los pone cada uno
    por style inline, por eso caen desparejos. */
-.confeti i { animation: caer-confeti linear forwards; }
+.confeti i {
+  animation-name: caer-confeti;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
 
 /* Indicador de tabs que se desliza. El JS calcula la posición
    de la pestaña activa y la guarda en --x; el CSS solo
@@ -546,7 +711,10 @@
 .skeleton {
   background-image: linear-gradient(90deg, rgba(250,246,227,.05) 0%, rgba(250,246,227,.16) 50%, rgba(250,246,227,.05) 100%);
   background-size: 260px 100%; background-repeat: no-repeat;
-  animation: brillo-barra 1.2s linear infinite;
+  animation-name: brillo-barra;
+  animation-duration: 1.2s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
 
 /* Toast: aparece con un pequeño empujón hacia arriba usando la

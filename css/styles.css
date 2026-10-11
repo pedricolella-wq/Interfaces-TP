@@ -262,13 +262,12 @@ body {
 
 /* ---------- 6. Loader ---------- */
 .loader {
-  /* --tono es el HUE (0-360) del que salen TODOS los colores del loader.
-     Lo mueve el @keyframes "virar" de animations.css, de 233 (azul de la
-     marca) a 82 (lima), durante los 5 s de carga: una sola variable y el
-     anillo, el cuadrado y la barra la siguen. */
-  --tono: 233;
-  --c1: hsl(var(--tono) 62% 46%);             /* color base */
-  --c2: hsl(calc(var(--tono) - 34) 82% 58%);  /* el brillo, 34 grados adelante */
+  /* El color del loader es UNO solo: el que lleva la propiedad "color".
+     El @keyframes "virar" de animations.css lo lleva de azul a lima
+     durante los 5 s de carga, y el anillo, el cuadrado y la barra lo
+     siguen porque pintan su fondo con currentColor. Este es el valor
+     de reposo: el que se ve antes de que arranque la animación. */
+  color: var(--azul-300);
   position: fixed; inset: 0; z-index: 999;
   display: grid; place-content: center; justify-items: center; gap: 22px;
   background: radial-gradient(120% 100% at 50% 0%, var(--violeta) 0%, var(--azul-500) 45%, var(--azul-700) 100%);
@@ -277,11 +276,14 @@ body {
 .loader[hidden] { display: none; }
 .loader__marca { display: flex; align-items: center; gap: 10px; }
 .loader__marca svg { width: 52px; height: 52px; }
-.loader__marca span { font-family: 'Paytone One', sans-serif; font-size: 2rem; }
+/* Los textos se quedan en crema: solo las piezas de color (anillo,
+   cuadrado y barra) siguen a currentColor. Sin estas dos declaraciones
+   el "frib" y el porcentaje se teñirían junto con la animación. */
+.loader__marca span { font-family: 'Paytone One', sans-serif; font-size: 2rem; color: var(--crema); }
 .loader__anillo { position: relative; width: 120px; height: 120px; }
-.loader__pct { font-size: 2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.loader__pct { font-size: 2rem; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--crema); }
 .loader__barra { width: min(320px, 78vw); height: 8px; border-radius: 99px; background: rgba(250, 246, 227, .18); overflow: hidden; }
-.loader__barra i { display: block; height: 100%; width: 0%; border-radius: 99px; background: linear-gradient(90deg, var(--c1), var(--c2)); }
+.loader__barra i { display: block; height: 100%; width: 0%; border-radius: 99px; background: currentColor; }
 .loader__texto { font-size: .875rem; min-height: 1.5em; color: rgba(250, 246, 227, .8); }
 
 /* ---------- 7. Hero ---------- */
@@ -567,24 +569,91 @@ body {
 .hud__botones { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
 
 .escenario__tablero { position: relative; display: grid; place-items: center; padding: 20px var(--gutter) 24px; }
-#tablero, .tablero-foto { width: min(100%, 74vh, 620px); aspect-ratio: 1; }
 /* La foto del tablero se apoya sobre el degradado del escenario: es un PNG
    sin fondo, así que no se nota el recuadro de la imagen. */
-.tablero-foto { height: auto; object-fit: contain; }
-#tablero .hueco { fill: rgba(250,246,227,.06); stroke: rgba(34,211,238,.45); stroke-width: 2; cursor: pointer; }
-#tablero .ficha { fill: url(#gFicha); cursor: pointer; transition: transform 240ms var(--ease-out-back); transform-box: fill-box; transform-origin: center; }
-#tablero .ficha:hover { filter: brightness(1.15); }
-#tablero .sel { stroke: var(--lima); stroke-width: 4; }
-#tablero .destino { fill: rgba(163,230,53,.35); stroke: var(--lima); stroke-width: 3; }
+.tablero-foto { width: min(100%, 74vh, 620px); aspect-ratio: 1; height: auto; object-fit: contain; }
 
-/* Cartel de fin de partida, encima del tablero */
+/* ---------- 6b. BLOCKA (Entregable Nº3) ----------
+   El tablero es un <canvas> de 800 x 800: eso es lo que mide por
+   DENTRO, su resolución. Acá solo se decide de qué TAMAÑO se ve en
+   pantalla, y el navegador escala el dibujo. Son dos cosas
+   distintas, y por eso blocka.js tiene que convertir la posición
+   del mouse de una a la otra para saber qué pieza se tocó.
+
+   Lo que NO está acá: ni el degradé, ni el giro de las piezas, ni
+   los filtros. Todo eso lo dibuja Canvas, no CSS.
+   ------------------------------------------------- */
+.blocka {
+  display: block;
+  width: min(100%, 74vh, 620px);
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  touch-action: manipulation;
+}
+/* Recién cuando la partida arrancó el tablero invita al clic */
+.blocka--activa { cursor: pointer; }
+.blocka--resuelta { box-shadow: 0 0 0 4px var(--lima), 0 0 44px rgba(163,230,53,.45); }
+
+/* Cartel que tapa el tablero: el de arranque y el de fin de nivel */
 .fin {
   position: absolute; inset: 0; z-index: 4;
-  display: grid; place-content: center; justify-items: center; gap: 8px;
-  text-align: center; padding: 24px; background: rgba(6,15,71,.88);
+  display: grid; place-content: center; justify-items: center; gap: 10px;
+  text-align: center; padding: 24px; background: rgba(6,15,71,.9);
 }
-.fin__titulo { font-size: clamp(1.25rem, 4vw, 1.75rem); font-weight: 800; color: var(--lima); }
-.fin__texto { font-size: .9375rem; color: rgba(250,246,227,.85); max-width: 40ch; margin-bottom: 6px; }
+.fin[hidden] { display: none; }
+/* Un boton apagado se tiene que ver apagado: Ayudita y Reiniciar
+   solo sirven con la partida en curso. */
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+/* AL GANAR el cartel no tapa el tablero: se apoya abajo y se
+   funde con un degradado, asi se ve la imagen ya armada y en
+   color, que es lo que pide la consigna. */
+.fin--gano {
+  inset: auto 0 0 0;
+  padding: 64px 24px 22px;
+  background: linear-gradient(to top, rgba(6,15,71,.97) 58%, rgba(6,15,71,0));
+  border-radius: 0 0 12px 12px;
+}
+.fin__titulo { font-family: 'Paytone One', sans-serif; font-size: clamp(1.35rem, 4vw, 2rem); color: var(--lima); }
+.fin--perdido .fin__titulo { color: var(--rojo); }
+.fin__texto { font-size: .9375rem; color: rgba(250,246,227,.88); max-width: 46ch; }
+.fin__botones { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+
+/* ---------- Instrucciones y banco de imágenes ---------- */
+.seccion__bajada { color: rgba(250,246,227,.72); max-width: 70ch; margin: 2px 0 14px; }
+.pasos { counter-reset: paso; list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+.pasos li { position: relative; padding-left: 46px; color: rgba(250,246,227,.85); font-size: .9375rem; }
+.pasos li::before {
+  counter-increment: paso; content: counter(paso);
+  position: absolute; left: 0; top: -2px; width: 32px; height: 32px; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 800; color: var(--azul-700); background: var(--lima);
+}
+.pasos b { color: var(--crema); }
+.mouse { display: flex; align-items: center; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+.mouse__fig { flex: 0 0 auto; width: 34px; height: 48px; border-radius: 17px/20px;
+  border: 2px solid rgba(250,246,227,.55); position: relative; overflow: hidden; display: block; }
+.mouse__fig i { position: absolute; top: 0; width: 50%; height: 44%; display: block; }
+.mouse__izq { left: 0; background: var(--lima); border-right: 1px solid rgba(250,246,227,.55); }
+.mouse__der { right: 0; background: var(--verde-300); }
+.aviso { margin-top: 18px; padding: 14px 16px; border-radius: var(--radio-sm);
+  border-left: 4px solid var(--lima); background: rgba(250,246,227,.07);
+  font-size: .9rem; color: rgba(250,246,227,.82); }
+.aviso b { color: var(--crema); }
+
+.banco { list-style: none; padding: 0; margin: 0;
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.banco__item { min-width: 0; display: grid; gap: 6px; }
+.banco__item img { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover;
+  border-radius: var(--radio-sm); display: block; }
+.banco__item span { font-size: .8125rem; font-weight: 700; color: rgba(250,246,227,.7); }
+.record { color: var(--lima); }
+@media (min-width: 760px) {
+  .banco { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+}
+@media (min-width: 1100px) {
+  .banco { grid-template-columns: repeat(6, 1fr); }
+}
+
 
 .escenario__pie { background: rgba(6,15,71,.45); border-top: 1px solid rgba(250,246,227,.10); }
 .compartir { display: flex; align-items: center; gap: 8px; font-size: .8125rem; font-weight: 700; padding-block: 10px; flex-wrap: wrap; }
