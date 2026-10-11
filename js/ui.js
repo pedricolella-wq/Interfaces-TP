@@ -27,6 +27,9 @@ function cucardaHTML(tipo) {
 
 /* ---------- Card de juego ---------- */
 function cardHTML(j) {
+  /* Casi todos los juegos van a la pagina generica juego.html?j=<slug>.
+     Los que tienen pagina propia (BLOCKA) la declaran en j.url y mandan ahi. */
+  const destino = j.url || `juego.html?j=${j.slug}`;
   return `
   <article class="card">
     <div class="card__media">
@@ -35,9 +38,9 @@ function cardHTML(j) {
       <button class="card__fav" type="button" aria-pressed="false" aria-label="Agregar ${j.titulo} a favoritos">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.4-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.4 12c-1.9 4.4-9.4 9-9.4 9z"/></svg>
       </button>
-      <a class="btn btn--primario btn--sm card__jugar" href="juego.html?j=${j.slug}" tabindex="-1">JUGAR</a>
+      <a class="btn btn--primario btn--sm card__jugar" href="${destino}" tabindex="-1">JUGAR</a>
     </div>
-    <a class="card__body" href="juego.html?j=${j.slug}">
+    <a class="card__body" href="${destino}">
       <p class="card__cat">${j.categoria}</p>
       <h3 class="card__titulo">${j.titulo}</h3>
       <p class="card__meta">${estrellas(j.nota)}<span class="card__nota">${j.nota.toFixed(1)}</span></p>
@@ -120,7 +123,7 @@ function initBuscador(catalogo) {
   const pintar = (lista) => {
     if (!lista.length) { caja.innerHTML = '<p class="buscador__vacio">Sin resultados. Probá con «truco» o «sudoku».</p>'; caja.hidden = false; return; }
     caja.innerHTML = lista.slice(0, 6).map(j => `
-      <a href="juego.html?j=${j.slug}">
+      <a href="${j.url || `juego.html?j=${j.slug}`}">
         <img src="${j.img}" alt="">
         <span><p>${j.titulo}</p><small class="apagado">${j.categoria}</small></span>
       </a>`).join('');

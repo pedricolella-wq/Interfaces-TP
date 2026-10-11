@@ -1,5 +1,12 @@
 /* =========================================================
-   frib · juego.js — hilo de reseñas (el tablero todavía es una imagen)
+   frib · juego.js
+   ---------------------------------------------------------
+   Esta página es solo la maqueta visual del juego: el tablero
+   es una imagen y no hay lógica de Peg Solitaire. Este archivo
+   se ocupa únicamente de:
+     · los datos del juego en la cabecera,
+     · el botón de compartir,
+     · el hilo de reseñas (listado, orden, votos y formulario).
    ========================================================= */
 'use strict';
 
@@ -10,34 +17,7 @@ const slugActual = new URLSearchParams(location.search).get('j') || 'peg-solitai
 const juegoActual = JUEGOS.find(j => j.slug === slugActual) || JUEGOS.find(j => j.slug === 'peg-solitaire');
 
 /* ---------------------------------------------------------
-   1. TABLERO — todavía sin lógica
-   ---------------------------------------------------------
-   El juego no está implementado: el tablero que se ve es una
-   imagen (img/juego/tablero-futurista.webp) que respeta la
-   temática futurista del juego. Los botones Deshacer,
-   Reiniciar y Guardar están en pantalla pero no hacen nada.
-
-   Cuando toque programarlo, lo que hay que escribir es:
-
-     nuevoTablero()             matriz 7×7 · 1 ficha · 0 libre · -1 fuera
-     dibujarTablero()           volver a poner el <svg id="tablero">
-     movimientosPosibles(r, c)  saltos válidos (de a 2, sin diagonales)
-     clickTablero(e)            elegir ficha, marcar destinos, saltar
-     deshacer()                 revertir el último paso del historial
-     hayMovimientos()           false cuando no queda ningún salto
-     revisarFin()               1 ficha = ganaste; sin movimientos = perdiste
-     arrancarReloj()            cronómetro de #reloj
-     reiniciar()                volver al estado inicial
-
-   Ya está preparado en el HTML y el CSS:
-     #tablero  #mov  #fichas  #reloj  #fin  #fin-titulo  #fin-texto
-     #btn-deshacer  #btn-reiniciar  #btn-otra  #btn-guardar
-     .ficha · .ficha.sel · .hueco · .hueco.destino
-     .ficha.salta · .ficha.comida · .fin
-   --------------------------------------------------------- */
-
-/* ---------------------------------------------------------
-   2. RESEÑAS — hilo de comentarios (patrón de tienda de apps)
+   1. RESEÑAS — hilo de comentarios (patrón de tienda de apps)
    --------------------------------------------------------- */
 const TOTAL_RESENIAS = 317;
 const PASO = 3;
@@ -120,7 +100,7 @@ function votar(quien, valor) {
 }
 
 /* ---------------------------------------------------------
-   3. Arranque
+   2. Arranque
    --------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   /* Datos del juego en la cabecera */
@@ -131,16 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('juego-nota').textContent = `${juegoActual.nota.toFixed(1)} (${TOTAL_RESENIAS} reseñas)`;
   document.getElementById('juego-desc').textContent = juegoActual.desc;
   document.title = `${juegoActual.titulo} · frib`;
-
-  /* Tablero: por ahora es una imagen, no hay nada que enganchar.
-     TODO cuando exista la lógica:
-       nuevoTablero(); dibujarTablero();
-       document.getElementById('tablero').addEventListener('click', clickTablero);
-       document.getElementById('btn-reiniciar').addEventListener('click', reiniciar);
-       document.getElementById('btn-deshacer').addEventListener('click', deshacer);
-       document.getElementById('btn-otra').addEventListener('click', reiniciar);
-       document.getElementById('btn-guardar').addEventListener('click', guardar);  */
-  document.getElementById('btn-deshacer').disabled = true;
 
   /* Compartí tu récord — dentro del juego */
   document.getElementById('copiar-link').addEventListener('click', async () => {

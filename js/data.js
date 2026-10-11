@@ -13,6 +13,12 @@
    con títulos de distinta longitud y portadas propias de distintos colores.
    ========================================================= */
 const JUEGOS = [
+  /* BLOCKA tiene su propia pagina (Entregable N3), por eso trae
+     el campo "url". Los demas juegos no lo tienen y caen en
+     juego.html?j=<slug>, que es la pagina generica. */
+  { slug:'blocka', titulo:'BLOCKA', categoria:'Puzzle', nota:4.6, resenias:128,
+    cucarda:'nuevo', img:'img/covers/blocka.webp', url:'blocka.html',
+    desc:'Una imagen partida en cuatro partes giradas. Giralas con el mouse hasta reconstruirla, contra reloj y con un filtro encima.' },
   { slug:'2048', titulo:'2048', categoria:'Puzzle', nota:4.9, resenias:1284,
     cucarda:'nuevo', img:'img/covers/2048.webp',
     desc:'Deslizá las fichas y sumá potencias de dos hasta llegar a la de 2048. Fácil de aprender, imposible de soltar.' },
@@ -66,7 +72,7 @@ const JUEGOS = [
 /* Filas de la Home (cada juego aparece una sola vez por fila) */
 const FILAS = [
   { id:'sugerencias', titulo:'Sugerencias para vos',
-    slugs:['peg-solitaire','2048','ajedrez','mahjong','sudoku'] },
+    slugs:['blocka','peg-solitaire','2048','ajedrez','mahjong','sudoku'] },
   { id:'mas-jugados', titulo:'Los más jugados',
     slugs:['truco','generala','klondike','buscaminas','cuatro-en-linea'] },
   { id:'arcade', titulo:'Arcade',
