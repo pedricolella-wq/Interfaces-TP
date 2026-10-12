@@ -511,13 +511,17 @@ function piezaEn(evento) {
   return fil * LADO + col;
 }
 
+/* Llena el panel "Datos rapidos" de la plantilla: los tres
+   niveles con su filtro, su tiempo maximo y el record. */
 function pintarNiveles(records = {}) {
-  document.getElementById('lista-niveles').innerHTML = NIVELES.map(n => {
+  const filas = NIVELES.map(n => {
     const r = records[n.n];
     return `<li>Nivel ${n.n} · ${n.nombre}` +
            (n.limite ? ` · máx ${mmss(n.limite)}` : '') +
            (r ? ` <b class="record">récord ${mmss(r)}</b>` : '') + '</li>';
-  }).join('');
+  });
+  filas.push('<li>Dificultad: media</li>', '<li>Jugadores: 1</li>');
+  document.getElementById('lista-niveles').innerHTML = filas.join('');
 }
 
 function pintarBanco() {
@@ -532,8 +536,20 @@ function pintarBanco() {
 /* =========================================================
    7. ARRANQUE
    ========================================================= */
+/* El juego dentro del catalogo, igual que en juego.js */
+const juegoActual = JUEGOS.find(j => j.slug === 'blocka');
+
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('juego-estrellas').innerHTML = estrellas(4.6);
+  /* Datos del juego en la cabecera: lo mismo que hace la pagina
+     de Peg Solitaire, porque es la misma plantilla. */
+  document.getElementById('juego-titulo').textContent = juegoActual.titulo;
+  document.getElementById('miga-cat').textContent = juegoActual.categoria;
+  document.getElementById('miga-juego').textContent = juegoActual.titulo;
+  document.getElementById('juego-estrellas').innerHTML = estrellas(juegoActual.nota);
+  document.getElementById('juego-nota').textContent = `${juegoActual.nota.toFixed(1)} (${juegoActual.resenias} reseñas)`;
+  document.getElementById('juego-desc').textContent = juegoActual.desc;
+  document.title = `${juegoActual.titulo} · frib`;
+
   pintarBanco();
   pintarNiveles();
 
@@ -555,9 +571,14 @@ document.addEventListener('DOMContentLoaded', () => {
   $btnSeguir.addEventListener('click', () => juego.seguir());
 
   document.getElementById('copiar-link').addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText(`Jugué a BLOCKA en frib. ${location.href}`); toast('¡Link copiado!'); }
+    const txt = `Jugué a ${juegoActual.titulo} en frib. ${location.href}`;
+    try { await navigator.clipboard.writeText(txt); toast('¡Link copiado!'); }
     catch { toast('Copiá el link desde la barra del navegador'); }
   });
+
+  /* El hilo de resenias es de la plantilla: vive en resenias.js
+     y lo comparten todas las paginas de juego. */
+  initResenias();
 
   /* Queda a mano para probar desde la consola del navegador */
   window.juego = juego;
