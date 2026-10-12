@@ -4,83 +4,87 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>frib · Entregas</title>
-<meta name="description" content="Accesos a las dos entregas del TPE de Interfaces de Usuario e Interacción: el prototipo en Figma y el sitio publicado.">
+<meta name="description" content="Accesos a las entregas del TPE de Interfaces de Usuario e Interacción: el prototipo en Figma, el sitio publicado y el videojuego BLOCKA.">
 <meta name="theme-color" content="#0B1871">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Paytone+One&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --azul-300:#3D52C9; --azul-500:#0B1871; --azul-700:#060F47;
-    --verde-300:#22C55E; --verde-500:#15803D;
-    --lima:#A3E635; --lima-osc:#84CC16;
-    --crema:#FAF6E3; --tinta:#1E1B4B; --violeta:#2E1065;
-    --radio:18px; --sombra:0 18px 40px -14px rgba(0,0,0,.55);
-    --ease:cubic-bezier(.22,1,.36,1); --back:cubic-bezier(.34,1.56,.64,1);
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    min-height:100vh; padding:40px 20px;
-    font-family:Nunito,system-ui,sans-serif; color:var(--crema);
-    background:
-      radial-gradient(900px 500px at 12% -8%, rgba(61,82,201,.55), transparent 60%),
-      radial-gradient(700px 520px at 105% 8%, rgba(12,140,233,.28), transparent 55%),
-      var(--azul-500);
-    display:grid; place-items:center;
-  }
-  .hoja{width:100%; max-width:760px}
-  .marca{display:flex; align-items:center; gap:12px; margin-bottom:26px}
-  .marca svg{width:52px; height:52px; animation:flotar 4.5s var(--ease) infinite}
-  .marca b{font-family:'Paytone One',system-ui,sans-serif; font-size:2rem; letter-spacing:.5px}
-  .marca small{display:block; font-size:.8125rem; font-weight:700; color:rgba(250,246,227,.6); letter-spacing:.4px}
-  h1{font-size:clamp(1.4rem,4vw,1.9rem); font-weight:800; margin-bottom:6px; text-wrap:balance}
-  .bajada{color:rgba(250,246,227,.72); font-size:.9375rem; margin-bottom:26px; max-width:56ch}
+:root{
+  --azul-300:#3D52C9; --azul-500:#0B1871; --azul-700:#060F47;
+  --verde-300:#22C55E; --verde-500:#15803D;
+  --lima:#A3E635; --lima-osc:#84CC16;
+  --crema:#FAF6E3; --tinta:#1E1B4B; --violeta:#2E1065;
+  --radio:18px; --sombra:0 18px 40px -14px rgba(0,0,0,.55);
+  --ease:cubic-bezier(.22,1,.36,1); --back:cubic-bezier(.34,1.56,.64,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh; padding:40px 20px;
+  font-family:Nunito,system-ui,sans-serif; color:var(--crema);
+  background:
+    radial-gradient(900px 500px at 12% -8%, rgba(61,82,201,.55), transparent 60%),
+    radial-gradient(700px 520px at 105% 8%, rgba(12,140,233,.28), transparent 55%),
+    var(--azul-500);
+  display:grid; place-items:center;
+}
+.hoja{width:100%; max-width:1080px}
+.marca{display:flex; align-items:center; gap:12px; margin-bottom:26px}
+.marca svg{width:52px; height:52px; animation:flotar 4.5s var(--ease) infinite}
+.marca b{font-family:'Paytone One',system-ui,sans-serif; font-size:2rem; letter-spacing:.5px}
+.marca small{display:block; font-size:.8125rem; font-weight:700; color:rgba(250,246,227,.6); letter-spacing:.4px}
+h1{font-size:clamp(1.4rem,4vw,1.9rem); font-weight:800; margin-bottom:6px; text-wrap:balance}
+.bajada{color:rgba(250,246,227,.72); font-size:.9375rem; margin-bottom:26px; max-width:56ch}
 
-  .tarjetas{display:grid; gap:16px}
-  @media (min-width:720px){ .tarjetas{grid-template-columns:1fr 1fr} }
+/* Una columna en mobile, y de 720px para arriba tantas como entren:
+   con tres entregas quedan las tres en fila sin dejar una sola abajo. */
+.tarjetas{display:grid; gap:16px}
+@media (min-width:720px){ .tarjetas{grid-template-columns:repeat(auto-fit, minmax(300px, 1fr))} }
 
-  .entrega{
-    background:var(--crema); color:var(--tinta);
-    border-radius:var(--radio); padding:22px; box-shadow:var(--sombra);
-    display:flex; flex-direction:column; gap:12px;
-    border:3px solid transparent;
-    transition:transform .28s var(--back), box-shadow .28s var(--ease), border-color .28s var(--ease);
-  }
-  .entrega:hover{transform:translateY(-6px); border-color:var(--lima); box-shadow:0 26px 52px -16px rgba(0,0,0,.6)}
-  .num{
-    display:inline-flex; align-items:center; gap:8px; align-self:flex-start;
-    background:var(--verde-500); color:#fff; font-weight:800; font-size:.75rem;
-    padding:5px 12px; border-radius:999px; letter-spacing:.6px;
-  }
-  .entrega h2{font-size:1.25rem; font-weight:800}
-  .entrega p{font-size:.875rem; color:rgba(30,27,75,.7); line-height:1.5; flex:1}
-  .ficha{display:flex; flex-wrap:wrap; gap:6px; margin-top:2px}
-  .ficha span{font-size:.6875rem; font-weight:800; background:rgba(30,27,75,.09); padding:4px 9px; border-radius:999px; color:rgba(30,27,75,.7)}
+.entrega{
+  background:var(--crema); color:var(--tinta);
+  border-radius:var(--radio); padding:22px; box-shadow:var(--sombra);
+  display:flex; flex-direction:column; gap:12px;
+  border:3px solid transparent;
+  transition:transform .28s var(--back), box-shadow .28s var(--ease), border-color .28s var(--ease);
+}
+.entrega:hover{transform:translateY(-6px); border-color:var(--lima); box-shadow:0 26px 52px -16px rgba(0,0,0,.6)}
+.num{
+  display:inline-flex; align-items:center; gap:8px; align-self:flex-start;
+  background:var(--verde-500); color:#fff; font-weight:800; font-size:.75rem;
+  padding:5px 12px; border-radius:999px; letter-spacing:.6px;
+}
+/* La entrega que se está cursando se distingue del resto */
+.entrega--actual .num{background:var(--lima-osc); color:var(--azul-700)}
+.entrega h2{font-size:1.25rem; font-weight:800}
+.entrega p{font-size:.875rem; color:rgba(30,27,75,.7); line-height:1.5; flex:1}
+.ficha{display:flex; flex-wrap:wrap; gap:6px; margin-top:2px}
+.ficha span{font-size:.6875rem; font-weight:800; background:rgba(30,27,75,.09); padding:4px 9px; border-radius:999px; color:rgba(30,27,75,.7)}
 
-  .abrir{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    background:var(--verde-500); color:#fff; text-decoration:none;
-    font-weight:800; font-size:.9375rem; padding:13px 18px; border-radius:12px;
-    border:2px solid var(--azul-700);
-    transition:background .22s var(--ease), transform .22s var(--back), box-shadow .22s var(--ease);
-  }
-  .abrir:hover{background:var(--verde-300); transform:translateY(-2px); box-shadow:0 10px 22px -8px rgba(21,128,61,.8)}
-  .abrir::after{content:"→"; transition:transform .22s var(--back)}
-  .abrir:hover::after{transform:translateX(5px)}
+.abrir{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  background:var(--verde-500); color:#fff; text-decoration:none;
+  font-weight:800; font-size:.9375rem; padding:13px 18px; border-radius:12px;
+  border:2px solid var(--azul-700);
+  transition:background .22s var(--ease), transform .22s var(--back), box-shadow .22s var(--ease);
+}
+.abrir:hover{background:var(--verde-300); transform:translateY(-2px); box-shadow:0 10px 22px -8px rgba(21,128,61,.8)}
+.abrir::after{content:"→"; transition:transform .22s var(--back)}
+.abrir:hover::after{transform:translateX(5px)}
 
-  .sueltos{display:flex; flex-wrap:wrap; gap:8px}
-  .sueltos a{
-    font-size:.75rem; font-weight:800; text-decoration:none; color:rgba(30,27,75,.72);
-    border:1.5px solid rgba(30,27,75,.2); padding:6px 11px; border-radius:999px;
-    transition:background .18s, color .18s, border-color .18s;
-  }
-  .sueltos a:hover{background:var(--tinta); color:var(--crema); border-color:var(--tinta)}
+.sueltos{display:flex; flex-wrap:wrap; gap:8px}
+.sueltos a{
+  font-size:.75rem; font-weight:800; text-decoration:none; color:rgba(30,27,75,.72);
+  border:1.5px solid rgba(30,27,75,.2); padding:6px 11px; border-radius:999px;
+  transition:background .18s, color .18s, border-color .18s;
+}
+.sueltos a:hover{background:var(--tinta); color:var(--crema); border-color:var(--tinta)}
 
-  footer{margin-top:26px; padding-top:16px; border-top:1px solid rgba(250,246,227,.18);
-         font-size:.75rem; color:rgba(250,246,227,.55); display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
-  a:focus-visible, .entrega:focus-within{outline:3px solid var(--lima); outline-offset:3px; border-radius:8px}
-  @keyframes flotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+footer{margin-top:26px; padding-top:16px; border-top:1px solid rgba(250,246,227,.18);
+  font-size:.75rem; color:rgba(250,246,227,.55); display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
+a:focus-visible, .entrega:focus-within{outline:3px solid var(--lima); outline-offset:3px; border-radius:8px}
+@keyframes flotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -98,15 +102,15 @@
   </div>
 
   <h1>Entregas del trabajo práctico</h1>
-  <p class="bajada">Las dos entregas de la plataforma de juegos <b>frib</b>, publicadas en GitHub Pages.
-    Entrá a cualquiera de las dos desde acá.</p>
+  <p class="bajada">Las entregas de la plataforma de juegos <b>frib</b>, publicadas en GitHub Pages.
+     Cada una vive en su propia carpeta del repositorio.</p>
 
   <div class="tarjetas">
     <article class="entrega">
       <span class="num">Entrega 1</span>
       <h2>Prototipo en Figma</h2>
       <p>Las tres pantallas diseñadas en alta fidelidad: registro, home y la página de Peg Solitaire,
-        con el design system y la bitácora de trabajo.</p>
+         con el design system y la bitácora de trabajo.</p>
       <div class="ficha"><span>Figma</span><span>Alta fidelidad</span><span>Design system</span></div>
       <a class="abrir" href="https://pedricolella-wq.github.io/Interfaces-TP/1/" target="_blank" rel="noopener">Abrir entrega 1</a>
     </article>
@@ -115,12 +119,24 @@
       <span class="num">Entrega 2</span>
       <h2>Sitio implementado</h2>
       <p>El prototipo hecho sitio real en HTML5, CSS3 y JavaScript vanilla, sin frameworks:
-        home mobile first, login con validación y la página de juego.</p>
+         home mobile first, login con validación y la página de juego.</p>
       <div class="ficha"><span>HTML5</span><span>CSS3</span><span>JS vanilla</span></div>
       <a class="abrir" href="https://pedricolella-wq.github.io/Interfaces-TP/" target="_blank" rel="noopener">Abrir entrega 2</a>
       <div class="sueltos">
         <a href="https://pedricolella-wq.github.io/Interfaces-TP/login.html" target="_blank" rel="noopener">Login y registro</a>
         <a href="https://pedricolella-wq.github.io/Interfaces-TP/juego.html" target="_blank" rel="noopener">Página de juego</a>
+      </div>
+    </article>
+
+    <article class="entrega entrega--actual">
+      <span class="num">Entrega 3</span>
+      <h2>Videojuego BLOCKA</h2>
+      <p>Una imagen partida en cuatro partes giradas, para reconstruir contra reloj. Hecho con Canvas:
+         degradé píxel a píxel, matriz de transformación para girar y filtros sobre la matriz de píxeles.</p>
+      <div class="ficha"><span>Canvas 2D</span><span>Degradé</span><span>Matriz</span><span>Filtros</span></div>
+      <a class="abrir" href="https://pedricolella-wq.github.io/Interfaces-TP/3/" target="_blank" rel="noopener">Abrir entrega 3</a>
+      <div class="sueltos">
+        <a href="https://pedricolella-wq.github.io/Interfaces-TP/3/blocka.html" target="_blank" rel="noopener">Ir directo a BLOCKA</a>
       </div>
     </article>
   </div>
