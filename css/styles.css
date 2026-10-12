@@ -619,8 +619,11 @@ body {
 .fin__texto { font-size: .9375rem; color: rgba(250,246,227,.88); max-width: 46ch; }
 .fin__botones { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
 
-/* ---------- Instrucciones y banco de imágenes ---------- */
-.seccion__bajada { color: rgba(250,246,227,.72); max-width: 70ch; margin: 2px 0 14px; }
+/* ---------- Cómo se juega y banco de imágenes ----------
+   No son secciones aparte: van adentro de "Sobre el juego",
+   que es el bloque que ya trae la plantilla de página de juego.
+   ------------------------------------------------- */
+.sub-h { font-family: 'Paytone One', sans-serif; font-size: 1.05rem; margin: 22px 0 8px; }
 .pasos { counter-reset: paso; list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
 .pasos li { position: relative; padding-left: 46px; color: rgba(250,246,227,.85); font-size: .9375rem; }
 .pasos li::before {
@@ -651,7 +654,7 @@ body {
   .banco { grid-template-columns: repeat(3, 1fr); gap: 16px; }
 }
 @media (min-width: 1100px) {
-  .banco { grid-template-columns: repeat(6, 1fr); }
+  .banco { grid-template-columns: repeat(3, 1fr); }
 }
 
 
