@@ -2,20 +2,19 @@
 <!--
   frib &middot; BLOCKA (Ejercicio Entregable N 3)
   ---------------------------------------------------------
-  Misma estructura y mismo diseno que la pagina de Peg Solitaire:
-  header, menu lateral, migas, escenario a todo el ancho, secciones
-  dentro de .contenedor y footer. Solo cambia lo de adentro.
+  MISMA PLANTILLA que la pagina de Peg Solitaire (juego.html):
+  header, menu lateral, migas, escenario a todo el ancho,
+  seccion "Sobre el juego" + "Datos rapidos", hilo de resenias
+  y footer. Lo UNICO que cambia es el contenido del escenario,
+  porque este juego si tiene logica.
 
-  Tres bloques:
-    1. escenario      el tablero (lugar de ejecucion visible) con la
-                      barra de datos arriba y la de compartir abajo
-    2. instrucciones  siempre visibles, debajo del tablero
-    3. sobre + banco  de que se trata y las imagenes del juego
+  En vez de la foto del tablero hay un <canvas>, y js/blocka.js
+  dibuja ahi el juego con lo del Tema 3: degrade pixel a pixel,
+  drawImage con recorte, la matriz de transformacion para girar
+  las piezas y getImageData / putImageData para los filtros.
 
-  El tablero lo dibuja js/blocka.js sobre un <canvas>, con lo del
-  Tema 3: degrade pixel a pixel, drawImage con recorte para sacar
-  cada cuarto, la matriz de transformacion (translate + rotate) para
-  girarlos y getImageData / putImageData para los filtros.
+  El hilo de resenias es el mismo codigo que usa Peg Solitaire:
+  vive en js/resenias.js y lo comparten las dos paginas.
 -->
 <html lang="es-AR">
 <head>
@@ -28,8 +27,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Paytone+One&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=21">
-<link rel="stylesheet" href="css/animations.css?v=21">
+<link rel="stylesheet" href="css/styles.css?v=22">
+<link rel="stylesheet" href="css/animations.css?v=22">
 </head>
 <body>
 <a class="saltar-al-contenido" href="#contenido">Saltar al contenido</a>
@@ -75,45 +74,42 @@
 
 <main id="contenido">
   <div class="contenedor">
-    <!-- Migas: mismo patron que la pagina de Peg Solitaire -->
-    <nav class="migas" aria-label="Estas aca">
+    <!-- Migas: "Inicio" y el logo siempre vuelven a la Home -->
+    <nav class="migas" aria-label="Estás acá">
       <a href="index.html">Inicio</a><span>&rsaquo;</span>
-      <a href="index.html#fila-sugerencias">Puzzle</a><span>&rsaquo;</span>
-      <span aria-current="page">BLOCKA</span>
+      <a href="index.html#fila-sugerencias" id="miga-cat">Puzzle</a><span>&rsaquo;</span>
+      <span aria-current="page" id="miga-juego">BLOCKA</span>
     </nav>
 
     <div class="juego-cabecera">
-      <h1>BLOCKA</h1>
-      <span class="nota"><span id="juego-estrellas"></span> <b>4.6 (128 rese&ntilde;as)</b></span>
+      <h1 id="juego-titulo">BLOCKA</h1>
+      <span class="nota"><span id="juego-estrellas"></span> <b id="juego-nota">4.6 (128 reseñas)</b></span>
     </div>
   </div>
 
-  <!-- ===================== ESCENARIO: el lugar de ejecucion =====================
-       Ocupa todo el ancho, igual que el tablero del Peg Solitaire. -->
+  <!-- ======= ESCENARIO DEL JUEGO: ocupa todo el ancho ======= -->
   <section class="escenario" aria-label="Tablero de BLOCKA">
     <div class="escenario__barra">
       <div class="contenedor hud">
-        <span class="hud__dato">Nivel <b id="hud-nivel">1</b><span class="apagado"> / 3</span></span>
+        <span class="hud__dato">Nivel <b id="hud-nivel">1</b></span>
         <span class="hud__dato">Tiempo <b id="hud-reloj">00:00</b></span>
         <span class="hud__dato">Giros <b id="hud-giros">0</b></span>
         <span class="hud__tip" id="hud-tip">Filtro: escala de grises</span>
         <div class="hud__botones">
-          <a class="btn btn--terciario btn--sm" href="#instrucciones">&iquest;C&oacute;mo se juega?</a>
-          <button class="btn btn--terciario btn--sm" id="btn-ayudita" type="button" disabled>Ayudita <span class="apagado">+5 s</span></button>
+          <button class="btn btn--terciario btn--sm" id="btn-ayudita" type="button" disabled>Ayudita +5 s</button>
           <button class="btn btn--terciario btn--sm" id="btn-reiniciar" type="button" disabled>Reiniciar</button>
-          <button class="btn btn--primario btn--sm" id="btn-comenzar" type="button">Comenzar</button>
+          <button class="btn btn--secundario btn--sm" id="btn-comenzar" type="button">Comenzar</button>
         </div>
       </div>
     </div>
 
     <div class="escenario__tablero">
-      <!-- El tablero ES un canvas. Mide 800x800 por dentro (atributos
-           width/height) y el CSS lo muestra mas chico; blocka.js dibuja
-           ahi el degrade y las cuatro piezas con drawImage. -->
+      <!-- Donde Peg Solitaire tiene la foto del tablero, BLOCKA tiene el
+           canvas. Mide 800x800 por dentro y el CSS lo muestra mas chico. -->
       <canvas class="blocka" id="blocka" width="800" height="800"
               aria-label="Tablero de BLOCKA: cuatro partes de una imagen para girar"></canvas>
 
-      <!-- Cartel de arranque: el reloj no corre hasta que se toca Comenzar -->
+      <!-- Carteles del juego, encima del tablero -->
       <div class="fin" id="arranque">
         <b class="fin__titulo">Nivel 1</b>
         <p class="fin__texto">Las cuatro partes est&aacute;n giradas y con un filtro encima.
@@ -121,7 +117,6 @@
         <button class="btn btn--primario" id="btn-arrancar" type="button">Comenzar</button>
       </div>
 
-      <!-- Cartel de fin de nivel (ganaste o se acabo el tiempo) -->
       <div class="fin" id="fin" hidden role="status" aria-live="polite">
         <b class="fin__titulo" id="fin-titulo"></b>
         <p class="fin__texto" id="fin-texto"></p>
@@ -144,67 +139,102 @@
   </section>
 
   <div class="contenedor">
-
-    <!-- ===================== INSTRUCCIONES =====================
-         Van en la pagina, siempre visibles y debajo del tablero: el que ya
-         sabe jugar no las tiene que cerrar, y el que no sabe las encuentra
-         scrolleando o con el boton "Como se juega" de la barra. Un modal
-         obligaria a cerrarlo antes de jugar. -->
-    <section class="seccion instrucciones reveal" id="instrucciones" aria-labelledby="h-instrucciones">
-      <h2 id="h-instrucciones">&iquest;C&oacute;mo se juega?</h2>
-      <p class="seccion__bajada">Una <b>blocka</b> es una imagen partida en cuatro y cada parte qued&oacute; girada.
-         Tu trabajo es devolverlas a su posici&oacute;n para reconstruir la imagen.</p>
-
-      <ol class="pasos">
-        <li><b>Toc&aacute; Comenzar.</b> Ah&iacute; arranca el reloj. Hasta ese momento las piezas no responden.</li>
-        <li><b>Gir&aacute; cada parte con el mouse.</b>
-          <span class="mouse">
-            <span class="mouse__fig" aria-hidden="true"><i class="mouse__izq"></i><i class="mouse__der"></i></span>
-            <span><b>Clic izquierdo</b> gira hacia la izquierda &middot; <b>clic derecho</b> gira hacia la derecha</span>
-          </span>
-        </li>
-        <li><b>Arm&aacute; la imagen.</b> Cuando las cuatro partes est&eacute;n derechas, el reloj se detiene,
-            el filtro se va y ves la imagen original en color.</li>
-      </ol>
-
-      <div class="aviso">
-        <b>Ojo con el filtro.</b> Cada nivel aplica un filtro distinto al cargar
-        (escala de grises, brillo +30% y negativo) para que cueste m&aacute;s reconocer la imagen.
-        Si te trab&aacute;s, <b>Ayudita</b> acomoda y fija una pieza, pero te suma 5 segundos al reloj.
-        Desde el nivel 2 adem&aacute;s hay <b>tiempo m&aacute;ximo</b>: si se acaba, perd&eacute;s el nivel.
-      </div>
-    </section>
-
-    <!-- ===================== SOBRE EL JUEGO + NIVELES ===================== -->
+    <!-- ======= SOBRE EL JUEGO ======= -->
     <section class="seccion sobre reveal">
       <div class="juego-grid">
         <div>
           <h2>Sobre el juego</h2>
-          <p>BLOCKA es un rompecabezas de rotaci&oacute;n: no se mueven las piezas de lugar, solo se giran.
-             La imagen se sortea de un banco de seis al empezar cada nivel, as&iacute; que nunca jugas dos
-             partidas iguales.</p>
-          <p style="margin-top:10px">El filtro no es decoraci&oacute;n: es la dificultad. En escala de grises
-             perd&eacute;s el color como pista, con el brillo +30% se lava el contraste y en negativo
-             tu cabeza tiene que invertir todo lo que ve.</p>
-          <p style="margin-top:10px">Todo el tablero es un <code>&lt;canvas&gt;</code>: el fondo es un degrad&eacute;
-             calculado p&iacute;xel a p&iacute;xel, las piezas se giran con la matriz de transformaci&oacute;n del
-             contexto y los filtros recorren la matriz de p&iacute;xeles con un doble <code>for</code>.
-             No se us&oacute; el <code>filter</code> de CSS.</p>
+          <p id="juego-desc"></p>
+          <p style="margin-top:10px">Las piezas no se mueven de lugar: solo se giran. La imagen se sortea de un
+            banco de seis al empezar cada nivel, as&iacute; que nunca jug&aacute;s dos partidas iguales. El filtro no
+            es decoraci&oacute;n, es la dificultad: en escala de grises perd&eacute;s el color como pista, con el brillo
+            +30% se lava el contraste y en negativo tu cabeza tiene que invertir todo lo que ve.</p>
+
+          <h3 class="sub-h">&iquest;C&oacute;mo se juega?</h3>
+          <ol class="pasos">
+            <li><b>Toc&aacute; Comenzar.</b> Ah&iacute; arranca el reloj. Hasta ese momento las piezas no responden.</li>
+            <li><b>Gir&aacute; cada parte con el mouse.</b>
+              <span class="mouse">
+                <span class="mouse__fig" aria-hidden="true"><i class="mouse__izq"></i><i class="mouse__der"></i></span>
+                <span><b>Clic izquierdo</b> gira hacia la izquierda &middot; <b>clic derecho</b> gira hacia la derecha</span>
+              </span>
+            </li>
+            <li><b>Arm&aacute; la imagen.</b> Cuando las cuatro partes est&eacute;n derechas el reloj se detiene,
+                el filtro se va y ves la imagen original en RGB.</li>
+          </ol>
+          <p class="aviso"><b>Si te trab&aacute;s</b>, <b>Ayudita</b> acomoda y fija una pieza, pero te suma 5 segundos
+            al reloj. Y desde el nivel 2 hay <b>tiempo m&aacute;ximo</b>: si se acaba, perd&eacute;s el nivel.</p>
+
+          <h3 class="sub-h">El banco de im&aacute;genes</h3>
+          <p>Al empezar cada nivel el sistema elige una de estas seis al azar.</p>
+          <ul class="banco" id="banco"></ul>
         </div>
         <aside class="panel">
-          <h2>Los tres niveles</h2>
+          <h2>Datos r&aacute;pidos</h2>
           <ul class="datos-rapidos" id="lista-niveles"></ul>
         </aside>
       </div>
     </section>
 
-    <!-- ===================== IMAGENES DEL JUEGO ===================== -->
-    <section class="seccion reveal" aria-labelledby="h-banco">
-      <h2 id="h-banco">El banco de im&aacute;genes</h2>
-      <p class="seccion__bajada">Al empezar cada nivel el sistema elige una de estas seis al azar.</p>
-      <ul class="banco" id="banco"></ul>
-    </section>
+    <!-- ======= RESEÑAS: patrón de comentarios tipo Play Store / YouTube ======= -->
+    <section class="seccion comentarios reveal" aria-labelledby="h-resenias">
+      <div class="comentarios__top">
+        <h2 id="h-resenias">Reseñas de la comunidad</h2>
+        <label class="orden">
+          <span class="solo-lectores">Ordenar reseñas</span>
+          <select id="orden-resenias">
+            <option value="relevantes">Más relevantes</option>
+            <option value="recientes">Más recientes</option>
+            <option value="mejores">Mejor puntuadas</option>
+            <option value="peores">Peor puntuadas</option>
+          </select>
+        </label>
+      </div>
 
+      <div class="comentarios__grid">
+        <aside class="resumen">
+          <div class="resumen__cabeza">
+            <b class="resumen__nota" id="res-nota">4,2</b>
+            <div>
+              <span id="res-estrellas"></span>
+              <p class="chico apagado" id="res-total">317 reseñas</p>
+            </div>
+          </div>
+          <ul class="barras" id="res-barras"></ul>
+        </aside>
+
+        <div class="hilo">
+          <form class="comentar" id="form-resenia">
+            <span class="comentario__avatar" style="--c:#0E7490" aria-hidden="true">P</span>
+            <div class="comentar__campo">
+              <label class="solo-lectores" for="txt-resenia">Tu comentario</label>
+              <textarea id="txt-resenia" rows="1" placeholder="Escribí una reseña pública…"></textarea>
+              <div class="comentar__pie">
+                <div class="puntaje" id="puntaje" role="group" aria-label="Tu puntaje">
+                  <button type="button" data-n="1" aria-label="1 estrella">★</button>
+                  <button type="button" data-n="2" aria-label="2 estrellas">★</button>
+                  <button type="button" data-n="3" aria-label="3 estrellas">★</button>
+                  <button type="button" data-n="4" aria-label="4 estrellas">★</button>
+                  <button type="button" data-n="5" aria-label="5 estrellas">★</button>
+                </div>
+                <div class="comentar__acciones">
+                  <button class="accion" type="reset">Cancelar</button>
+                  <button class="btn btn--secundario btn--sm" type="submit">Publicar</button>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <div class="lista-resenias" id="lista-resenias"></div>
+
+          <!-- Patrón de paginado: "Ver más" con contador (load more) -->
+          <div class="paginado">
+            <button class="btn btn--primario btn--sm" id="btn-mas" type="button">Ver más reseñas</button>
+            <span class="contador" id="contador-resenias"></span>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </main>
 
@@ -260,8 +290,9 @@
   </symbol>
 </svg>
 
-<script src="js/data.js?v=21"></script>
-<script src="js/ui.js?v=21"></script>
-<script src="js/blocka.js?v=21"></script>
+<script src="js/data.js?v=22"></script>
+<script src="js/ui.js?v=22"></script>
+<script src="js/resenias.js?v=22"></script>
+<script src="js/blocka.js?v=22"></script>
 </body>
 </html>
