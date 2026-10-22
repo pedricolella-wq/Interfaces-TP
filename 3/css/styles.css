@@ -652,15 +652,16 @@ body {
 .record { color: var(--lima); }
 
 /* --- miniaturas del sorteo, dentro del cartel de arranque de BLOCKA --- */
-.banco--sorteo { grid-template-columns: repeat(6, 1fr); gap: 8px;
-  margin: 14px auto 4px; max-width: 400px; pointer-events: none; }
+/* Doble clase a proposito: ".banco" sola tiene la misma especificidad y
+   mas abajo hay media queries que le cambian las columnas. Con
+   ".banco.banco--sorteo" esta regla gana siempre, sin importar el orden. */
+.banco.banco--sorteo { grid-template-columns: repeat(6, 1fr); gap: 8px;
+  margin: 14px auto 4px; max-width: 420px; pointer-events: none; }
 .banco--sorteo .banco__item img { border-radius: 8px; opacity: .3;
   transition: opacity .18s ease, transform .18s ease; }
 .banco__item--mirando img { opacity: .75; }
 .banco__item--elegida img { opacity: 1; transform: scale(1.1);
   outline: 3px solid var(--lima); outline-offset: 2px; }
-@media (min-width: 760px) { .banco--sorteo { grid-template-columns: repeat(6, 1fr); } }
-@media (min-width: 1100px) { .banco--sorteo { grid-template-columns: repeat(6, 1fr); } }
 @media (prefers-reduced-motion: reduce) {
   .banco--sorteo .banco__item img { transition: none; }
 }
