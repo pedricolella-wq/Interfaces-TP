@@ -44,6 +44,24 @@ const BANCO = [
   { archivo: 'img/blocka/faro.webp',      nombre: 'Faro' },
 ];
 
+/* Bolillero: las seis imagenes se sacan SIN reposicion. Cuando se
+   vacia se recarga y se vuelve a mezclar, asi ninguna vuelve a salir
+   hasta que salieron todas. Math.random ya no elige la imagen: solo
+   mezcla el mazo una vez cada seis niveles. */
+let bolillero = [];
+
+function sortearImagen() {
+  if (bolillero.length === 0) {
+    bolillero = BANCO.map((_, i) => i);              // [0,1,2,3,4,5]
+
+    for (let i = bolillero.length - 1; i > 0; i--) { // mezcla Fisher-Yates
+      const j = Math.floor(Math.random() * (i + 1));
+      [bolillero[i], bolillero[j]] = [bolillero[j], bolillero[i]];
+    }
+  }
+  return bolillero.pop();        // devuelve el INDICE, no la imagen
+}
+
 /* Los tres niveles con su filtro (puntos 1 y 4).
    "limite" en segundos; 0 = sin tiempo máximo. */
 const NIVELES = [
@@ -290,7 +308,8 @@ class Juego {
      ------------------------------------------------------- */
   preparar() {
     const nivel = this.datos;
-    this.imagen = BANCO[Math.floor(Math.random() * BANCO.length)];
+    this.indiceImagen = sortearImagen();     // el bolillero decide
+    this.imagen = BANCO[this.indiceImagen];
     this.giros = 0;
     this.jugando = false;
     this.fuente = lienzoFiltro;
@@ -329,6 +348,7 @@ class Juego {
     $btnAyuda.disabled = true;
     $btnReini.disabled = true;
     this.pintarHud();
+    mostrarSorteo(this.indiceImagen);   // la ruleta de miniaturas
   }
 
   get resuelto() { return this.piezas.every(p => p.derecha); }
@@ -522,6 +542,39 @@ function pintarNiveles(records = {}) {
   });
   filas.push('<li>Dificultad: media</li>', '<li>Jugadores: 1</li>');
   document.getElementById('lista-niveles').innerHTML = filas.join('');
+}
+
+/* EXTRA 1 de la consigna: antes de arrancar el nivel se muestran las
+   seis miniaturas y una animacion senala con cual se juega. Es solo
+   visual: son <li> con <img>, sin ningun listener, asi que el jugador
+   NO puede elegir la imagen. */
+function mostrarSorteo(elegida) {
+  const ul = document.getElementById('banco-sorteo');
+  if (!ul) return;
+
+  ul.innerHTML = BANCO.map(img => `
+    <li class="banco__item">
+      <img src="${img.archivo}" alt="${img.nombre}" width="800" height="800">
+    </li>`).join('');
+
+  const items = ul.querySelectorAll('.banco__item');
+  const PASOS = BANCO.length + elegida;   // una vuelta y frena en la sorteada
+  let paso = 0;
+
+  /* El frenado es el mismo truco que la animacion de las piezas: en vez
+     de un intervalo fijo, cada paso tarda un poco mas que el anterior. */
+  (function tic() {
+    items.forEach(it => it.classList.remove('banco__item--mirando'));
+    items[paso % items.length].classList.add('banco__item--mirando');
+
+    if (paso < PASOS) {
+      paso++;
+      setTimeout(tic, 45 + paso * 16);
+    } else {
+      items[elegida].classList.remove('banco__item--mirando');
+      items[elegida].classList.add('banco__item--elegida');
+    }
+  })();
 }
 
 function pintarBanco() {
