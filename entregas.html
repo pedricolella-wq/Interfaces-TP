@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>frib · Entregas</title>
-  <meta name="description" content="Accesos a las entregas del TPE de Interfaces de Usuario e Interacción: el prototipo en Figma, el sitio publicado, el videojuego BLOCKA y el Peg Solitaire jugable.">
+  <meta name="description" content="Accesos a las entregas del TPE de Interfaces de Usuario e Interacción: el prototipo en Figma, el sitio publicado, el videojuego BLOCKA, el Peg Solitaire jugable y Frib Vuela.">
   <meta name="theme-color" content="#0B1871">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,12 +36,21 @@
     h1{font-size:clamp(1.4rem,4vw,1.9rem); font-weight:800; margin-bottom:6px; text-wrap:balance}
     .bajada{color:rgba(250,246,227,.72); font-size:.9375rem; margin-bottom:26px; max-width:56ch}
 
-    /* Una columna en mobile, dos en tablet y las cuatro en fila en desktop.
-       Se fijan las columnas en vez de usar auto-fit para que nunca quede
-       una sola tarjeta sola en la última fila. */
+    /* Son cinco tarjetas. Una columna en mobile; en tablet dos, con la
+       última ocupando la fila entera; y en desktop tres arriba y dos
+       abajo. Para eso la grilla tiene 6 columnas: las tres primeras
+       tarjetas ocupan 2 cada una y las dos últimas 3 cada una. Así
+       nunca queda una tarjeta sola con un hueco al lado. */
     .tarjetas{display:grid; gap:16px}
-    @media (min-width:720px){  .tarjetas{grid-template-columns:repeat(2, 1fr)} }
-    @media (min-width:1040px){ .tarjetas{grid-template-columns:repeat(4, 1fr)} }
+    @media (min-width:720px){
+      .tarjetas{grid-template-columns:repeat(2, 1fr)}
+      .entrega:last-child{grid-column:1 / -1}
+    }
+    @media (min-width:1040px){
+      .tarjetas{grid-template-columns:repeat(6, 1fr)}
+      .entrega{grid-column:span 2}
+      .entrega:nth-child(n+4), .entrega:last-child{grid-column:span 3}
+    }
 
     .entrega{
       background:var(--crema); color:var(--tinta);
@@ -142,7 +151,7 @@
         </div>
       </article>
 
-      <article class="entrega entrega--actual">
+      <article class="entrega">
         <span class="num">Entrega 4</span>
         <h2>Peg Solitaire jugable</h2>
         <p>El clásico del tablero en cruz, ahora sobre Canvas: las gemas se arrastran con el mouse,
@@ -153,6 +162,21 @@
         <div class="sueltos">
           <a href="https://pedricolella-wq.github.io/Interfaces-TP/4/juego.html" target="_blank" rel="noopener">Ir directo al Peg Solitaire</a>
           <a href="https://pedricolella-wq.github.io/Interfaces-TP/4/blocka.html" target="_blank" rel="noopener">BLOCKA</a>
+        </div>
+      </article>
+
+      <article class="entrega entrega--actual">
+        <span class="num">Entrega 5</span>
+        <h2>Frib Vuela</h2>
+        <p>Un scroller horizontal tipo Flappy Bird hecho sin Canvas: la mascota de frib vuela entre
+          columnas de cristal. El paisaje es un parallax de seis capas, los murciélagos y las gemas
+          son spritesheets y el avatar reacciona a cada evento con una animación keyframe.</p>
+        <div class="ficha"><span>CSS3 @keyframes</span><span>Parallax</span><span>Spritesheet</span><span>Sin canvas</span></div>
+        <a class="abrir" href="https://pedricolella-wq.github.io/Interfaces-TP/5/" target="_blank" rel="noopener">Abrir entrega 5</a>
+        <div class="sueltos">
+          <a href="https://pedricolella-wq.github.io/Interfaces-TP/5/flappy.html" target="_blank" rel="noopener">Ir directo a Frib Vuela</a>
+          <a href="https://pedricolella-wq.github.io/Interfaces-TP/5/juego.html" target="_blank" rel="noopener">Peg Solitaire</a>
+          <a href="https://pedricolella-wq.github.io/Interfaces-TP/5/blocka.html" target="_blank" rel="noopener">BLOCKA</a>
         </div>
       </article>
     </div>
