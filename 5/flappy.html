@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<!--
+  frib · Frib Vuela (Ejercicio Entregable N 5)
+  ---------------------------------------------------------
+  MISMA PLANTILLA que las paginas de Peg Solitaire (juego.html)
+  y BLOCKA (blocka.html): header, menu lateral, migas, escenario
+  a todo el ancho, seccion "Sobre el juego" + "Datos rapidos",
+  hilo de resenias y footer. Lo UNICO que cambia es lo que hay
+  adentro del escenario.
+
+  Este juego NO usa <canvas>. El escenario son <div> comunes:
+
+    .vuelo
+      .vuelo__mundo            el mundo de 960 x 540
+        .capa .capa--cielo       \
+        .capa .capa--nubes        |
+        .capa .capa--montanias    |  PARALLAX: un div por capa
+        .capa .capa--colinas      |
+        .capa .capa--bosque      /
+        .vuelo__pista            aca js/flappy.js crea las columnas,
+                                 los murcielagos y las gemas
+        .avatar                  la mascota de frib
+        .estallido               spritesheet de la explosion
+        .capa .capa--suelo       la ultima capa, por delante de todo
+
+  Como se mueve cada cosa esta en css/flappy.css (@keyframes).
+  Cuando se mueve lo decide js/flappy.js, prendiendo y apagando
+  clases.
+-->
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frib Vuela · frib</title>
+<meta name="description" content="Jugá a Frib Vuela gratis en frib: dale impulso a la mascota, pasá entre las columnas de cristal, juntá gemas y llegá a 50 puntos.">
+<meta name="theme-color" content="#0B1871">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Paytone+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=25">
+<link rel="stylesheet" href="css/animations.css?v=25">
+<link rel="stylesheet" href="css/flappy.css?v=25">
+</head>
+<body>
+<a class="saltar-al-contenido" href="#contenido">Saltar al contenido</a>
+
+<header class="header">
+  <div class="contenedor header__in">
+    <button class="hamburguesa" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-lateral"><span></span><span></span><span></span></button>
+    <a class="logo" href="index.html" aria-label="frib, ir al inicio"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-frib"></use></svg><span>frib</span></a>
+    <form class="buscador" role="search" autocomplete="off">
+      <label class="solo-lectores" for="buscador">Buscar un juego</label>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="buscador" type="search" placeholder="Buscá un juego…">
+      <div class="buscador__resultados" id="buscador-resultados" hidden></div>
+    </form>
+    <a class="perfil" href="login.html" aria-label="Mi cuenta">
+      <span class="perfil__avatar"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#avatar-defecto"></use></svg></span>
+    </a>
+  </div>
+</header>
+
+<div class="menu-fondo"></div>
+<nav class="menu-lateral" id="menu-lateral" aria-label="Menú principal" aria-hidden="true">
+  <a class="logo" href="index.html"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-frib"></use></svg><span>frib</span></a>
+
+  <div class="menu-lateral__cuenta">
+    <span class="perfil__avatar"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#avatar-defecto"></use></svg></span>
+    <span><b>Pedro</b><small class="chico apagado">Ver mi perfil</small></span>
+  </div>
+
+  <h2>Categorías</h2>
+  <a href="index.html">Todos los juegos</a>
+  <a href="index.html#fila-sugerencias">Puzzle</a>
+  <a href="index.html#fila-arcade">Arcade</a>
+  <a href="index.html#fila-mas-jugados">Cartas</a>
+  <a href="index.html#fila-mas-jugados">Estrategia</a>
+  <a href="index.html#fila-novedades">Novedades</a>
+
+  <h2>Tu cuenta</h2>
+  <a href="login.html">Iniciar sesión</a>
+  <a href="login.html#registro">Crear cuenta</a>
+  <a href="juego.html?j=peg-solitaire">Seguir jugando: Peg Solitaire</a>
+</nav>
+
+<main id="contenido">
+  <div class="contenedor">
+    <!-- Migas: "Inicio" y el logo siempre vuelven a la Home -->
+    <nav class="migas" aria-label="Estás acá">
+      <a href="index.html">Inicio</a><span>›</span>
+      <a href="index.html#fila-arcade" id="miga-cat">Arcade</a><span>›</span>
+      <span aria-current="page" id="miga-juego">Frib Vuela</span>
+    </nav>
+
+    <div class="juego-cabecera">
+      <h1 id="juego-titulo">Frib Vuela</h1>
+      <span class="nota"><span id="juego-estrellas"></span> <b id="juego-nota">4.8 (94 reseñas)</b></span>
+    </div>
+  </div>
+
+  <!-- ======= ESCENARIO DEL JUEGO: ocupa todo el ancho ======= -->
+  <section class="escenario" aria-label="Escenario de Frib Vuela">
+    <div class="escenario__barra">
+      <div class="contenedor hud">
+        <span class="hud__dato">Puntos <b id="hud-puntos">0 / 50</b></span>
+        <span class="hud__dato">Vidas <b class="hud__vidas" id="hud-vidas">&hearts;&hearts;&hearts;</b></span>
+        <span class="hud__dato">Tiempo <b id="hud-reloj">00:00</b></span>
+        <span class="hud__tip">Barra espaciadora, flecha arriba o clic para dar impulso</span>
+        <div class="hud__botones">
+          <button class="btn btn--terciario btn--sm" id="btn-reiniciar" type="button" disabled>Reiniciar</button>
+          <button class="btn btn--secundario btn--sm" id="btn-comenzar" type="button">Comenzar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="escenario__tablero">
+      <!-- La caja que se ve. Adentro, el mundo de 960 x 540 que CSS escala. -->
+      <div class="vuelo" id="vuelo" role="img"
+           aria-label="Frib vuela de noche entre columnas de cristal, sobre un paisaje de montañas">
+        <div class="vuelo__mundo" id="mundo">
+
+          <!-- PARALLAX: un div por capa, de la más lejana a la más cercana.
+               Todas comparten .capa; la segunda clase cambia imagen y duración. -->
+          <div class="capa capa--cielo"></div>
+          <div class="capa capa--nubes"></div>
+          <div class="capa capa--montanias"></div>
+          <div class="capa capa--colinas"></div>
+          <div class="capa capa--bosque"></div>
+
+          <!-- Acá flappy.js va creando columnas, murciélagos y gemas -->
+          <div class="vuelo__pista" id="pista"></div>
+
+          <!-- El avatar: tres cajas, cada una con un solo trabajo (ver flappy.css) -->
+          <div class="avatar avatar--planea" id="avatar">
+            <div class="avatar__tamanio">
+              <svg class="avatar__cuerpo" viewBox="-16 0 96 64" aria-hidden="true">
+              <path class="avatar__ala" fill="#FAF6E3" d="M10 37C2 27-9 26-14 33C-9 34-6 36-6 39C-10 39-12 41-12 44C-5 48 5 46 10 41Z"/>
+              <g transform="translate(64 0) scale(-1 1)"><path class="avatar__ala" fill="#FAF6E3" d="M10 37C2 27-9 26-14 33C-9 34-6 36-6 39C-10 39-12 41-12 44C-5 48 5 46 10 41Z"/></g>
+              <use href="#logo-frib" width="64" height="64"></use>
+            </svg>
+            </div>
+          </div>
+          <div class="estallido" id="estallido"></div>
+
+          <!-- La capa del suelo va última: tapa el pie de las columnas -->
+          <div class="capa capa--suelo"></div>
+
+          <!-- Marcador y ayudas de adentro del escenario -->
+          <div class="vuelo__vidas" aria-hidden="true"><svg class="vuelo__vida" viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21.2 2.6 11.9a5.9 5.9 0 0 1 0-8.4 5.9 5.9 0 0 1 8.4 0l1 1 1-1a5.9 5.9 0 0 1 8.4 0 5.9 5.9 0 0 1 0 8.4Z"/></svg><svg class="vuelo__vida" viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21.2 2.6 11.9a5.9 5.9 0 0 1 0-8.4 5.9 5.9 0 0 1 8.4 0l1 1 1-1a5.9 5.9 0 0 1 8.4 0 5.9 5.9 0 0 1 0 8.4Z"/></svg><svg class="vuelo__vida" viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21.2 2.6 11.9a5.9 5.9 0 0 1 0-8.4 5.9 5.9 0 0 1 8.4 0l1 1 1-1a5.9 5.9 0 0 1 8.4 0 5.9 5.9 0 0 1 0 8.4Z"/></svg></div>
+          <b class="vuelo__puntos" id="vuelo-puntos" aria-hidden="true">0</b>
+          <div class="vuelo__hinchado" id="vuelo-hinchado" hidden>Hinchado<i class="vuelo__hinchado-barra"></i></div>
+          <p class="vuelo__ayuda">Apret&aacute; <kbd>ESPACIO</kbd> o hac&eacute; clic para volar</p>
+        </div>
+      </div>
+
+      <!-- Cartel de arranque: tapa el escenario hasta que empieza la partida -->
+      <div class="fin" id="vuelo-arranque">
+        <b class="fin__titulo">Frib Vuela</b>
+        <p class="fin__texto">Dale impulso a Frib para pasar entre las columnas de cristal.
+          Junt&aacute; <b>gemas</b>, esquiv&aacute; <b>murci&eacute;lagos</b> y lleg&aacute; a
+          <b>50 puntos</b> con tus tres vidas.<br>Se juega con la <b>barra espaciadora</b> o con <b>clic</b>.</p>
+        <button class="btn btn--primario" id="btn-arrancar" type="button">Comenzar</button>
+      </div>
+
+      <!-- Cartel de fin de partida -->
+      <div class="fin" id="vuelo-fin" hidden role="status" aria-live="polite">
+        <b class="fin__titulo" id="vuelo-fin-titulo"></b>
+        <p class="fin__texto" id="vuelo-fin-texto"></p>
+        <div class="fin__botones">
+          <a class="btn btn--terciario" href="index.html">Men&uacute; principal</a>
+          <button class="btn btn--primario" id="btn-otra" type="button">Jugar de nuevo</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="escenario__pie">
+      <div class="contenedor compartir">
+        <span>Compartí tu récord</span>
+        <a href="#" aria-label="Compartir en X">x</a>
+        <a href="#" aria-label="Compartir en Facebook">f</a>
+        <a href="#" aria-label="Compartir por WhatsApp">wa</a>
+        <button type="button" id="copiar-link" class="btn--sm">🔗</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="contenedor">
+    <!-- ======= SOBRE EL JUEGO ======= -->
+    <section class="seccion sobre reveal">
+      <div class="juego-grid">
+        <div>
+          <h2>Sobre el juego</h2>
+          <p id="juego-desc"></p>
+          <p style="margin-top:10px">Frib Vuela es un juego de desplazamiento horizontal al estilo <i>Flappy Bird</i>.
+            Frib avanza solo y siempre a la misma velocidad: lo &uacute;nico que manej&aacute;s es
+            <b>cu&aacute;ndo darle impulso</b>. Si no hac&eacute;s nada, cae. Y el valle se va cerrando: cada columna
+            trae el hueco un poco m&aacute;s angosto que la anterior, a otra altura y a otra distancia.</p>
+
+          <h3 class="sub-h">C&oacute;mo se juega</h3>
+          <ol class="pasos">
+            <li>Toc&aacute; <b>Comenzar</b>. Frib queda planeando en su lugar hasta tu primer impulso:
+                reci&eacute;n ah&iacute; arrancan el reloj y el paisaje.</li>
+            <li>Cada <b>impulso</b> lo hace subir un poco y despu&eacute;s la gravedad lo baja. Con impulsos
+                cortos y seguidos lo manten&eacute;s a la altura que quieras.</li>
+            <li>Pas&aacute; por el <b>hueco</b> de cada columna de cristal: son <b>+1 punto</b> y la columna brilla.</li>
+            <li>Si choc&aacute;s una columna o el piso, Frib explota y perd&eacute;s <b>una vida</b>. Ten&eacute;s tres,
+                y despu&eacute;s de cada choque volv&eacute;s a arrancar con la pista despejada.</li>
+            <li>Gan&aacute;s cuando lleg&aacute;s a <b>50 puntos</b>. Perd&eacute;s si te qued&aacute;s sin vidas antes.</li>
+          </ol>
+
+          <h3 class="sub-h">Controles</h3>
+          <div class="teclas">
+            <span class="tecla tecla--larga">ESPACIO</span>
+            <span class="tecla" aria-label="flecha arriba">&uarr;</span>
+            <span class="mouse__fig" aria-hidden="true"><i class="mouse__izq"></i><i class="mouse__der"></i></span>
+            <span>Cualquiera de los tres da un impulso. Con el mouse, clic izquierdo sobre el escenario.</span>
+          </div>
+
+          <h3 class="sub-h">Qu&eacute; hay en el camino</h3>
+          <ul class="fichas-vuelo">
+            <li class="ficha-vuelo">
+              <span class="ficha-vuelo__dibujo"><i class="elemento gema"></i></span>
+              <span><b class="ficha-vuelo__nombre">Gema</b>Suma <b>5 puntos</b>. Aparece entre dos columnas, cerca del camino.</span>
+            </li>
+            <li class="ficha-vuelo">
+              <span class="ficha-vuelo__dibujo"><i class="elemento murcielago"></i></span>
+              <span><b class="ficha-vuelo__nombre">Murci&eacute;lago</b>No saca puntos ni vidas: te <b>hincha 5 segundos</b>
+                y cuesta m&aacute;s pasar por los huecos.</span>
+            </li>
+            <li class="ficha-vuelo">
+              <span class="ficha-vuelo__dibujo"><i class="ficha-vuelo__columna"></i></span>
+              <span><b class="ficha-vuelo__nombre">Columna de cristal</b>Pasarla suma <b>1 punto</b>.
+                Chocarla cuesta <b>una vida</b>.</span>
+            </li>
+          </ul>
+          <p class="aviso"><b>Se pausa sola.</b> Si cambi&aacute;s de pesta&ntilde;a, la partida queda en espera
+            y sigue con tu pr&oacute;ximo impulso. El fondo se mueve solamente mientras Frib avanza:
+            cuando choca o cuando espera, el paisaje se queda quieto.</p>
+
+          <figure class="vuelo-figura">
+            <img src="img/vuelo/captura.webp" alt="Una partida de Frib Vuela: Frib pasa entre dos columnas de cristal, con una gema y un murci&eacute;lago m&aacute;s adelante"
+                 width="960" height="540" loading="lazy">
+            <figcaption>El paisaje est&aacute; armado con seis capas. Las m&aacute;s lejanas se mueven m&aacute;s despacio
+              que las cercanas, y eso es lo que da la sensaci&oacute;n de profundidad (<i>parallax</i>).</figcaption>
+          </figure>
+        </div>
+        <aside class="panel">
+          <h2>Datos rápidos</h2>
+          <ul class="datos-rapidos">
+            <li>Scroller horizontal &middot; 1 jugador</li>
+            <li>Meta: 50 puntos</li>
+            <li>Tres vidas</li>
+            <li>Columna +1 &middot; Gema +5</li>
+            <li>El hueco baja de 230 a 150 px</li>
+            <li>Espacio, flecha arriba o clic</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ======= RESEÑAS: patrón de comentarios tipo Play Store / YouTube ======= -->
+    <section class="seccion comentarios reveal" aria-labelledby="h-resenias">
+      <div class="comentarios__top">
+        <h2 id="h-resenias">Reseñas de la comunidad</h2>
+        <label class="orden">
+          <span class="solo-lectores">Ordenar reseñas</span>
+          <select id="orden-resenias">
+            <option value="relevantes">Más relevantes</option>
+            <option value="recientes">Más recientes</option>
+            <option value="mejores">Mejor puntuadas</option>
+            <option value="peores">Peor puntuadas</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="comentarios__grid">
+        <aside class="resumen">
+          <div class="resumen__cabeza">
+            <b class="resumen__nota" id="res-nota">4,2</b>
+            <div>
+              <span id="res-estrellas"></span>
+              <p class="chico apagado" id="res-total">317 reseñas</p>
+            </div>
+          </div>
+          <ul class="barras" id="res-barras"></ul>
+        </aside>
+
+        <div class="hilo">
+          <form class="comentar" id="form-resenia">
+            <span class="comentario__avatar" style="--c:#0E7490" aria-hidden="true">P</span>
+            <div class="comentar__campo">
+              <label class="solo-lectores" for="txt-resenia">Tu comentario</label>
+              <textarea id="txt-resenia" rows="1" placeholder="Escribí una reseña pública…"></textarea>
+              <div class="comentar__pie">
+                <div class="puntaje" id="puntaje" role="group" aria-label="Tu puntaje">
+                  <button type="button" data-n="1" aria-label="1 estrella">★</button>
+                  <button type="button" data-n="2" aria-label="2 estrellas">★</button>
+                  <button type="button" data-n="3" aria-label="3 estrellas">★</button>
+                  <button type="button" data-n="4" aria-label="4 estrellas">★</button>
+                  <button type="button" data-n="5" aria-label="5 estrellas">★</button>
+                </div>
+                <div class="comentar__acciones">
+                  <button class="accion" type="reset">Cancelar</button>
+                  <button class="btn btn--secundario btn--sm" type="submit">Publicar</button>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <div class="lista-resenias" id="lista-resenias"></div>
+
+          <!-- Patrón de paginado: "Ver más" con contador (load more) -->
+          <div class="paginado">
+            <button class="btn btn--primario btn--sm" id="btn-mas" type="button">Ver más reseñas</button>
+            <span class="contador" id="contador-resenias"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="contenedor">
+    <div class="footer__grid">
+      <div class="footer__marca">
+        <a class="logo" href="index.html"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-frib"></use></svg><span>frib</span></a>
+        <p>Jugá gratis, guardá tu progreso y competí con tus amigos.</p>
+        <p class="chico">🌐 Español (Argentina)</p>
+        <div class="footer__redes">
+          <a href="#" aria-label="frib en Facebook">f</a><a href="#" aria-label="frib en X">x</a>
+          <a href="#" aria-label="frib en LinkedIn">in</a><a href="#" aria-label="frib en Instagram">ig</a>
+        </div>
+      </div>
+      <div class="footer__cols">
+        <div class="footer__col"><h3>Juegos</h3><ul><li><a href="index.html#fila-sugerencias">Puzzle</a></li><li><a href="index.html#fila-arcade">Arcade</a></li><li><a href="index.html#fila-mas-jugados">Cartas</a></li><li><a href="index.html#fila-mas-jugados">Estrategia</a></li></ul></div>
+        <div class="footer__col"><h3>Comunidad</h3><ul><li><a href="#">Ranking</a></li><li><a href="#">Torneos</a></li><li><a href="#">Foro</a></li></ul></div>
+        <div class="footer__col"><h3>Ayuda</h3><ul><li><a href="#">Centro de ayuda</a></li><li><a href="#">Contacto</a></li><li><a href="#">Términos</a></li><li><a href="#">Privacidad</a></li></ul></div>
+        <div class="footer__col"><h3>Empresa</h3><ul><li><a href="#">Sobre frib</a></li><li><a href="#">Prensa</a></li><li><a href="#">Trabajá con nosotros</a></li><li><a href="#">Blog</a></li></ul></div>
+        <div class="footer__col"><h3>Novedades</h3>
+          <form class="news" id="form-news"><label class="solo-lectores" for="news-mail">Tu correo</label>
+            <input id="news-mail" type="email" placeholder="Tu mail" required>
+            <button class="btn btn--secundario btn--sm" type="submit">Suscribirme</button></form>
+        </div>
+      </div>
+    </div>
+    <hr class="footer__separador">
+    <div class="footer__barra">
+      <div><a href="#">Descargá la app — App Store · Google Play</a></div>
+      <div><a href="#">Cookies</a><a href="#">Accesibilidad</a><a href="#">Estado del servicio</a></div>
+    </div>
+    <p class="footer__copy">© <span class="anio">2026</span> frib — TPE Interfaces de Usuario e Interacción, TUDAI</p>
+  </div>
+</footer>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="pulgar" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M2 10h4v11H2zM8 21V10l5-8c1.3 0 2.2 1 2 2.3L14.2 9H20a2 2 0 0 1 2 2.3l-1.4 8A2 2 0 0 1 18.6 21z"/>
+  </symbol>
+  <symbol id="candado" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M12 1.6a5.1 5.1 0 0 0-5.1 5.1v2.7H6A2.2 2.2 0 0 0 3.8 11.6v8.2A2.2 2.2 0 0 0 6 22h12a2.2 2.2 0 0 0 2.2-2.2v-8.2A2.2 2.2 0 0 0 18 9.4h-.9V6.7A5.1 5.1 0 0 0 12 1.6Zm0 2.6a2.5 2.5 0 0 1 2.5 2.5v2.7h-5V6.7A2.5 2.5 0 0 1 12 4.2Zm0 9.1a2 2 0 0 1 .9 3.8v1.8a.9.9 0 1 1-1.8 0v-1.8a2 2 0 0 1 .9-3.8Z"/>
+  </symbol>
+  <symbol id="avatar-defecto" viewBox="0 0 64 64">
+    <rect width="64" height="64" fill="#9FB0BC"/>
+    <path fill="#2C3E50" d="M32 11.5c6.6 0 11 4.9 11 12 0 6.9-4.4 12.6-11 12.6S21 30.4 21 23.5c0-7.1 4.4-12 11-12Z"/>
+    <path fill="#2C3E50" d="M32 39.5c12.2 0 21 8 21 18.2V64H11v-6.3c0-10.2 8.8-18.2 21-18.2Z"/>
+  </symbol>
+  <symbol id="logo-frib" viewBox="0 0 64 64">
+    <path fill="#A3E635" d="M60.2 42.3C58.2 47.6 50.9 47.7 44.8 51.1C38.8 54.4 36.4 59 31.1 58.5C25.7 58 24.4 52.4 19.1 48.5C13.7 44.7 7.1 44.8 5.1 39.7C3.1 34.6 7.2 30.3 9.5 23.8C11.7 17.2 11 10.8 15.8 7.9C20.6 5.1 26.1 9.3 32.8 10C39.4 10.8 43.5 8.3 48 11.5C52.5 14.7 52.1 19.2 54.6 25.5C57.1 31.9 62.2 37 60.2 42.3Z"/>
+    <ellipse cx="21.6" cy="27.7" rx="6.9" ry="7.9" fill="#1E1B4B"/>
+    <ellipse cx="40.4" cy="25.1" rx="6.9" ry="7.9" fill="#1E1B4B"/>
+  </symbol>
+</svg>
+
+<script src="js/data.js?v=25"></script>
+<script src="js/ui.js?v=25"></script>
+<script src="js/resenias.js?v=25"></script>
+<script src="js/flappy.js?v=25"></script>
+</body>
+</html>
