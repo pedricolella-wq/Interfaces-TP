@@ -1,103 +1,50 @@
 /* =========================================================
-   frib · flappy.css — "Frib Vuela" (Ejercicio Entregable Nº5)
+   frib · flappy.css — Frib Vuela (Entregable Nº5)
    ---------------------------------------------------------
-   Este juego NO usa <canvas>. Todo lo que se ve son <div> comunes
-   y el movimiento lo hace CSS con @keyframes, que es lo que pide
-   la consigna (Tema 5: animaciones, parallax y spritesheet).
+   Acá está todo el movimiento del juego, hecho con @keyframes.
+   flappy.js no anima nada: solo pone y saca clases.
 
-   El reparto de tareas es este:
+   Las animaciones están en sintaxis larga (animation-name,
+   animation-duration, ...) para que se lea qué es cada valor.
 
-     CSS  -> CÓMO se mueve cada cosa (los @keyframes de este archivo)
-     JS   -> CUÁNDO se mueve: prende y apaga clases, y calcula la
-             física y los choques (js/flappy.js)
-
-   Está en un archivo aparte, y no adentro de styles.css, porque
-   solo lo carga flappy.html: las otras páginas no lo necesitan.
-
-   Las animaciones están escritas en sintaxis LARGA (animation-name,
-   animation-duration, ...) y no con el atajo "animation:", para que
-   se lea qué valor es cada cosa.
-
-   Orden del archivo:
-     A. Escenario            (la caja y su escala)
-     B. Parallax             (consigna, punto 3)
-     C. Spritesheets         (consigna, punto 4)
-     D. Avatar               (consigna, punto 2)
-     E. Columnas             (consigna, punto 5)
-     F. Carteles y marcador  (puntos, vidas, ayudas)
-     G. Sección "Sobre el juego"
+     1. Escenario      2. Parallax       3. Avatar
+     4. Columnas       5. Spritesheets   6. Ayuda
+     7. Sección "Sobre el juego"
    ========================================================= */
 
 
-/* =========================================================
-   A. ESCENARIO
-   ---------------------------------------------------------
-   Hay DOS cajas, una adentro de la otra:
-
-     .vuelo         la que se ve: ocupa el ancho que haya, 16:9
-     .vuelo__mundo  el mundo del juego: SIEMPRE mide 960 x 540
-
-   Es la misma idea que el <canvas> de BLOCKA y Peg Solitaire: una
-   cosa es la resolución de adentro y otra el tamaño en pantalla.
-   Acá el "zoom" lo hace transform: scale(), y el número lo calcula
-   flappy.js (ancho de .vuelo dividido 960) y lo deja en --escala.
-   Así el JS puede pensar todo en 960 x 540 sin importar la pantalla.
-   ========================================================= */
+/* ---------- 1. ESCENARIO ----------
+   Una caja de 960 x 540. Todo lo del juego va adentro, con
+   position: absolute, y lo que se sale no se ve. */
 .vuelo {
   position: relative;
-  width: min(100%, 131vh, 1120px);   /* 131vh de ancho = 74vh de alto: entra en Full HD sin scrollear */
-  aspect-ratio: 16 / 9;
-  overflow: hidden;                  /* lo que sale del escenario no se ve */
+  width: 960px;
+  height: 540px;
+  overflow: hidden;
   border-radius: 14px;
   background: #040A36;
   cursor: pointer;
   user-select: none;
-  -webkit-user-select: none;
-}
-.vuelo__mundo {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 960px;
-  height: 540px;
-  transform-origin: 0 0;
-  transform: scale(var(--escala, 1));
 }
 
 
-/* =========================================================
-   B. PARALLAX  (consigna, punto 3)
-   ---------------------------------------------------------
-   Un <div> por capa, todos del tamaño del escenario y apilados.
-   Cada uno lleva DOS clases:
+/* ---------- 2. PARALLAX (consigna, punto 3) ----------
+   Un <div> por capa, todos del tamaño del escenario. Cada uno
+   lleva dos clases: .capa (lo que comparten) y .capa--nombre
+   (la imagen y la duración).
 
-     .capa            lo que comparten todas
-     .capa--nombre    lo único que cambia: la imagen y la duración
+   Todas usan el mismo @keyframes: corre el fondo 1920 px, que es
+   el ancho de la imagen. Como la imagen empalma consigo misma,
+   cuando vuelve a empezar no se nota.
 
-   La imagen de cada capa mide 1920 px de ancho y está hecha para
-   empalmar consigo misma (el borde derecho sigue en el izquierdo).
-   La animación corre el fondo 1920 px hacia la izquierda y vuelve
-   a empezar: como en ese punto la imagen es igual, no se nota el
-   salto y parece infinita.
+   Lo único que cambia es la duración: la capa más lejana tarda
+   más, o sea que va más lento.
+       velocidad = 1920 px / duración
+       nubes 15 px/s · montañas 30 · colinas 60 · bosque 120 · suelo 240
+   El suelo va a 240 px/s, igual que las columnas (VELOCIDAD en flappy.js).
 
-   TODAS usan el mismo @keyframes. La sensación de profundidad sale
-   solo de la DURACIÓN: cuanto más lejos está la capa, más tarda.
-
-       capa         duración   velocidad (1920 px / duración)
-       nubes         128 s        15 px/s
-       montañas       64 s        30 px/s
-       colinas        32 s        60 px/s
-       bosque         16 s       120 px/s
-       suelo           8 s       240 px/s   <- igual que las columnas
-
-   El suelo va a 240 px/s porque es la velocidad del mundo: la misma
-   constante VELOCIDAD con la que flappy.js mueve las columnas. Si
-   una cambia, tiene que cambiar la otra, o el piso "patina".
-
-   Las capas arrancan EN PAUSA. Solo corren cuando el escenario
-   tiene la clase .vuelo--andando, que flappy.js pone mientras el
-   avatar avanza y saca cuando choca o termina la partida.
-   ========================================================= */
+   Arrancan en pausa. Corren solo cuando el escenario tiene la
+   clase .vuelo--andando, que se pone mientras el avatar avanza. */
 .capa {
   position: absolute;
   left: 0;
@@ -106,12 +53,11 @@
   height: 100%;
   background-repeat: repeat-x;
   background-size: 1920px 540px;
-  background-position: 0 0;
 
   animation-name: desplazar;
-  animation-timing-function: linear;      /* velocidad pareja: sin acelerar ni frenar */
-  animation-iteration-count: infinite;    /* no termina nunca */
-  animation-play-state: paused;           /* quieta hasta que el avatar avance */
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-play-state: paused;
 }
 .vuelo--andando .capa { animation-play-state: running; }
 
@@ -120,7 +66,7 @@
   100% { background-position: -1920px 0; }
 }
 
-/* El cielo es la única capa quieta: está tan lejos que no se mueve. */
+/* El cielo es la única capa que no se mueve. */
 .capa--cielo {
   background-image: url(../img/vuelo/cielo.webp);
   background-size: 960px 540px;
@@ -132,345 +78,125 @@
 .capa--bosque    { background-image: url(../img/vuelo/capa-4-bosque.webp);    animation-duration: 16s; }
 .capa--suelo     { background-image: url(../img/vuelo/capa-5-suelo.webp);     animation-duration: 8s; }
 
-/* La "pista" es la caja donde flappy.js va creando las columnas,
-   los murciélagos y las gemas. Queda entre el bosque y el suelo. */
-.vuelo__pista {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-}
+/* El suelo va por delante de las columnas: les tapa el pie. */
+.capa--suelo { z-index: 2; }
 
 
-/* =========================================================
-   C. SPRITESHEETS  (consigna, punto 4)
-   ---------------------------------------------------------
-   Un spritesheet es UNA imagen con todos los cuadros del dibujo
-   puestos en fila. El <div> mide lo que mide UN cuadro, así que
-   funciona como una ventana: solo deja ver un cuadro por vez.
+/* ---------- 3. AVATAR (consigna, punto 2) ----------
+   Son dos cosas: la caja .avatar, que flappy.js mueve con left y
+   top, y la imagen de adentro, que es la que se anima.
+   Cada animación es una clase que flappy.js le pone a la imagen:
 
-   La animación corre la imagen hacia la izquierda, pero NO de
-   forma continua: steps(n) parte el recorrido en n saltos. Cada
-   salto mueve exactamente un cuadro, y eso es lo que da la ilusión
-   de dibujo animado. Con "linear" se vería la tira deslizándose.
-
-       elemento      cuadros   tamaño del cuadro   tira completa
-       murciélago       6         96 x 72            576 px
-       gema             8         56 x 56            448 px
-       estallido        8        128 x 128          1024 px
-
-   El "margin" negativo corre la caja medio cuadro para arriba y a
-   la izquierda: así el punto (x, y) que maneja flappy.js es el
-   CENTRO del dibujo y no su esquina.
-   ========================================================= */
-.elemento {
-  position: absolute;
-  left: 0;
-  top: 0;
-  background-repeat: no-repeat;
-  will-change: transform;
-
-  animation-iteration-count: infinite;    /* el dibujo se repite siempre */
-
-  /* Al tocarlo el avatar se desvanece. Esto es una TRANSICIÓN y no
-     una animación: son solo dos estados, visible e invisible. */
-  transition-property: opacity;
-  transition-duration: .22s;
-  transition-timing-function: ease-out;
-}
-.elemento--tocado { opacity: 0; }
-/* Si la partida está frenada, los dibujos también se quedan quietos. */
-.vuelo:not(.vuelo--andando) .elemento { animation-play-state: paused; }
-
-/* ---- Elemento 1: el murciélago. Al tocarlo, HINCHA al avatar. ---- */
-.murcielago {
-  width: 96px;
-  height: 72px;
-  margin: -36px 0 0 -48px;
-  background-image: url(../img/vuelo/murcielago.webp);
-  background-size: 576px 72px;
-
-  animation-name: cuadros-murcielago;
-  animation-duration: .48s;               /* una batida de alas completa */
-  animation-timing-function: steps(6);    /* 6 cuadros = 6 saltos */
-}
-@keyframes cuadros-murcielago {
-  0%   { background-position: 0 0; }
-  100% { background-position: -576px 0; }
-}
-
-/* ---- Elemento 2: la gema. Al tocarla, SUMA puntos. ---- */
-.gema {
-  width: 56px;
-  height: 56px;
-  margin: -28px 0 0 -28px;
-  background-image: url(../img/vuelo/gema.webp);
-  background-size: 448px 56px;
-  filter: drop-shadow(0 0 7px rgba(250, 204, 21, .55));
-
-  animation-name: cuadros-gema;
-  animation-duration: .8s;
-  animation-timing-function: steps(8);    /* 8 cuadros = 8 saltos */
-}
-@keyframes cuadros-gema {
-  0%   { background-position: 0 0; }
-  100% { background-position: -448px 0; }
-}
-
-/* ---- El estallido del avatar: también es un spritesheet, pero
-        se reproduce UNA sola vez y se queda en el último cuadro. ---- */
-.estallido {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 128px;
-  height: 128px;
-  margin: -64px 0 0 -64px;
-  background-image: url(../img/vuelo/estallido.webp);
-  background-size: 1024px 128px;
-  background-repeat: no-repeat;
-  background-position: -1024px 0;         /* fuera de la tira: no se ve nada */
-  pointer-events: none;
-}
-.estallido--activo {
-  animation-name: cuadros-estallido;
-  animation-duration: .56s;
-  animation-timing-function: steps(8);
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards;          /* al terminar queda en el 100% (vacío) */
-}
-@keyframes cuadros-estallido {
-  0%   { background-position: 0 0; }
-  100% { background-position: -1024px 0; }
-}
-
-
-/* =========================================================
-   D. AVATAR  (consigna, punto 2)
-   ---------------------------------------------------------
-   El avatar son TRES cajas, una adentro de la otra, y cada una
-   tiene un solo trabajo. Están separadas a propósito: si dos
-   cosas quisieran cambiar el "transform" de la misma caja, una
-   pisaría a la otra.
-
-     .avatar            la mueve y la inclina flappy.js (física)
-     .avatar__tamanio   se agranda cuando lo toca un murciélago
-     .avatar__cuerpo    acá corren las animaciones de reacción
-
-   flappy.js le pone UNA clase de estado a .avatar y esa clase
-   decide qué @keyframes corre adentro:
-
-       clase               cuándo                    @keyframes
-       .avatar--planea     espera el primer impulso   planear
-       .avatar--aletea     cada impulso               aletear + batir-ala
-       .avatar--festeja    agarra una gema            festejar
-       .avatar--explota    choca columna o piso       explotar
-       .avatar--gana       llega a la meta            celebrar
-       .avatar--hinchado   lo toca un murciélago      hincharse
-       .avatar--deshincha  se le pasa el efecto       deshincharse
-   ========================================================= */
+       .planea   espera el primer impulso   -> planear
+       .aletea   cada impulso               -> aletear
+       .festeja  agarra una gema            -> festejar
+       .explota  choca                      -> explotar */
 .avatar {
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 60px;
-  height: 60px;
-  margin: -30px 0 0 -30px;                /* (x, y) es el centro del avatar */
-  will-change: transform;
-  pointer-events: none;
+  width: 56px;
+  height: 56px;
+  z-index: 1;
+
+  /* Cuando se hincha cambia de tamaño de a poco. Es una transición:
+     son solo dos estados, normal e hinchado. */
+  transition-property: width, height;
+  transition-duration: .3s;
 }
-.avatar__tamanio {
-  width: 100%;
-  height: 100%;
+.avatar--hinchado {
+  width: 84px;
+  height: 84px;
+  filter: drop-shadow(0 0 8px #EF4444);
 }
-.avatar__cuerpo {
+/* La imagen es más ancha que la caja porque tiene las alas. */
+.avatar img {
   display: block;
-  width: 90px;                            /* el dibujo es más ancho que la caja: sobran las alas */
-  height: 60px;
-  margin-left: -15px;
+  width: 150%;
   max-width: none;
-  overflow: visible;
-}
-/* Las alas giran sobre el punto donde se pegan al cuerpo. */
-.avatar__ala {
-  transform-box: fill-box;
-  transform-origin: 100% 62%;
+  margin-left: -25%;
 }
 
-/* ---- 1. PLANEAR: flota quieto mientras espera el primer impulso ---- */
-.avatar--planea .avatar__cuerpo {
+.avatar img.planea {
   animation-name: planear;
   animation-duration: .9s;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
-  animation-direction: alternate;         /* va y vuelve: sube, baja, sube... */
-}
-.avatar--planea .avatar__ala {
-  animation-name: batir-ala;
-  animation-duration: .45s;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
+  animation-direction: alternate;       /* va y vuelve */
 }
 @keyframes planear {
   0%   { transform: translateY(-8px); }
   100% { transform: translateY(8px); }
 }
 
-/* ---- 2. ALETEAR: cada vez que el jugador da un impulso ----
-   El cuerpo se aplasta (junta fuerza) y se estira (sale para
-   arriba). Las alas bajan de golpe y vuelven. */
-.avatar--aletea .avatar__cuerpo {
+.avatar img.aletea {
   animation-name: aletear;
-  animation-duration: .3s;
-  animation-timing-function: ease-out;
-  animation-iteration-count: 1;
-}
-.avatar--aletea .avatar__ala {
-  animation-name: batir-ala;
   animation-duration: .3s;
   animation-timing-function: ease-out;
   animation-iteration-count: 1;
 }
 @keyframes aletear {
   0%   { transform: scale(1, 1); }
-  25%  { transform: scale(1.2, .8); }
-  60%  { transform: scale(.9, 1.14); }
+  25%  { transform: scale(1.2, .8); }    /* se aplasta */
+  60%  { transform: scale(.9, 1.15); }   /* se estira */
   100% { transform: scale(1, 1); }
 }
-@keyframes batir-ala {
-  0%   { transform: rotate(0deg); }
-  30%  { transform: rotate(46deg); }      /* ala arriba */
-  65%  { transform: rotate(-38deg); }     /* ala abajo: el golpe que empuja */
-  100% { transform: rotate(0deg); }
-}
 
-/* ---- 3. FESTEJAR: cuando agarra una gema ---- */
-.avatar--festeja .avatar__cuerpo {
+.avatar img.festeja {
   animation-name: festejar;
   animation-duration: .5s;
   animation-timing-function: ease-in-out;
   animation-iteration-count: 1;
 }
 @keyframes festejar {
-  0%   { transform: rotate(0deg) scale(1);     filter: brightness(1); }
-  50%  { transform: rotate(180deg) scale(1.25); filter: brightness(1.35) drop-shadow(0 0 12px #FACC15); }
-  100% { transform: rotate(360deg) scale(1);   filter: brightness(1); }
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.3); }
+  100% { transform: rotate(360deg) scale(1); }
 }
 
-/* ---- 4. EXPLOTAR: cuando choca una columna o el piso ----
-   Se infla, se pone blanco y desaparece. Al mismo tiempo corre
-   el spritesheet .estallido en el mismo lugar. */
-.avatar--explota .avatar__cuerpo {
+.avatar img.explota {
   animation-name: explotar;
-  animation-duration: .38s;
+  animation-duration: .5s;
   animation-timing-function: ease-out;
   animation-iteration-count: 1;
-  animation-fill-mode: forwards;          /* se queda invisible hasta reaparecer */
+  animation-fill-mode: forwards;        /* se queda invisible hasta que reaparece */
 }
 @keyframes explotar {
-  0%   { transform: scale(1);   opacity: 1; filter: brightness(1); }
-  30%  { transform: scale(1.5); opacity: 1; filter: brightness(3); }
-  100% { transform: scale(.2);  opacity: 0; filter: brightness(3); }
-}
-
-/* ---- 5. CELEBRAR: cuando llega a la meta ---- */
-.avatar--gana .avatar__cuerpo {
-  animation-name: celebrar;
-  animation-duration: .7s;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-.avatar--gana .avatar__ala {
-  animation-name: batir-ala;
-  animation-duration: .35s;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-}
-@keyframes celebrar {
-  0%   { transform: translateY(6px) rotate(-14deg) scale(1); }
-  100% { transform: translateY(-26px) rotate(14deg) scale(1.15); }
-}
-
-/* ---- 6. HINCHARSE: cuando lo toca un murciélago ----
-   Recibe el golpe, se pasa de tamaño y queda en 1.45. Con
-   "forwards" se queda así hasta que flappy.js le saque la clase.
-   El 1.45 es el mismo número que ESCALA_HINCHADO en flappy.js:
-   el dibujo y la zona de choque crecen lo mismo. */
-.avatar--hinchado .avatar__tamanio {
-  animation-name: hincharse;
-  animation-duration: .6s;
-  animation-timing-function: ease-out;
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards;
-}
-@keyframes hincharse {
-  0%   { transform: scale(1) rotate(0deg);      filter: none; }
-  18%  { transform: scale(.78) rotate(-16deg);  filter: brightness(1.6); }
-  45%  { transform: scale(1.7) rotate(10deg);   filter: drop-shadow(0 0 10px #EF4444); }
-  72%  { transform: scale(1.34) rotate(-5deg);  filter: drop-shadow(0 0 8px #EF4444); }
-  100% { transform: scale(1.45) rotate(0deg);   filter: drop-shadow(0 0 8px #EF4444); }
-}
-
-/* ---- 7. DESHINCHARSE: se le pasa el efecto ---- */
-.avatar--deshincha .avatar__tamanio {
-  animation-name: deshincharse;
-  animation-duration: .45s;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: 1;
-}
-@keyframes deshincharse {
-  0%   { transform: scale(1.45); filter: drop-shadow(0 0 8px #EF4444); }
-  60%  { transform: scale(.88);  filter: none; }
-  100% { transform: scale(1);    filter: none; }
+  0%   { transform: scale(1);              opacity: 1; filter: brightness(1); }
+  30%  { transform: scale(1.8) rotate(20deg); opacity: 1; filter: brightness(3); }
+  100% { transform: scale(2.8) rotate(60deg); opacity: 0; filter: brightness(3); }
 }
 
 
-/* =========================================================
-   E. COLUMNAS  (consigna, punto 5)
-   ---------------------------------------------------------
+/* ---------- 4. COLUMNAS (consigna, punto 5) ----------
    Cada columna es una caja de 96 px de ancho que flappy.js corre
-   hacia la izquierda. Adentro tiene dos partes: la que cuelga de
-   arriba y la que sale del piso. El hueco es lo que queda en el
-   medio, y su alto y su altura los decide flappy.js.
-
-   La imagen es más alta que la parte: se ancla del lado del hueco
-   (bottom para la de arriba, top para la de abajo) y así la punta
-   ancha del cristal siempre queda dando al hueco.
-
-   El avatar interactúa con las columnas de dos maneras, y cada
-   una tiene su animación:
-     .columna--superada   la pasó por el hueco   -> brillar
-     .columna--chocada    se la llevó puesta     -> sacudir
-   ========================================================= */
+   con left. Adentro tiene dos partes; el alto de cada una lo pone
+   flappy.js y lo que queda en el medio es el hueco. */
 .columna {
   position: absolute;
-  left: 0;
   top: 0;
   width: 96px;
   height: 540px;
-  will-change: transform;
 }
-.columna__parte {
+.columna__arriba,
+.columna__abajo {
   position: absolute;
   left: 0;
   width: 96px;
   background-repeat: no-repeat;
   background-size: 96px 640px;
 }
-.columna__parte--arriba {
+.columna__arriba {
   top: 0;
   background-image: url(../img/vuelo/columna-arriba.webp);
-  background-position: left bottom;
+  background-position: left bottom;     /* la punta del cristal queda del lado del hueco */
 }
-.columna__parte--abajo {
+.columna__abajo {
   bottom: 0;
   background-image: url(../img/vuelo/columna-abajo.webp);
   background-position: left top;
 }
 
-.columna--superada .columna__parte {
+/* Cuando el avatar la pasa, brilla. */
+.columna--pasada {
   animation-name: brillar;
   animation-duration: .5s;
   animation-timing-function: ease-out;
@@ -478,11 +204,12 @@
 }
 @keyframes brillar {
   0%   { filter: brightness(1); }
-  35%  { filter: brightness(1.55) drop-shadow(0 0 14px #A3E635); }
+  35%  { filter: brightness(1.6) drop-shadow(0 0 14px #A3E635); }
   100% { filter: brightness(1); }
 }
 
-.columna--chocada .columna__parte {
+/* Cuando el avatar la choca, se sacude y se pone roja. */
+.columna--chocada {
   animation-name: sacudir;
   animation-duration: .5s;
   animation-timing-function: linear;
@@ -490,131 +217,84 @@
 }
 @keyframes sacudir {
   0%   { transform: translateX(0);    filter: none; }
-  12%  { transform: translateX(-9px); filter: brightness(1.5) hue-rotate(80deg); }
-  28%  { transform: translateX(8px);  filter: brightness(1.5) hue-rotate(80deg); }
-  44%  { transform: translateX(-6px); filter: brightness(1.3) hue-rotate(80deg); }
-  60%  { transform: translateX(5px);  filter: brightness(1.2) hue-rotate(60deg); }
-  78%  { transform: translateX(-2px); filter: hue-rotate(30deg); }
+  20%  { transform: translateX(-9px); filter: hue-rotate(80deg); }
+  40%  { transform: translateX(8px);  filter: hue-rotate(80deg); }
+  60%  { transform: translateX(-5px); filter: hue-rotate(80deg); }
+  80%  { transform: translateX(3px);  filter: hue-rotate(40deg); }
   100% { transform: translateX(0);    filter: none; }
 }
 
 
-/* =========================================================
-   F. CARTELES Y MARCADOR
-   ========================================================= */
+/* ---------- 5. SPRITESHEETS (consigna, punto 4) ----------
+   Un spritesheet es una imagen con todos los cuadros en fila.
+   El <div> mide lo que mide UN cuadro, así que solo deja ver uno.
+   La animación corre la imagen para la izquierda y steps(n) hace
+   que salte de cuadro en cuadro en vez de deslizarse.
 
-/* Los puntos, grandes y arriba al medio: se leen sin sacar la
-   vista del avatar. */
-.vuelo__puntos {
+       murciélago   6 cuadros de 96 x 72   tira de 576 px
+       gema         8 cuadros de 56 x 56   tira de 448 px */
+.murcielago,
+.gema {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 12px;
-  text-align: center;
-  font-family: 'Paytone One', sans-serif;
-  font-size: 48px;
-  font-weight: 400;
-  line-height: 1;
-  color: var(--crema);
-  text-shadow: 0 3px 0 rgba(6, 15, 71, .8), 0 0 20px rgba(6, 15, 71, .6);
-  pointer-events: none;
+  background-repeat: no-repeat;
+  animation-iteration-count: infinite;
+
+  /* Al tocarlo se desvanece: es una transición de opacidad. */
+  transition-property: opacity;
+  transition-duration: .2s;
 }
-.vuelo__puntos--sube {
-  animation-name: latir-puntos;
-  animation-duration: .3s;
-  animation-timing-function: ease-out;
-  animation-iteration-count: 1;
+.tocado { opacity: 0; }
+
+/* Elemento 1: el murciélago. Al tocarlo, hincha al avatar. */
+.murcielago {
+  width: 96px;
+  height: 72px;
+  background-image: url(../img/vuelo/murcielago.webp);
+  background-size: 576px 72px;
+
+  animation-name: cuadros-murcielago;
+  animation-duration: .48s;
+  animation-timing-function: steps(6);
 }
-@keyframes latir-puntos {
-  0%   { transform: scale(1);    color: var(--crema); }
-  40%  { transform: scale(1.35); color: var(--lima); }
-  100% { transform: scale(1);    color: var(--crema); }
+@keyframes cuadros-murcielago {
+  0%   { background-position: 0 0; }
+  100% { background-position: -576px 0; }
 }
 
-/* Las vidas: tres corazones arriba a la izquierda. */
-.vuelo__vidas {
-  position: absolute;
-  left: 16px;
-  top: 16px;
-  display: flex;
-  gap: 6px;
-  pointer-events: none;
+/* Elemento 2: la gema. Al tocarla, suma puntos. */
+.gema {
+  width: 56px;
+  height: 56px;
+  background-image: url(../img/vuelo/gema.webp);
+  background-size: 448px 56px;
+
+  animation-name: cuadros-gema;
+  animation-duration: .8s;
+  animation-timing-function: steps(8);
 }
-.vuelo__vida {
-  width: 28px;
-  height: 26px;
-  fill: var(--rojo);
-  filter: drop-shadow(0 2px 0 rgba(6, 15, 71, .8));
-}
-.vuelo__vida--perdida {
-  fill: rgba(250, 246, 227, .22);
-  animation-name: perder-corazon;
-  animation-duration: .5s;
-  animation-timing-function: ease-out;
-  animation-iteration-count: 1;
-}
-@keyframes perder-corazon {
-  0%   { transform: scale(1);   fill: var(--rojo); }
-  35%  { transform: scale(1.6); fill: #FAF6E3; }
-  100% { transform: scale(1);   fill: rgba(250, 246, 227, .22); }
+@keyframes cuadros-gema {
+  0%   { background-position: 0 0; }
+  100% { background-position: -448px 0; }
 }
 
-/* Aviso de "hinchado": una barra que se vacía en 5 segundos.
-   El tiempo lo lleva flappy.js; la barra solo lo muestra, y por
-   eso dura lo mismo (TIEMPO_HINCHADO). Si el juego se frena, la
-   barra también: animation-play-state. */
-.vuelo__hinchado {
-  position: absolute;
-  right: 16px;
-  top: 16px;
-  width: 150px;
-  padding: 7px 10px 9px;
-  border-radius: 10px;
-  background: rgba(6, 15, 71, .78);
-  border: 1px solid rgba(239, 68, 68, .7);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: #FCA5A5;
-  pointer-events: none;
-}
-.vuelo__hinchado[hidden] { display: none; }
-.vuelo__hinchado-barra {
-  display: block;
-  height: 6px;
-  margin-top: 5px;
-  border-radius: 3px;
-  background: var(--rojo);
-  transform-origin: left center;
 
-  animation-name: vaciar-barra;
-  animation-duration: 5s;
-  animation-timing-function: linear;
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards;
-}
-.vuelo:not(.vuelo--andando) .vuelo__hinchado-barra { animation-play-state: paused; }
-@keyframes vaciar-barra {
-  0%   { transform: scaleX(1); }
-  100% { transform: scaleX(0); }
-}
-
-/* Ayuda sobre el escenario: solo se ve mientras el avatar espera. */
+/* ---------- 6. AYUDA ----------
+   El cartel "Apretá ESPACIO...": solo se ve mientras el avatar
+   espera (clase .vuelo--espera en el escenario). */
 .vuelo__ayuda {
   display: none;
   position: absolute;
   left: 0;
   right: 0;
   top: 352px;
+  z-index: 3;
   text-align: center;
   font-size: 19px;
   font-weight: 800;
   color: var(--crema);
-  text-shadow: 0 2px 0 rgba(6, 15, 71, .9), 0 0 14px rgba(6, 15, 71, .8);
-  pointer-events: none;
+  text-shadow: 0 2px 0 rgba(6, 15, 71, .9);
 
-  animation-name: titilar-ayuda;
+  animation-name: titilar;
   animation-duration: .8s;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
@@ -622,58 +302,25 @@
 }
 .vuelo--espera .vuelo__ayuda { display: block; }
 .vuelo__ayuda kbd {
-  display: inline-block;
   padding: 1px 9px 2px;
-  margin: 0 2px;
   border-radius: 7px;
   font: inherit;
   color: var(--azul-700);
   background: var(--lima);
   text-shadow: none;
-  box-shadow: 0 3px 0 var(--lima-prof);
 }
-@keyframes titilar-ayuda {
+@keyframes titilar {
   0%   { opacity: .55; }
   100% { opacity: 1; }
 }
 
-/* Cartelito que sale donde pasó algo ("+1", "+5", "-1 vida"...):
-   sube, se desvanece y flappy.js lo borra cuando termina. */
-.cartelito {
-  position: absolute;
-  font-family: 'Paytone One', sans-serif;
-  font-size: 24px;
-  line-height: 1;
-  white-space: nowrap;
-  color: var(--lima);
-  text-shadow: 0 2px 0 rgba(6, 15, 71, .9), 0 0 10px rgba(6, 15, 71, .7);
-  pointer-events: none;
-
-  animation-name: subir-y-borrar;
-  animation-duration: .9s;
-  animation-timing-function: ease-out;
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards;
-}
-.cartelito--oro  { color: var(--amarillo); font-size: 28px; }
-.cartelito--malo { color: #FCA5A5; }
-@keyframes subir-y-borrar {
-  0%   { transform: translate(-50%, 0) scale(.5);        opacity: 0; }
-  20%  { transform: translate(-50%, -16px) scale(1.15);  opacity: 1; }
-  100% { transform: translate(-50%, -66px) scale(1);     opacity: 0; }
-}
-
-/* Vidas en la barra de arriba (la del HUD de la plantilla) */
+/* Los corazones de la barra de arriba, en rojo. */
 .hud__dato .hud__vidas { color: var(--rojo); letter-spacing: 2px; }
 
 
-/* =========================================================
-   G. SECCIÓN "SOBRE EL JUEGO"
-   ---------------------------------------------------------
-   Las tarjetas que explican qué hace cada cosa del escenario.
-   Usan los mismos spritesheets que el juego, así que también se
-   mueven: sirven de muestra de la técnica.
-   ========================================================= */
+/* ---------- 7. SECCIÓN "SOBRE EL JUEGO" ----------
+   Las tarjetas que explican qué hace cada cosa. Usan los mismos
+   spritesheets que el juego. */
 .fichas-vuelo {
   list-style: none;
   padding: 0;
@@ -701,8 +348,8 @@
   background: linear-gradient(180deg, #150F63, #3A1A8A);
   overflow: hidden;
 }
-.ficha-vuelo__dibujo .elemento,
-.ficha-vuelo__dibujo .avatar { position: static; margin: 0; }
+.ficha-vuelo__dibujo .murcielago,
+.ficha-vuelo__dibujo .gema { position: static; }
 .ficha-vuelo__dibujo .murcielago { transform: scale(.82); }
 .ficha-vuelo__columna {
   width: 48px;
@@ -740,7 +387,5 @@
   font-size: .8125rem;
   color: var(--azul-700);
   background: var(--crema);
-  box-shadow: 0 4px 0 rgba(250, 246, 227, .35);
 }
 .tecla--larga { min-width: 150px; }
-.teclas .mouse__fig { margin-left: 4px; }
