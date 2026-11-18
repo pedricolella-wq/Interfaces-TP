@@ -6,24 +6,24 @@ Se juega en **`flappy.html`** y se llega desde la Home (filas *Sugerencias para 
 
 | Archivo | Qué tiene |
 |---|---|
-| `flappy.html` | La página del juego (la misma plantilla que BLOCKA y Peg Solitaire) y el escenario: un `<div>` por capa |
+| `flappy.html` | La página del juego (la misma plantilla que BLOCKA y Peg Solitaire) y el escenario: un `<div>` por capa y el avatar |
 | `css/flappy.css` | **Todas las animaciones**: parallax, spritesheets y reacciones del avatar, en sintaxis larga (`animation-name`, `animation-duration`…) |
-| `js/flappy.js` | Física, choques, puntaje y vidas. No anima nada: **prende y apaga clases** y CSS hace el resto |
-| `img/vuelo/` | Las 6 capas del paisaje, los 3 spritesheets y las columnas |
+| `js/flappy.js` | El movimiento, los choques, el puntaje y las vidas. No anima nada: **pone y saca clases** y CSS hace el resto |
+| `img/vuelo/` | Las 6 capas del paisaje, los 2 spritesheets, el avatar y las columnas |
 
 ## Checklist de la consigna Nº5
 
 | # | Qué pide | Cómo está resuelto | Dónde mirar |
 |---|---|---|---|
-| 1 | Avanza a velocidad constante; el usuario da impulso hacia arriba | El mundo se corre siempre a `VELOCIDAD = 240` px/s. Cada impulso deja la velocidad vertical en `IMPULSO = -430`; después la gravedad la baja | `flappy.js` → `Avatar.impulsar()`, `Avatar.mover(dt)` |
-| 2 | Al menos 3 animaciones keyframe según la acción | Son 7: `planear` (espera), `aletear` + `batir-ala` (impulso), `festejar` (gema), `explotar` (choque), `celebrar` (gana), `hincharse` y `deshincharse` (murciélago) | `flappy.css` sección **D** · `Avatar.animar()` |
-| 3 | Parallax de 4 capas o más, con la velocidad correcta | 6 capas: el cielo quieto y 5 que se mueven con **el mismo** `@keyframes desplazar`. Solo cambia la duración: 128 / 64 / 32 / 16 / 8 s, o sea 15 / 30 / 60 / 120 / 240 px/s. El suelo va a 240 px/s, igual que las columnas. Las capas solo corren mientras el avatar avanza (`animation-play-state`) | `flappy.css` sección **B** |
-| 4 | 2 elementos animados distintos con spritesheet, que no terminen el juego | **Murciélago** (6 cuadros, `steps(6)`) y **gema** (8 cuadros, `steps(8)`). El estallido del avatar es un tercer spritesheet (8 cuadros) | `flappy.css` sección **C** · `class Murcielago`, `class Gema` |
-| 5 | El avatar interactúa con las tuberías con una animación acorde | Al pasar una columna, la columna brilla (`brillar`) y suma. Al chocarla, el avatar explota y la columna se sacude (`sacudir`) | `flappy.css` sección **E** · `Juego.chocar()` |
-| 5a | La distancia horizontal no es siempre la misma | Se sortea entre 300 y 460 px para cada columna | `Juego.crearColumna()` |
-| 5b | El hueco se achica a medida que avanza | Empieza en 230 px y baja 4 px por columna hasta 150 px | `Juego.crearColumna()` |
-| 5c | Los huecos no están alineados | Cada hueco se corre entre 40 y 170 px para arriba o para abajo respecto del anterior | `Juego.crearColumna()` |
-| 6 | Puntaje o tiempo para determinar el final; los dos elementos no hacen lo mismo | Se gana al llegar a **50 puntos**; se pierde al quedarse sin las 3 vidas. La **gema suma 5 puntos**. El **murciélago no toca el puntaje**: hincha al avatar 5 segundos | `Gema.alTocar()`, `Murcielago.alTocar()`, `Juego.terminar()` |
+| 1 | Avanza a velocidad constante; el usuario da impulso hacia arriba | El mundo se corre siempre a `VELOCIDAD = 240` px/s. Cada impulso deja la velocidad vertical en `IMPULSO = -430`; después la gravedad la va bajando | `flappy.js` → `impulso()`, `moverAvatar(dt)` |
+| 2 | Al menos 3 animaciones keyframe según la acción | Son 4: `planear` (espera el impulso), `aletear` (impulso), `festejar` (agarra una gema) y `explotar` (choca) | `flappy.css` sección **3** · `animar(clase)` |
+| 3 | Parallax de 4 capas o más, con la velocidad correcta | 6 capas: el cielo quieto y 5 que se mueven con **el mismo** `@keyframes desplazar`. Solo cambia la duración: 128 / 64 / 32 / 16 / 8 s, o sea 15 / 30 / 60 / 120 / 240 px/s. El suelo va a 240 px/s, igual que las columnas. Las capas corren solo mientras el avatar avanza (`animation-play-state`) | `flappy.css` sección **2** |
+| 4 | 2 elementos animados distintos con spritesheet, que no terminen el juego | **Murciélago** (6 cuadros, `steps(6)`) y **gema** (8 cuadros, `steps(8)`). Tocarlos no saca vidas ni corta la partida | `flappy.css` sección **5** · `crearElemento()`, `moverElementos(dt)` |
+| 5 | El avatar interactúa con las tuberías con una animación acorde | Al pasar una columna, la columna brilla (`brillar`) y suma 1. Al chocarla, el avatar explota y la columna se sacude (`sacudir`) | `flappy.css` sección **4** · `moverColumnas(dt)`, `chocar()` |
+| 5a | La distancia horizontal no es siempre la misma | Se sortea entre 300 y 460 px para cada columna | `crearColumna()` |
+| 5b | El hueco se achica a medida que avanza | Empieza en 230 px y baja 4 px por columna hasta 170 px | `crearColumna()` |
+| 5c | Los huecos no están alineados | La altura del hueco se sortea en cada columna; si queda a menos de 40 px de la anterior, se sortea de nuevo | `crearColumna()` |
+| 6 | Puntaje o tiempo para determinar el final; los dos elementos no hacen lo mismo | Se gana al llegar a **50 puntos**; se pierde al quedarse sin las 3 vidas. La **gema suma 5 puntos**. El **murciélago no toca el puntaje**: agranda al avatar durante 5 segundos | `moverElementos(dt)`, `terminar(gano)` |
 | 7 | Integrado en la web, con ayudas, descripción e imágenes | Card en la Home, página con la plantilla de juego, "Cómo se juega", controles, "Qué hay en el camino" con los sprites animados y una captura | `flappy.html` · `js/data.js` |
 
 ### Cómo se reparte el trabajo
@@ -31,15 +31,25 @@ Se juega en **`flappy.html`** y se llega desde la Home (filas *Sugerencias para 
 ```
         JS (flappy.js)                         CSS (flappy.css)
   ----------------------------          ------------------------------
-  calcula posiciones y choques   --->   translate() en cada <div>
-  decide QUÉ pasó                --->   una clase: avatar--aletea,
+  calcula posiciones y choques   --->   left / top de cada <div>
+  decide QUÉ pasó                --->   una clase: aletea, explota,
   (impulso, gema, choque...)            columna--chocada, vuelo--andando
                                         y el @keyframes de esa clase
                                         dice CÓMO se ve
 ```
 
-El arte de `img/vuelo/` se generó para este trabajo: cada pieza se escribió como SVG con un script de
-Python y se rasterizó a WebP. Las capas están hechas para empalmar consigo mismas (1920 px de ancho).
+### Los estados de la partida
+
+```
+  parado --[Comenzar]--> espera --[impulso]--> jugando --[50 puntos]--> parado (ganó)
+                           ^                      |
+                           |                   [choque]
+                           |                      v
+                           +--[quedan vidas]--- choque --[sin vidas]--> parado (perdió)
+```
+
+Las capas de `img/vuelo/` miden 1920 px de ancho y empalman consigo mismas: por eso el fondo se puede
+repetir sin que se note el corte.
 
 ---
 
