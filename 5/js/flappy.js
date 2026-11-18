@@ -1,97 +1,79 @@
 /* =========================================================
-   frib · flappy.js — "Frib Vuela" (Ejercicio Entregable Nº5)
+   frib · flappy.js — Frib Vuela (Entregable Nº5)
    ---------------------------------------------------------
-   Un "horizontal scroller" tipo Flappy Bird hecho SIN canvas:
-   todo lo que se ve son <div> y el movimiento visual lo hace
-   CSS con @keyframes (css/flappy.css).
+   Juego tipo Flappy Bird hecho sin canvas: todo son <div>.
 
-   ¿Qué hace entonces este archivo?
+   Este archivo hace tres cosas:
+     - la física (gravedad e impulso)
+     - los choques
+     - las reglas (puntos, vidas, cuándo termina)
 
-     1. La FÍSICA: gravedad, impulso y avance del mundo.
-     2. Los CHOQUES: avatar contra columnas, piso y elementos.
-     3. Las REGLAS: puntos, vidas y cuándo termina la partida.
-     4. PRENDER y APAGAR clases para que CSS anime.
-        Ej.: avatar.animar('avatar--aletea') -> corre @keyframes aletear
-
-   Este archivo nunca dice CÓMO se ve una animación. Solo dice
-   CUÁNDO empieza. El "cómo" está entero en flappy.css.
-
-   Todo se calcula en un mundo de 960 x 540. La pantalla puede
-   ser más grande o más chica: de eso se encarga CSS con un
-   scale() (ver ajustarEscala).
-
-   Orden del archivo:
-     1. Constantes        2. Ayudantes
-     3. class Avatar      4. class Columna
-     5. class Elemento -> Murcielago y Gema
-     6. class Juego       7. Arranque
+   Las animaciones NO están acá. Están en css/flappy.css con
+   @keyframes. Desde acá solo se ponen y se sacan clases.
    ========================================================= */
 'use strict';
 
 
-/* =========================================================
-   1. CONSTANTES — los números que definen el juego
-   ---------------------------------------------------------
-   Están todos juntos y con nombre para que cambiar una regla
-   sea cambiar UN número. Las distancias son píxeles del mundo
-   de 960 x 540 y los tiempos son segundos.
-   ========================================================= */
-const ANCHO = 960;              // ancho del mundo
-const ALTO  = 540;              // alto del mundo
-const SUELO = 480;              // "y" donde empieza el piso
+/* ---------- 1. Los números del juego ---------- */
+const ANCHO = 960;             // el escenario mide 960 x 540
+const ALTO = 540;
+const SUELO = 480;             // "y" donde empieza el piso
 
-/* Velocidad del mundo: cuántos px por segundo avanza el avatar.
-   Es CONSTANTE (consigna, punto 1). Tiene que coincidir con la
-   capa del suelo en flappy.css: 1920 px en 8 s = 240 px/s. */
-const VELOCIDAD = 240;
+const VELOCIDAD = 240;         // px por segundo que avanza el mundo (igual que la capa del suelo: 1920 px en 8 s)
+const GRAVEDAD = 1500;         // cuánto aumenta la caída por segundo
+const IMPULSO = -430;          // velocidad al aletear (negativa = sube)
 
-const GRAVEDAD     = 1500;      // cuánto aumenta la caída por segundo
-const IMPULSO      = -430;      // velocidad que toma al aletear (negativo = sube)
-const CAIDA_MAXIMA = 620;       // tope de velocidad al caer
+const AVATAR_X = 220;          // el avatar no se mueve de costado: se mueve el mundo
+const TAM_NORMAL = 56;         // tamaño del avatar
+const TAM_HINCHADO = 84;       // tamaño después de tocar un murciélago
+const TIEMPO_HINCHADO = 5;     // segundos que queda hinchado
 
-const AVATAR_X        = 250;    // el avatar no se mueve en x: se mueve el mundo
-const AVATAR_Y        = 220;    // altura a la que aparece
-const RADIO_AVATAR    = 19;     // zona de choque del avatar (un círculo)
-const ESCALA_HINCHADO = 1.45;   // cuánto crece al tocar un murciélago (igual que en el CSS)
-const TIEMPO_HINCHADO = 5;      // segundos que dura hinchado (igual que la barra del CSS)
-
-const ANCHO_COLUMNA    = 96;
-const BORDE_COLUMNA    = 4;     // px que se le perdonan a cada lado de la columna
-const HUECO_INICIAL    = 230;   // alto del primer hueco
-const HUECO_MINIMO     = 150;   // el hueco nunca baja de acá
-const ACHIQUE          = 4;     // px que se achica el hueco con cada columna (punto 5b)
-const DISTANCIA_MINIMA = 300;   // separación horizontal entre columnas (punto 5a)
+const ANCHO_COLUMNA = 96;
+const HUECO_INICIAL = 230;     // alto del primer hueco
+const HUECO_MINIMO = 170;      // el hueco nunca baja de acá
+const ACHIQUE = 4;             // px que se achica el hueco con cada columna
+const DISTANCIA_MINIMA = 300;  // separación entre una columna y la siguiente
 const DISTANCIA_MAXIMA = 460;
-const MARGEN_HUECO     = 60;    // el hueco nunca queda pegado al techo ni al piso
-const SALTO_MINIMO     = 40;    // cuánto cambia de altura un hueco respecto del anterior (punto 5c)
-const SALTO_MAXIMO     = 170;
 
-const META           = 50;      // puntos para ganar: el puntaje decide el final (punto 6)
-const VIDAS          = 3;
+const META = 50;               // puntos para ganar
+const VIDAS = 3;
 const PUNTOS_COLUMNA = 1;
-const PUNTOS_GEMA    = 5;
-
-/* Clases de estado del avatar: cada una dispara un @keyframes
-   distinto en flappy.css. El avatar lleva UNA sola por vez. */
-const ESTADOS_AVATAR = ['avatar--planea', 'avatar--aletea', 'avatar--festeja',
-                        'avatar--explota', 'avatar--gana'];
-
-/* Imágenes que se precargan antes de dejar jugar, para que
-   ninguna aparezca tarde en medio de la partida. */
-const IMAGENES = ['cielo', 'capa-1-nubes', 'capa-2-montanias', 'capa-3-colinas',
-  'capa-4-bosque', 'capa-5-suelo', 'columna-arriba', 'columna-abajo',
-  'murcielago', 'gema', 'estallido'].map(n => `img/vuelo/${n}.webp`);
+const PUNTOS_GEMA = 5;
 
 
-/* =========================================================
-   2. AYUDANTES — funciones chicas que usa todo el archivo
-   ========================================================= */
+/* ---------- 2. Las cajas de la página ---------- */
+const escenario = document.getElementById('vuelo');
+const avatar = document.getElementById('avatar');
+const avatarImg = document.getElementById('avatar-img');
+const cartelInicio = document.getElementById('vuelo-arranque');
+const cartelFin = document.getElementById('vuelo-fin');
+const btnComenzar = document.getElementById('btn-comenzar');
+const btnReiniciar = document.getElementById('btn-reiniciar');
 
-/* Número al azar entre min y max (con decimales). */
-const azar = (min, max) => min + Math.random() * (max - min);
 
-/* Devuelve "valor", pero sin dejarlo salir del rango [min, max]. */
-const limitar = (valor, min, max) => Math.max(min, Math.min(max, valor));
+/* ---------- 3. Las variables de la partida ---------- */
+let estado = 'parado';      // 'parado', 'espera', 'jugando' o 'choque'
+let avatarY = 220;          // altura del avatar
+let velocidadY = 0;         // velocidad con la que sube o baja
+let hinchado = 0;           // segundos que le quedan hinchado (0 = normal)
+let puntos = 0;
+let vidas = VIDAS;
+let tiempo = 0;             // segundos de vuelo
+let columnas = [];          // cada una: { x, desde, hasta, contada, caja }
+let elementos = [];         // cada uno: { tipo, x, y, ancho, alto, tocado, caja }
+let creadas = 0;            // cuántas columnas se crearon (para achicar el hueco)
+let falta = 0;              // px que faltan para que aparezca la próxima columna
+let centroAnterior = 240;   // altura del hueco de la columna anterior
+let anterior = 0;           // hora del cuadro anterior
+let espera = 0;             // el setTimeout de después del choque
+
+
+/* ---------- 4. Funciones de ayuda ---------- */
+
+/* Devuelve un número al azar entre min y max. */
+function azar(min, max) {
+  return min + Math.random() * (max - min);
+}
 
 /* Pasa segundos a texto "mm:ss" para el reloj. */
 function mmss(segundos) {
@@ -99,758 +81,331 @@ function mmss(segundos) {
   return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
 }
 
-/* Vuelve a correr desde cero la animación CSS que dispara una clase.
-   Si la clase ya estaba puesta, volver a ponerla no hace nada: hay
-   que sacarla, obligar al navegador a recalcular (leer offsetWidth
-   lo fuerza) y recién ahí ponerla de nuevo. */
-function reiniciarAnimacion(el, clase) {
-  el.classList.remove(clase);
-  void el.offsetWidth;
-  el.classList.add(clase);
+/* ¿Se pisan dos rectángulos? Cada uno es { x, y, ancho, alto }.
+   Se pisan si ninguno queda del todo a un costado, arriba o abajo del otro. */
+function seTocan(a, b) {
+  return a.x < b.x + b.ancho && a.x + a.ancho > b.x &&
+         a.y < b.y + b.alto  && a.y + a.alto  > b.y;
 }
 
-/* ¿Un círculo toca un rectángulo?
-   Se busca el punto del rectángulo MÁS CERCANO al centro del círculo
-   (es el centro "limitado" a los bordes del rectángulo). Si ese punto
-   está a menos de un radio de distancia, se tocan. */
-function circuloTocaRectangulo(cx, cy, radio, rx, ry, ancho, alto) {
-  const px = limitar(cx, rx, rx + ancho);
-  const py = limitar(cy, ry, ry + alto);
-  return Math.hypot(cx - px, cy - py) < radio;
+/* Tamaño del avatar: más grande mientras está hinchado. */
+function tamanio() {
+  return hinchado > 0 ? TAM_HINCHADO : TAM_NORMAL;
 }
 
-/* Espera a que estén cargadas todas las imágenes de la lista. */
-function cargarImagenes(rutas) {
-  return Promise.all(rutas.map(ruta => new Promise((listo, falla) => {
-    const img = new Image();
-    img.onload  = listo;
-    img.onerror = () => falla(new Error('No se pudo cargar ' + ruta));
-    img.src = ruta;
-  })));
+/* Rectángulo de choque del avatar. Se le sacan 8 px de cada lado
+   para que el choque sea un poco más justo que el dibujo. */
+function cajaAvatar() {
+  const t = tamanio();
+  return { x: AVATAR_X + 8, y: avatarY + 8, ancho: t - 16, alto: t - 16 };
+}
+
+/* Cambia la animación del avatar: 'planea', 'aletea', 'festeja' o 'explota'.
+   Primero se saca la clase y se lee offsetWidth: eso obliga al navegador
+   a recalcular, y así la animación arranca de cero aunque sea la misma. */
+function animar(clase) {
+  avatarImg.className = '';
+  void avatarImg.offsetWidth;
+  avatarImg.className = clase;
+}
+
+/* Lleva la posición y el tamaño del avatar a la pantalla. */
+function dibujarAvatar() {
+  avatar.style.left = AVATAR_X + 'px';
+  avatar.style.top = avatarY + 'px';
+  avatar.classList.toggle('avatar--hinchado', hinchado > 0);
+}
+
+/* Escribe los puntos, las vidas y el tiempo en la barra de arriba. */
+function pintarMarcador() {
+  document.getElementById('hud-puntos').textContent = puntos + ' / ' + META;
+  document.getElementById('hud-vidas').textContent = '♥'.repeat(vidas) + '♡'.repeat(VIDAS - vidas);
+  document.getElementById('hud-reloj').textContent = mmss(tiempo);
 }
 
 
-/* =========================================================
-   3. CLASE Avatar — la mascota de frib
-   ---------------------------------------------------------
-   Guarda su posición (x, y), su velocidad vertical (vy) y cuánto
-   tiempo le queda hinchado. La "x" no cambia nunca: el avatar se
-   queda en su lugar y lo que se corre es el mundo.
+/* ---------- 5. La partida ---------- */
 
-   Las animaciones NO están acá: animar() solo le pone una clase
-   al <div> y CSS hace el resto.
-   ========================================================= */
-class Avatar {
-  /* Recibe el <div class="avatar"> que ya está en el HTML. */
-  constructor(el) {
-    this.el = el;
-    this.x = AVATAR_X;
-    this.colocar();
+/* Empieza una partida desde cero. */
+function comenzar() {
+  clearTimeout(espera);
+  puntos = 0;
+  vidas = VIDAS;
+  tiempo = 0;
+  creadas = 0;
+  cartelInicio.hidden = true;
+  cartelFin.hidden = true;
+  btnComenzar.disabled = true;
+  btnReiniciar.disabled = false;
+  document.activeElement.blur();   // si no, la barra espaciadora volvería a apretar el botón
+  esperar();
+}
 
-    /* Cuando termina el festejo se saca la clase, así el próximo
-       impulso puede volver a mostrar el aleteo. */
-    this.el.addEventListener('animationend', (e) => {
-      if (e.animationName === 'festejar') this.el.classList.remove('avatar--festeja');
-    });
+/* El avatar queda planeando en su lugar hasta que el jugador dé un impulso.
+   Se usa al empezar y después de cada choque. */
+function esperar() {
+  limpiar();
+  estado = 'espera';
+  avatarY = 220;
+  velocidadY = 0;
+  hinchado = 0;
+  escenario.classList.remove('vuelo--andando');   // el parallax queda en pausa
+  escenario.classList.add('vuelo--espera');       // se ve el cartel de ayuda
+  animar('planea');
+  dibujarAvatar();
+  pintarMarcador();
+}
+
+/* El jugador pidió un impulso (barra, flecha arriba o clic). */
+function impulso() {
+  if (estado === 'espera') {       // el primer impulso pone el mundo en marcha
+    estado = 'jugando';
+    escenario.classList.remove('vuelo--espera');
+    escenario.classList.add('vuelo--andando');
+    anterior = performance.now();
+    requestAnimationFrame(bucle);
   }
-
-  /* Lo deja como al principio: en el medio, quieto y sin hinchar. */
-  colocar() {
-    this.y = AVATAR_Y;
-    this.vy = 0;
-    this.hinchado = 0;          // segundos que le quedan hinchado (0 = normal)
-    this.el.classList.remove('avatar--hinchado', 'avatar--deshincha');
-    this.dibujar();
+  if (estado === 'jugando') {
+    velocidadY = IMPULSO;          // sale para arriba, venga como venga
+    animar('aletea');
   }
+}
 
-  /* Radio de la zona de choque: más grande mientras está hinchado. */
-  get radio() {
-    return this.hinchado > 0 ? RADIO_AVATAR * ESCALA_HINCHADO : RADIO_AVATAR;
+/* El bucle del juego: se repite en cada cuadro de pantalla mientras se juega.
+   dt son los segundos que pasaron desde el cuadro anterior. Todo se mueve
+   multiplicando por dt, así va igual de rápido en cualquier pantalla. */
+function bucle(ahora) {
+  if (estado !== 'jugando') return;
+  let dt = (ahora - anterior) / 1000;
+  if (dt > 0.034) dt = 0.034;      // por si la pestaña estuvo trabada
+  anterior = ahora;
+  tiempo += dt;
+
+  moverAvatar(dt);
+  moverColumnas(dt);
+  moverElementos(dt);
+  pintarMarcador();
+
+  if (estado !== 'jugando') return;        // chocó en este cuadro: el bucle se apaga
+  if (puntos >= META) {
+    terminar(true);
+  } else {
+    requestAnimationFrame(bucle);            // pide el cuadro que sigue
   }
+}
 
-  /* Cambia la animación del avatar: saca el estado que tenía y pone
-     el nuevo. El offsetWidth del medio es para que, si es el mismo
-     estado (dos aleteos seguidos), la animación arranque de cero. */
-  animar(estado) {
-    this.el.classList.remove(...ESTADOS_AVATAR);
-    void this.el.offsetWidth;
-    this.el.classList.add(estado);
+/* Física del avatar: la gravedad le suma velocidad y la velocidad lo mueve. */
+function moverAvatar(dt) {
+  velocidadY += GRAVEDAD * dt;
+  avatarY += velocidadY * dt;
+  if (avatarY < 0) {               // el techo: no puede salirse por arriba
+    avatarY = 0;
+    velocidadY = 0;
   }
+  if (hinchado > 0) hinchado -= dt;
+  dibujarAvatar();
+  if (avatarY + tamanio() > SUELO) chocar(null);   // tocó el piso
+}
 
-  /* IMPULSO: la velocidad pasa a ser hacia arriba, sin importar
-     cuánto venía cayendo. Y dispara la animación de aletear, salvo
-     que esté festejando una gema (para no cortarle el festejo). */
-  impulsar() {
-    this.vy = IMPULSO;
-    if (!this.el.classList.contains('avatar--festeja')) this.animar('avatar--aletea');
-  }
+/* Corre las columnas hacia la izquierda y se fija si el avatar chocó o pasó alguna. */
+function moverColumnas(dt) {
+  falta -= VELOCIDAD * dt;         // lo que avanzó el mundo
+  if (falta <= 0) crearColumna();
 
-  /* FÍSICA de un cuadro. dt = segundos desde el cuadro anterior.
-       1) la gravedad le suma velocidad hacia abajo
-       2) la velocidad le cambia la posición
-     Multiplicar por dt hace que caiga igual en una pantalla de
-     60 Hz que en una de 144 Hz. */
-  mover(dt) {
-    this.vy = Math.min(this.vy + GRAVEDAD * dt, CAIDA_MAXIMA);
-    this.y += this.vy * dt;
-    if (this.y < this.radio) {          // techo: no puede salirse por arriba
-      this.y = this.radio;
-      this.vy = 0;
+  const yo = cajaAvatar();
+  for (const c of columnas) {
+    c.x -= VELOCIDAD * dt;
+    c.caja.style.left = c.x + 'px';
+
+    /* Cada columna son dos rectángulos: el de arriba y el de abajo. */
+    const arriba = { x: c.x, y: 0, ancho: ANCHO_COLUMNA, alto: c.desde };
+    const abajo  = { x: c.x, y: c.hasta, ancho: ANCHO_COLUMNA, alto: SUELO - c.hasta };
+    if (seTocan(yo, arriba) || seTocan(yo, abajo)) chocar(c);
+
+    /* Si ya quedó atrás del avatar, suma un punto (una sola vez). */
+    if (!c.contada && c.x + ANCHO_COLUMNA < AVATAR_X) {
+      c.contada = true;
+      puntos += PUNTOS_COLUMNA;
+      c.caja.classList.add('columna--pasada');
     }
   }
 
-  /* ¿Tocó el piso? */
-  tocaElSuelo() {
-    return this.y + this.radio >= SUELO;
-  }
-
-  /* Lo hincha (efecto del murciélago). Si ya estaba hinchado, el
-     tiempo vuelve a empezar. */
-  hinchar() {
-    this.hinchado = TIEMPO_HINCHADO;
-    this.el.classList.remove('avatar--deshincha');
-    reiniciarAnimacion(this.el, 'avatar--hinchado');
-  }
-
-  /* Descuenta el tiempo de hinchado. Devuelve true en el cuadro
-     exacto en que se le pasa, para que el Juego saque el aviso. */
-  pasarTiempo(dt) {
-    if (this.hinchado <= 0) return false;
-    this.hinchado -= dt;
-    if (this.hinchado > 0) return false;
-    this.hinchado = 0;
-    this.el.classList.remove('avatar--hinchado');
-    reiniciarAnimacion(this.el, 'avatar--deshincha');
-    return true;
-  }
-
-  /* Lleva la posición al <div>. La inclinación sale de la velocidad:
-     si sube mira hacia arriba, si cae se va de punta. Se usa
-     transform (y no left/top) porque no obliga al navegador a
-     recalcular el resto de la página. */
-  dibujar() {
-    const angulo = limitar(this.vy / 9, -24, 62);
-    this.el.style.transform = `translate(${this.x}px, ${this.y}px) rotate(${angulo}deg)`;
+  /* La que ya salió entera por la izquierda se borra. */
+  if (columnas.length > 0 && columnas[0].x < -ANCHO_COLUMNA) {
+    columnas[0].caja.remove();
+    columnas.shift();
   }
 }
 
+/* Corre las gemas y los murciélagos y se fija si el avatar tocó alguno. */
+function moverElementos(dt) {
+  const yo = cajaAvatar();
+  for (const e of elementos) {
+    e.x -= VELOCIDAD * dt;
+    e.caja.style.left = e.x + 'px';
 
-/* =========================================================
-   4. CLASE Columna — un par de cristales con un hueco en el medio
-   ---------------------------------------------------------
-   Una columna queda definida por tres números:
-     x       dónde está su borde izquierdo
-     centro  a qué altura está el medio del hueco
-     hueco   cuánto mide el hueco de alto
+    /* Al murciélago se le achica más la zona de choque: las alas no cuentan. */
+    const margen = e.tipo === 'gema' ? 6 : 20;
+    const suCaja = { x: e.x + margen, y: e.y + margen, ancho: e.ancho - margen * 2, alto: e.alto - margen * 2 };
 
-   El <div> se crea acá mismo y se agrega a la pista.
-   ========================================================= */
-class Columna {
-  /* Guarda los tres números y arma el <div> con sus dos partes.
-     El alto de cada parte sale del hueco: la de arriba llega hasta
-     donde empieza el hueco y la de abajo arranca donde termina. */
-  constructor(x, centro, hueco, pista) {
-    this.x = x;
-    this.centro = centro;
-    this.hueco = hueco;
-    this.contada = false;       // ¿ya sumó su punto?
-
-    this.el = document.createElement('div');
-    this.el.className = 'columna';
-
-    const arriba = document.createElement('div');
-    arriba.className = 'columna__parte columna__parte--arriba';
-    arriba.style.height = this.huecoArriba + 'px';             // del techo al hueco
-
-    const abajo = document.createElement('div');
-    abajo.className = 'columna__parte columna__parte--abajo';
-    abajo.style.height = (ALTO - this.huecoAbajo) + 'px';      // del hueco al fondo
-
-    this.el.append(arriba, abajo);
-    pista.appendChild(this.el);
-    this.dibujar();
-  }
-
-  /* "y" donde empieza el hueco (termina el cristal de arriba). */
-  get huecoArriba() { return this.centro - this.hueco / 2; }
-
-  /* "y" donde termina el hueco (empieza el cristal de abajo). */
-  get huecoAbajo()  { return this.centro + this.hueco / 2; }
-
-  /* La corre hacia la izquierda a la velocidad del mundo. */
-  avanzar(dt) {
-    this.x -= VELOCIDAD * dt;
-    this.dibujar();
-  }
-
-  /* ¿El avatar la toca? Son dos rectángulos: el de arriba y el de
-     abajo. Si el círculo del avatar toca cualquiera, chocó. */
-  choca(avatar) {
-    const x = this.x + BORDE_COLUMNA;
-    const ancho = ANCHO_COLUMNA - BORDE_COLUMNA * 2;
-    return circuloTocaRectangulo(avatar.x, avatar.y, avatar.radio, x, 0, ancho, this.huecoArriba)
-        || circuloTocaRectangulo(avatar.x, avatar.y, avatar.radio, x, this.huecoAbajo, ancho, SUELO - this.huecoAbajo);
-  }
-
-  /* ¿El avatar ya la dejó atrás? Solo dice que sí UNA vez, para
-     que cada columna sume un único punto. */
-  fuePasada(avatar) {
-    if (this.contada) return false;
-    if (this.x + ANCHO_COLUMNA > avatar.x - avatar.radio) return false;
-    this.contada = true;
-    return true;
-  }
-
-  /* ¿Ya salió entera por la izquierda? */
-  salio() {
-    return this.x < -ANCHO_COLUMNA;
-  }
-
-  /* Lleva la posición al <div>. */
-  dibujar() {
-    this.el.style.transform = `translateX(${this.x}px)`;
-  }
-
-  /* Saca el <div> de la página. */
-  quitar() {
-    this.el.remove();
-  }
-}
-
-
-/* =========================================================
-   5. CLASE Elemento — lo que flota entre columna y columna
-   ---------------------------------------------------------
-   Elemento es la clase "madre": tiene lo que comparten todos
-   (posición, avanzar con el mundo, saber si tocó al avatar).
-
-   De ella HEREDAN las dos clases de elemento que pide la consigna
-   (punto 4), y cada una define qué pasa al tocarla:
-
-     Murcielago.alTocar()  ->  HINCHA al avatar (no toca los puntos)
-     Gema.alTocar()        ->  SUMA puntos      (no toca al avatar)
-
-   Hacen cosas distintas (punto 6) y ninguna termina la partida.
-   El Juego no pregunta de qué clase es cada uno: llama a
-   alTocar() y cada elemento sabe qué le toca hacer.
-   ========================================================= */
-class Elemento {
-  /* (x, y) es el CENTRO del elemento. "clase" es la clase CSS que
-     le pone el spritesheet: 'murcielago' o 'gema'. */
-  constructor(x, y, radio, clase, pista) {
-    this.x = x;
-    this.y = y;
-    this.radio = radio;         // zona de choque (un círculo)
-    this.tocado = false;        // ya lo tocó el avatar: no vuelve a contar
-
-    this.el = document.createElement('div');
-    this.el.className = 'elemento ' + clase;
-    pista.appendChild(this.el);
-    this.dibujar();
-  }
-
-  /* Se corre con el mundo, a la misma velocidad que las columnas. */
-  avanzar(dt) {
-    this.x -= VELOCIDAD * dt;
-    this.dibujar();
-  }
-
-  /* ¿Toca al avatar? Son dos círculos: se tocan si la distancia
-     entre los centros es menor que la suma de los radios. */
-  toca(avatar) {
-    return Math.hypot(this.x - avatar.x, this.y - avatar.y) < this.radio + avatar.radio;
-  }
-
-  /* Lo marca como tocado: CSS lo desvanece con una transición. */
-  tocar() {
-    this.tocado = true;
-    this.el.classList.add('elemento--tocado');
-  }
-
-  /* Qué pasa cuando el avatar lo toca. Lo define cada hijo. */
-  alTocar(juego) {}
-
-  /* ¿Ya salió entero por la izquierda? */
-  salio() {
-    return this.x < -80;
-  }
-
-  /* Lleva la posición al <div>. */
-  dibujar() {
-    this.el.style.transform = `translate(${this.x}px, ${this.y}px)`;
-  }
-
-  /* Saca el <div> de la página. */
-  quitar() {
-    this.el.remove();
-  }
-}
-
-/* ---- Elemento 1: el murciélago ---- */
-class Murcielago extends Elemento {
-  /* super() llama al constructor de Elemento: radio de choque 18
-     y la clase CSS 'murcielago'. */
-  constructor(x, y, pista) {
-    super(x, y, 18, 'murcielago', pista);
-    this.centro = y;                    // altura alrededor de la que sube y baja
-    this.fase = azar(0, Math.PI * 2);   // para que no arranquen todos igual
-  }
-
-  /* Además de correrse con el mundo, sube y baja: el seno va de
-     -1 a 1, así que se mueve 48 px para cada lado de su centro. */
-  avanzar(dt) {
-    this.fase += dt * 4.2;
-    this.y = this.centro + Math.sin(this.fase) * 48;
-    super.avanzar(dt);
-  }
-
-  /* Al tocarlo: hincha al avatar 5 segundos. No resta puntos ni
-     vidas, pero hinchado es más difícil pasar por los huecos. */
-  alTocar(juego) {
-    juego.avatar.hinchar();
-    juego.avisarHinchado();
-    juego.cartelito('¡Te hinchó!', this.x, this.y - 34, 'cartelito--malo');
-  }
-}
-
-/* ---- Elemento 2: la gema ---- */
-class Gema extends Elemento {
-  /* Radio 22: un poco más grande que el dibujo, para que agarrarla
-     sea fácil. */
-  constructor(x, y, pista) {
-    super(x, y, 22, 'gema', pista);
-  }
-
-  /* Al tocarla: suma puntos y el avatar festeja. */
-  alTocar(juego) {
-    juego.sumar(PUNTOS_GEMA, this.x, this.y - 24, 'cartelito--oro');
-    juego.avatar.animar('avatar--festeja');
-  }
-}
-
-
-/* =========================================================
-   6. CLASE Juego — las reglas y el bucle
-   ---------------------------------------------------------
-   La partida siempre está en UNO de estos estados:
-
-     'inicio'    cartel de arranque, todavía no empezó
-     'espera'    el avatar planea quieto, esperando un impulso
-     'jugando'   el mundo avanza y corre el bucle
-     'choque'    explotó: se frena todo casi un segundo
-     'fin'       ganó (llegó a la meta) o perdió (sin vidas)
-
-         inicio -> espera -> jugando -> fin (ganó)
-                     ^          |
-                     |          v
-                     +------- choque -> fin (perdió)
-
-   El mundo solo se mueve en 'jugando'. En cualquier otro estado
-   el parallax está en pausa: el fondo se mueve "de acuerdo al
-   movimiento del jugador" (consigna, punto 3).
-   ========================================================= */
-class Juego {
-  /* Busca en el HTML las cajas que va a usar (los nombres con $
-     son elementos de la página) y crea el avatar. Las columnas y
-     los elementos son dos listas que arrancan vacías. */
-  constructor() {
-    this.$vuelo     = document.getElementById('vuelo');
-    this.$mundo     = document.getElementById('mundo');
-    this.$pista     = document.getElementById('pista');
-    this.$estallido = document.getElementById('estallido');
-    this.$hinchado  = document.getElementById('vuelo-hinchado');
-    this.$arranque  = document.getElementById('vuelo-arranque');
-    this.$fin       = document.getElementById('vuelo-fin');
-    this.$btnComenzar  = document.getElementById('btn-comenzar');
-    this.$btnReiniciar = document.getElementById('btn-reiniciar');
-
-    this.avatar = new Avatar(document.getElementById('avatar'));
-    this.columnas = [];
-    this.elementos = [];
-    this.estado = 'inicio';
-
-    /* requestAnimationFrame llama a bucle() "suelto", sin el this.
-       Con bind queda atado a este Juego. */
-    this.bucle = this.bucle.bind(this);
-  }
-
-  /* Deja todo en cero y muestra el cartel de arranque. */
-  preparar() {
-    cancelAnimationFrame(this.idCuadro);
-    clearTimeout(this.idChoque);
-
-    this.puntos = 0;
-    this.vidas = VIDAS;
-    this.tiempo = 0;            // segundos de vuelo
-    this.creadas = 0;           // columnas creadas: de esto depende el alto del hueco
-
-    this.limpiarPista();
-    this.avatar.colocar();
-    this.avatar.animar('avatar--planea');
-    this.estado = 'inicio';
-    this.frenar();
-    this.$vuelo.classList.remove('vuelo--espera');
-    this.$estallido.classList.remove('estallido--activo');
-    this.$hinchado.hidden = true;
-
-    this.$fin.hidden = true;
-    this.$fin.classList.remove('fin--gano', 'fin--perdido');
-    this.$arranque.hidden = false;
-    this.$btnComenzar.disabled = false;
-    this.$btnReiniciar.disabled = true;
-    this.pintarHud();
-  }
-
-  /* Saca el cartel de arranque y deja al avatar esperando. */
-  comenzar() {
-    if (this.estado !== 'inicio') return;
-    this.$arranque.hidden = true;
-    this.$btnComenzar.disabled = true;
-    this.$btnReiniciar.disabled = false;
-    /* Se le saca el foco al botón: si no, la barra espaciadora
-       volvería a "apretarlo" en vez de dar impulso. */
-    if (document.activeElement) document.activeElement.blur();
-    this.esperar();
-  }
-
-  /* Partida nueva desde cero. */
-  reiniciar() {
-    this.preparar();
-    this.comenzar();
-  }
-
-  /* ¿Hay una partida en curso? (para saber si atender el teclado) */
-  enPartida() {
-    return this.estado === 'espera' || this.estado === 'jugando' || this.estado === 'choque';
-  }
-
-  /* Frena el mundo: sin la clase, CSS pone en pausa el parallax
-     y los spritesheets (animation-play-state). */
-  frenar() {
-    cancelAnimationFrame(this.idCuadro);
-    this.$vuelo.classList.remove('vuelo--andando');
-  }
-
-  /* Estado 'espera': el avatar planea en su lugar hasta que el
-     jugador dé un impulso. Se usa al empezar, después de perder
-     una vida y cuando la pestaña queda en segundo plano. */
-  esperar() {
-    this.estado = 'espera';
-    this.frenar();
-    this.avatar.vy = 0;
-    this.avatar.animar('avatar--planea');
-    this.avatar.dibujar();
-    this.$vuelo.classList.add('vuelo--espera');
-  }
-
-  /* Pausa: si estaba jugando, pasa a esperar. */
-  pausar() {
-    if (this.estado === 'jugando') this.esperar();
-  }
-
-  /* El jugador pidió un impulso (barra, flecha arriba o clic).
-     Si el avatar estaba esperando, este impulso además arranca el
-     mundo: prende el parallax y el bucle. */
-  impulso() {
-    if (this.estado === 'espera') {
-      this.estado = 'jugando';
-      this.$vuelo.classList.remove('vuelo--espera');
-      this.$vuelo.classList.add('vuelo--andando');
-      this.anterior = performance.now();
-      this.idCuadro = requestAnimationFrame(this.bucle);
-    }
-    if (this.estado === 'jugando') this.avatar.impulsar();
-  }
-
-  /* EL BUCLE: se llama una vez por cuadro de pantalla.
-     "ahora" es la hora en milisegundos. Restándole la del cuadro
-     anterior sale dt: cuánto tiempo pasó. Con dt, todo se mueve
-     según el TIEMPO y no según la cantidad de cuadros.
-     El tope de 0.034 es por si la pestaña estuvo trabada: así
-     nada pega un salto y atraviesa una columna. */
-  bucle(ahora) {
-    if (this.estado !== 'jugando') return;        // se apaga solo
-    const dt = Math.min((ahora - this.anterior) / 1000, 0.034);
-    this.anterior = ahora;
-    this.actualizar(dt);
-    if (this.estado === 'jugando') this.idCuadro = requestAnimationFrame(this.bucle);
-  }
-
-  /* Un cuadro de juego, en orden:
-       1) el avatar cae o sube
-       2) se crean columnas nuevas cuando toca
-       3) avanzan las columnas -> ¿chocó? ¿pasó una?
-       4) avanzan los elementos -> ¿tocó alguno?
-       5) ¿tocó el piso? ¿llegó a la meta? */
-  actualizar(dt) {
-    this.tiempo += dt;
-
-    this.avatar.mover(dt);
-    if (this.avatar.pasarTiempo(dt)) this.$hinchado.hidden = true;
-
-    /* La próxima columna aparece cuando el mundo avanzó la
-       distancia que se sorteó para ella. */
-    this.faltaParaColumna -= VELOCIDAD * dt;
-    if (this.faltaParaColumna <= 0) this.crearColumna();
-
-    for (const columna of this.columnas) {
-      columna.avanzar(dt);
-      if (columna.choca(this.avatar)) { this.chocar(columna); return; }
-      if (columna.fuePasada(this.avatar)) {
-        reiniciarAnimacion(columna.el, 'columna--superada');
-        this.sumar(PUNTOS_COLUMNA, this.avatar.x + 46, columna.centro);
+    if (!e.tocado && seTocan(yo, suCaja)) {
+      e.tocado = true;
+      e.caja.classList.add('tocado');     // CSS lo desvanece
+      if (e.tipo === 'gema') {
+        puntos += PUNTOS_GEMA;            // la gema suma puntos
+        animar('festeja');
+      } else {
+        hinchado = TIEMPO_HINCHADO;       // el murciélago lo hincha
       }
     }
-
-    for (const elemento of this.elementos) {
-      elemento.avanzar(dt);
-      if (!elemento.tocado && elemento.toca(this.avatar)) {
-        elemento.tocar();
-        elemento.alTocar(this);         // cada elemento sabe qué hace
-      }
-    }
-
-    /* Lo que ya salió de la pantalla se borra: de la página y de la lista. */
-    this.columnas  = this.columnas.filter(c => c.salio() ? (c.quitar(), false) : true);
-    this.elementos = this.elementos.filter(e => e.salio() ? (e.quitar(), false) : true);
-
-    if (this.avatar.tocaElSuelo()) { this.chocar(null); return; }
-
-    this.avatar.dibujar();
-    this.pintarHud();
-    if (this.puntos >= META) this.terminar(true);
   }
 
-  /* Crea una columna en el borde derecho y deja sorteada la que
-     viene. Acá están las tres reglas del punto 5 de la consigna:
-
-       a) la DISTANCIA a la próxima se sortea: no es siempre igual
-       b) el HUECO se achica 4 px con cada columna, hasta un mínimo
-       c) la ALTURA del hueco cambia respecto de la anterior
-
-     Además, en el espacio libre entre esta columna y la próxima
-     puede aparecer un elemento: una gema o un murciélago. */
-  crearColumna() {
-    const hueco  = Math.max(HUECO_MINIMO, HUECO_INICIAL - this.creadas * ACHIQUE);    // (b)
-    const centro = this.proximoCentro;
-    const columna = new Columna(ANCHO + 10, centro, hueco, this.$pista);
-    this.columnas.push(columna);
-    this.creadas++;
-
-    const distancia = azar(DISTANCIA_MINIMA, DISTANCIA_MAXIMA);                       // (a)
-    this.faltaParaColumna = distancia;
-
-    /* Altura del hueco siguiente: se corre para arriba o para abajo
-       entre 40 y 170 px, así nunca queda alineado con el anterior.
-       Si de ese lado no entra (se pasa del techo o del piso), se
-       corre para el otro; y si tampoco entra, va al borde más lejano. */
-    const huecoSiguiente = Math.max(HUECO_MINIMO, HUECO_INICIAL - this.creadas * ACHIQUE);
-    const minimo = MARGEN_HUECO + huecoSiguiente / 2;
-    const maximo = SUELO - MARGEN_HUECO - huecoSiguiente / 2;
-    const noEntra = (y) => y < minimo || y > maximo;
-    const salto = azar(SALTO_MINIMO, SALTO_MAXIMO) * (Math.random() < 0.5 ? -1 : 1);  // (c)
-    let proximo = centro + salto;
-    if (noEntra(proximo)) proximo = centro - salto;
-    if (noEntra(proximo)) proximo = (centro - minimo > maximo - centro) ? minimo : maximo;
-    this.proximoCentro = proximo;
-
-    /* Elemento en el medio del espacio libre, a una altura cercana
-       al camino que va de un hueco al otro. */
-    const x = columna.x + ANCHO_COLUMNA + (distancia - ANCHO_COLUMNA) / 2;
-    const y = (centro + this.proximoCentro) / 2;
-    const tirada = Math.random();
-    if (tirada < 0.36) {
-      this.elementos.push(new Gema(x, y + azar(-30, 30), this.$pista));
-    } else if (tirada < 0.62 && this.creadas > 2 && distancia > 350) {
-      const lado = Math.random() < 0.5 ? -1 : 1;
-      const altura = limitar(y + lado * azar(30, 60), 90, SUELO - 90);
-      this.elementos.push(new Murcielago(x, altura, this.$pista));
-    }
-  }
-
-  /* Suma puntos, hace latir el marcador y muestra un cartelito
-     con lo que se sumó en el lugar donde pasó. */
-  sumar(cuanto, x, y, clase = '') {
-    this.puntos += cuanto;
-    reiniciarAnimacion(document.getElementById('vuelo-puntos'), 'vuelo__puntos--sube');
-    this.cartelito('+' + cuanto, x, y, clase);
-  }
-
-  /* El avatar chocó contra una columna (o contra el piso, y ahí
-     "columna" viene en null). Pierde una vida y se frena todo:
-       - el avatar corre su animación de explotar
-       - arranca el spritesheet del estallido en el mismo lugar
-       - la columna se sacude
-       - el parallax queda en pausa
-     Casi un segundo después se decide cómo sigue. */
-  chocar(columna) {
-    this.estado = 'choque';
-    this.frenar();
-    this.vidas--;
-
-    this.avatar.dibujar();
-    this.avatar.animar('avatar--explota');
-    this.$estallido.style.transform = `translate(${this.avatar.x}px, ${this.avatar.y}px)`;
-    reiniciarAnimacion(this.$estallido, 'estallido--activo');
-    if (columna) reiniciarAnimacion(columna.el, 'columna--chocada');
-
-    this.cartelito('-1 vida', this.avatar.x, this.avatar.y - 44, 'cartelito--malo');
-    this.pintarHud();
-    this.idChoque = setTimeout(() => this.despuesDelChoque(), 950);
-  }
-
-  /* Pasado el choque: si no quedan vidas, se terminó. Si quedan,
-     se despeja la pista y el avatar vuelve a esperar un impulso. */
-  despuesDelChoque() {
-    if (this.estado !== 'choque') return;
-    if (this.vidas <= 0) { this.terminar(false); return; }
-    this.limpiarPista();
-    this.avatar.colocar();
-    this.$hinchado.hidden = true;
-    this.esperar();
-  }
-
-  /* Fin de la partida. gano = true si llegó a la meta. */
-  terminar(gano) {
-    this.estado = 'fin';
-    this.frenar();
-    this.pintarHud();
-    if (gano) this.avatar.animar('avatar--gana');
-
-    const titulo = document.getElementById('vuelo-fin-titulo');
-    const texto  = document.getElementById('vuelo-fin-texto');
-    if (gano) {
-      titulo.textContent = '¡Llegaste a la meta!';
-      texto.textContent = `Juntaste ${this.puntos} puntos en ${mmss(this.tiempo)} y te ` +
-        (this.vidas === 1 ? 'quedó 1 vida.' : `quedaron ${this.vidas} vidas.`);
-    } else {
-      titulo.textContent = 'Te quedaste sin vidas';
-      texto.textContent = `Llegaste a ${this.puntos} de ${META} puntos en ${mmss(this.tiempo)}. ` +
-        'Probá con impulsos cortos y seguidos.';
-    }
-    this.$fin.classList.add(gano ? 'fin--gano' : 'fin--perdido');
-    this.$fin.hidden = false;
-  }
-
-  /* Borra todas las columnas y elementos, y deja lista la primera
-     columna que va a aparecer. */
-  limpiarPista() {
-    this.columnas.forEach(c => c.quitar());
-    this.elementos.forEach(e => e.quitar());
-    this.columnas = [];
-    this.elementos = [];
-    this.faltaParaColumna = 0;          // 0 = que salga una apenas arranque
-    this.proximoCentro = AVATAR_Y + 20; // la primera, a la altura del avatar
-  }
-
-  /* Muestra un texto flotante en (x, y). La animación es de CSS;
-     cuando termina (animationend) el cartelito se borra solo. */
-  cartelito(texto, x, y, clase = '') {
-    const el = document.createElement('b');
-    el.className = 'cartelito ' + clase;
-    el.textContent = texto;
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
-    el.addEventListener('animationend', () => el.remove());
-    this.$mundo.appendChild(el);
-  }
-
-  /* Muestra el aviso de "hinchado" y arranca su barra de tiempo. */
-  avisarHinchado() {
-    this.$hinchado.hidden = false;
-    reiniciarAnimacion(this.$hinchado.querySelector('.vuelo__hinchado-barra'), 'vuelo__hinchado-barra');
-  }
-
-  /* Pasa los números a la pantalla: la barra de arriba (HUD de la
-     plantilla) y el marcador de adentro del escenario. */
-  pintarHud() {
-    document.getElementById('hud-puntos').textContent = `${this.puntos} / ${META}`;
-    document.getElementById('hud-vidas').textContent = '♥'.repeat(this.vidas) + '♡'.repeat(VIDAS - this.vidas);
-    document.getElementById('hud-reloj').textContent = mmss(this.tiempo);
-    document.getElementById('vuelo-puntos').textContent = this.puntos;
-    this.$vuelo.querySelectorAll('.vuelo__vida').forEach((corazon, i) => {
-      corazon.classList.toggle('vuelo__vida--perdida', i >= this.vidas);
-    });
-  }
-
-  /* El mundo mide siempre 960 px de ancho. Si en pantalla la caja
-     mide otra cosa, se calcula por cuánto hay que multiplicar y
-     se le pasa a CSS en la variable --escala. */
-  ajustarEscala() {
-    this.$vuelo.style.setProperty('--escala', this.$vuelo.clientWidth / ANCHO);
+  if (elementos.length > 0 && elementos[0].x < -100) {
+    elementos[0].caja.remove();
+    elementos.shift();
   }
 }
 
+/* Crea una columna en el borde derecho del escenario.
+   Acá están las tres reglas del punto 5 de la consigna. */
+function crearColumna() {
+  /* (b) El hueco se achica con cada columna, hasta un mínimo. */
+  let hueco = HUECO_INICIAL - creadas * ACHIQUE;
+  if (hueco < HUECO_MINIMO) hueco = HUECO_MINIMO;
 
-/* =========================================================
-   7. ARRANQUE
-   ========================================================= */
+  /* (c) La altura del hueco se sortea. Si queda parecida a la
+     anterior se sortea de nuevo: nunca quedan alineados. */
+  let centro = azar(60 + hueco / 2, SUELO - 60 - hueco / 2);
+  while (Math.abs(centro - centroAnterior) < 40) {
+    centro = azar(60 + hueco / 2, SUELO - 60 - hueco / 2);
+  }
+  centroAnterior = centro;
+  const desde = centro - hueco / 2;     // donde empieza el hueco
+  const hasta = centro + hueco / 2;     // donde termina
+
+  /* La columna es una caja con dos partes adentro. */
+  const caja = document.createElement('div');
+  caja.className = 'columna';
+  caja.innerHTML = '<div class="columna__arriba"></div><div class="columna__abajo"></div>';
+  caja.children[0].style.height = desde + 'px';
+  caja.children[1].style.height = (ALTO - hasta) + 'px';
+  caja.style.left = ANCHO + 'px';
+  escenario.appendChild(caja);
+  columnas.push({ x: ANCHO, desde: desde, hasta: hasta, contada: false, caja: caja });
+  creadas++;
+
+  /* (a) La distancia hasta la próxima columna también se sortea. */
+  const distancia = azar(DISTANCIA_MINIMA, DISTANCIA_MAXIMA);
+  falta = distancia;
+
+  /* A veces aparece una gema o un murciélago en el espacio libre. */
+  const medio = ANCHO + ANCHO_COLUMNA + (distancia - ANCHO_COLUMNA) / 2;
+  const suerte = Math.random();
+  if (suerte < 0.35) {
+    crearElemento('gema', medio - 28, centro - 28 + azar(-50, 50));
+  } else if (suerte < 0.6 && creadas > 2) {
+    crearElemento('murcielago', medio - 48, centro - 36 + azar(-70, 70));
+  }
+}
+
+/* Crea una gema o un murciélago. El tipo es también su clase de CSS,
+   que es la que le pone el spritesheet. */
+function crearElemento(tipo, x, y) {
+  const caja = document.createElement('div');
+  caja.className = tipo;
+  caja.style.left = x + 'px';
+  caja.style.top = y + 'px';
+  escenario.appendChild(caja);
+
+  const ancho = tipo === 'gema' ? 56 : 96;
+  const alto = tipo === 'gema' ? 56 : 72;
+  elementos.push({ tipo: tipo, x: x, y: y, ancho: ancho, alto: alto, tocado: false, caja: caja });
+}
+
+/* El avatar chocó contra una columna o contra el piso (ahí "columna" es null).
+   Pierde una vida, explota y se frena todo durante un segundo. */
+function chocar(columna) {
+  if (estado !== 'jugando') return;
+  estado = 'choque';
+  vidas--;
+  escenario.classList.remove('vuelo--andando');   // el parallax se pausa
+  animar('explota');
+  if (columna) columna.caja.classList.add('columna--chocada');
+  pintarMarcador();
+  espera = setTimeout(despuesDelChoque, 1000);
+}
+
+/* Un segundo después del choque: si no quedan vidas termina, si quedan sigue. */
+function despuesDelChoque() {
+  if (vidas === 0) {
+    terminar(false);
+  } else {
+    esperar();
+  }
+}
+
+/* Fin de la partida. gano es true si llegó a la meta. */
+function terminar(gano) {
+  estado = 'parado';
+  escenario.classList.remove('vuelo--andando');
+  document.getElementById('vuelo-fin-titulo').textContent = gano ? '¡Llegaste a la meta!' : 'Te quedaste sin vidas';
+  document.getElementById('vuelo-fin-texto').textContent =
+    'Hiciste ' + puntos + ' puntos en ' + mmss(tiempo) + '.';
+  cartelFin.classList.toggle('fin--gano', gano);
+  cartelFin.classList.toggle('fin--perdido', !gano);
+  cartelFin.hidden = false;
+}
+
+/* Borra todas las columnas y los elementos de la pantalla. */
+function limpiar() {
+  for (const c of columnas) c.caja.remove();
+  for (const e of elementos) e.caja.remove();
+  columnas = [];
+  elementos = [];
+  falta = 0;               // 0 = que salga una columna apenas arranque
+  centroAnterior = 240;
+}
+
+
+/* ---------- 6. Los controles ---------- */
+
+/* Los botones: todos empiezan una partida nueva. */
+btnComenzar.addEventListener('click', comenzar);
+btnReiniciar.addEventListener('click', comenzar);
+document.getElementById('btn-arrancar').addEventListener('click', comenzar);
+document.getElementById('btn-otra').addEventListener('click', comenzar);
+
+/* Impulso con el mouse: clic sobre el escenario. */
+escenario.addEventListener('mousedown', impulso);
+
+/* Impulso con el teclado: barra espaciadora o flecha arriba. */
+document.addEventListener('keydown', function (e) {
+  if (e.code !== 'Space' && e.code !== 'ArrowUp') return;
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;   // está escribiendo una reseña
+  if (estado === 'parado') return;
+  e.preventDefault();              // que la barra no baje la página
+  if (!e.repeat) impulso();        // con la tecla mantenida apretada no cuenta
+});
+
+
+/* ---------- 7. Datos de la página (igual que en BLOCKA y Peg Solitaire) ---------- */
 const juegoActual = JUEGOS.find(j => j.slug === 'frib-vuela');
 
-document.addEventListener('DOMContentLoaded', async () => {
-  /* Datos del juego en la cabecera, igual que en las páginas de
-     BLOCKA y Peg Solitaire: es la misma plantilla. */
+document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('juego-titulo').textContent = juegoActual.titulo;
   document.getElementById('miga-cat').textContent = juegoActual.categoria;
   document.getElementById('miga-juego').textContent = juegoActual.titulo;
   document.getElementById('juego-estrellas').innerHTML = estrellas(juegoActual.nota);
-  document.getElementById('juego-nota').textContent =
-    `${juegoActual.nota.toFixed(1)} (${juegoActual.resenias} reseñas)`;
+  document.getElementById('juego-nota').textContent = juegoActual.nota.toFixed(1) + ' (' + juegoActual.resenias + ' reseñas)';
   document.getElementById('juego-desc').textContent = juegoActual.desc;
 
-  initResenias();        // el hilo de comentarios, que es de la plantilla
+  initResenias();     // el hilo de comentarios, que es de la plantilla
 
-  document.getElementById('copiar-link').addEventListener('click', async () => {
-    const txt = `Jugué a ${juegoActual.titulo} en frib. ${location.href}`;
-    try { await navigator.clipboard.writeText(txt); toast('¡Link copiado!'); }
-    catch { toast('Copiá el link desde la barra del navegador'); }
+  document.getElementById('copiar-link').addEventListener('click', function () {
+    if (navigator.clipboard) navigator.clipboard.writeText('Jugué a ' + juegoActual.titulo + ' en frib. ' + location.href);
+    toast('¡Link copiado!');
   });
 
-  const juego = new Juego();
-  juego.preparar();
-
-  /* ResizeObserver avisa cada vez que cambia el tamaño de la caja
-     del escenario (al cargar, al achicar la ventana, al girar la
-     pantalla). Ahí se recalcula la escala del mundo. */
-  new ResizeObserver(() => juego.ajustarEscala()).observe(juego.$vuelo);
-
-  /* Hasta que no estén las imágenes no se puede empezar. */
-  try {
-    await cargarImagenes(IMAGENES);
-  } catch (e) {
-    toast('No se pudieron cargar las imágenes del juego');
-    return;
-  }
-
-  /* Botones: los dos "Comenzar" hacen lo mismo. */
-  document.getElementById('btn-arrancar').addEventListener('click', () => juego.comenzar());
-  juego.$btnComenzar.addEventListener('click', () => juego.comenzar());
-  juego.$btnReiniciar.addEventListener('click', () => juego.reiniciar());
-  document.getElementById('btn-otra').addEventListener('click', () => juego.reiniciar());
-
-  /* IMPULSO con el teclado: barra espaciadora o flecha arriba.
-     - Si está escribiendo una reseña, la barra tiene que escribir
-       un espacio: no se toca.
-     - preventDefault evita que la barra baje la página.
-     - e.repeat es true cuando la tecla queda apretada: se ignora,
-       cada impulso tiene que ser una pulsación nueva. */
-  document.addEventListener('keydown', (e) => {
-    if (e.code !== 'Space' && e.code !== 'ArrowUp') return;
-    if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
-    if (!juego.enPartida()) return;
-    e.preventDefault();
-    if (!e.repeat) juego.impulso();
-  });
-
-  /* IMPULSO con el mouse: botón izquierdo sobre el escenario. */
-  juego.$vuelo.addEventListener('mousedown', (e) => {
-    if (e.button === 0) juego.impulso();
-  });
-
-  /* Si la pestaña queda en segundo plano, la partida se pausa. */
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) juego.pausar();
-  });
-
-  window.vuelo = juego;  // queda a mano para probar desde la consola
+  dibujarAvatar();
+  pintarMarcador();
 });
